@@ -1,1 +1,1 @@
-# SE_E-Commerce_Project
+# SE_Project
