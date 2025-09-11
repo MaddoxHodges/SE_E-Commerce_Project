@@ -6,17 +6,17 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \hypersetup{
-    bookmarks=false,    % show bookmarks bar?
-    pdftitle={Software Requirement Specification},    % title
-    pdfauthor={Jean-Philippe Eisenbarth},                     % author
-    pdfsubject={TeX and LaTeX},                        % subject of the document
-    pdfkeywords={TeX, LaTeX, graphics, images}, % list of keywords
-    colorlinks=true,       % false: boxed links; true: colored links
-    linkcolor=blue,       % color of internal links
-    citecolor=black,       % color of links to bibliography
-    filecolor=black,        % color of file links
-    urlcolor=purple,        % color of external links
-    linktoc=page%only % only page is linked
+    bookmarks=false,   
+    pdftitle={Software Requirement Specification},   
+    pdfauthor={BurnLab Team},                     
+    pdfsubject={SRS},                       
+    pdfkeywords={SRS, BurnLab, requirements}, 
+    colorlinks=true,      
+    linkcolor=blue,       
+    citecolor=black,      
+    filecolor=black,       
+    urlcolor=purple,       
+    linktoc=page%only 
 }%
 \def\myversion{1.0 }
 \date{}
@@ -37,9 +37,9 @@
         \vspace{1.5cm}
         \LARGE{Version \myversion}\\
         \vspace{1.5cm}
-        Prepared by: Noah McCord, Alexander Jones, Maddox Hodges, Azizbek Negmatov\\
+        Prepared by : Noah McCord, Alexander Jones, Maddox Hodges, Azizbek Negmatov\\\\
         \vspace{1.5cm}
-        CSE — Intro to SE\\
+        CSE — Intro to SE\\\\
         \vspace{1.5cm}
         \today\\
     \end{bfseries}
@@ -50,349 +50,277 @@
 \chapter{Introduction}
 
 \section{Purpose}
-This Software Requirements Specification (SRS) provides a detailed description of the features, constraints, and quality attributes of the BurnLab web platform. It is intended for project stakeholders and developers to guide design, implementation, verification, and validation activities.
+This Software Requirements Specification (SRS) describes the BurnLab web platform (Version \myversion). It defines the scope, features, constraints, and quality attributes required to design, implement, test, and operate BurnLab. This SRS covers the full system rather than a single subsystem.
 
 \section{Document Conventions}
-This document follows a consistent structure aligned to IEEE SRS conventions. Section headings are numbered hierarchically, with subsections used to enumerate specific requirements.
-
-Plain text is used for general descriptions. \textbf{Bold text} is used to emphasize key terms or priorities.
-
-All functional requirements are labeled with the prefix \textbf{REQ-} followed by a number (e.g., REQ-1, REQ-2) to provide unique identifiers for traceability. Unless otherwise specified, priorities defined at the feature level are inherited by their detailed requirements.
-
-Fonts and styles are applied consistently, and all requirement statements are written as complete, unambiguous sentences.
+This SRS follows IEEE conventions for requirements documents (ISO/IEC/IEEE 29148:2018). Section numbering is hierarchical. Plain text conveys narrative descriptions; \textbf{bold} emphasizes key terms and priorities. Functional requirements are uniquely identified using the prefix \textbf{REQ-}\# (e.g., REQ-1). Unless explicitly stated otherwise, feature-level priorities are inherited by their detailed requirements. All requirement statements are complete, unambiguous sentences.
 
 \section{Intended Audience and Reading}
-This SRS serves all stakeholders of the BurnLab platform. Developers should focus on \textbf{Chapter 3: System Features} and the \textbf{functional requirements} for implementation detail. Testers should use the same sections to derive test cases. Project managers can utilize the overall organization to track feature scope and priorities. Administrators and support staff can reference behavior expectations throughout. Marketing staff may use \textbf{Chapter 2: Overall Description} to understand product positioning and core functions.
-
-A recommended sequence is: \textbf{Introduction (Chapter 1)} for scope, \textbf{Overall Description (Chapter 2)} for context, \textbf{System Features (Chapter 3)} for detailed behaviors, and \textbf{Other Nonfunctional Requirements (Chapter 4)} and \textbf{Other Requirements (Chapter 5)} for operational qualities, constraints, and compliance.
+Developers and testers should focus on \textbf{Chapter 3 (System Features)} for implementable behavior and test design. Project managers can use \textbf{Chapters 2–4} to track scope, priorities, and quality targets. Administrators and support staff can reference expected behaviors and constraints throughout. A suggested order is: \textbf{Chapter 1} (scope), \textbf{Chapter 2} (context), \textbf{Chapter 3} (functional details), then \textbf{Chapters 4–5} (nonfunctional qualities and other constraints).
 
 \section{Product Scope}
-BurnLab provides meal and workout planning to support a healthy lifestyle. Plans are adaptable based on user preferences and characteristics, enabling personalized, goal-driven experiences.
+BurnLab provides personalized fitness and nutrition planning alongside a marketplace for expert-created programs. Users receive adaptive workout and meal plans based on profile data and progress, can track activity over time, and purchase plans from verified sellers. Administrators manage users, moderate content, and ensure platform security. The system aims to deliver accessible wellness planning, trustworthy content commerce, and reliable operations.
 
 \section{References}
-This Software Requirements Specification was prepared in accordance with the 
-IEEE standards for software requirements (ISO/IEC/IEEE 29148:2018). 
-These standards guided the organization, terminology, and formatting conventions used 
-throughout this document.
+This SRS was prepared in accordance with IEEE requirements engineering guidance (ISO/IEC/IEEE 29148:2018). These standards informed the organization, terminology, and conventions used herein.
+
+\chapter{Overall Description}
 
 \section{Product Perspective}
-BurnLab is a self-contained web application that intermediates between sellers and buyers of digital fitness and nutrition content. The platform employs interconnected relational databases and provides simple, intuitive interfaces suitable for users with a wide range of technical skills.
+BurnLab is a new, self-contained web application that intermediates between buyers and sellers of digital fitness and nutrition content. It employs interconnected relational data models and presents a simple, intuitive interface suitable for a wide range of users.
 
 \section{Product Functions}
-BurnLab enables users to create personalized fitness and nutrition experiences by collecting essential profile information (e.g., age, weight, height, and fitness goals) and generating tailored workout and meal plans that adapt over time. Users can log activity, track performance, and receive updated recommendations.
-
-The platform includes a marketplace where trainers, nutritionists, and other experts can upload and sell programs, recipes, and plans. Buyers can explore offerings, compare options, and complete secure purchases.
-
-Administrative functions include user management, content moderation, and platform security oversight. Guest visitors may preview limited content to encourage registration.
-
-Together, these capabilities—personalized planning, a content marketplace, and administrative oversight—define BurnLab’s essential services.
+Major functions include:
+\begin{itemize}
+    \item User onboarding and profile management (collecting age, weight, height, goals).
+    \item Generation of personalized workout and meal plans that adapt over time.
+    \item Progress logging and performance tracking with evolving recommendations.
+    \item Marketplace for experts (trainers, nutritionists) to publish and sell programs.
+    \item Secure browsing, comparison, and purchase of offerings by buyers.
+    \item Administrative user/content management, moderation, and security oversight.
+    \item Limited guest previews to encourage registration.
+\end{itemize}
 
 \section{User Classes and Characteristics}
-The initial user classes are \textbf{Buyer}, \textbf{Seller}, and \textbf{Admin}.
 \begin{itemize}
-    \item \textbf{Buyer:} Authenticates with email and password to access marketplace content and purchase plans.
-    \item \textbf{Seller:} Manages product listings (add, update, remove) and views order-related information for fulfillment.
-    \item \textbf{Admin:} Acts as a superuser to manage users and content, moderate submissions, resolve disputes, and monitor system health.
+    \item \textbf{Buyer:} Authenticates with email/password; browses, searches, purchases content; tracks progress.
+    \item \textbf{Seller:} Manages product listings; views order artifacts for fulfillment.
+    \item \textbf{Admin:} Superuser for user management, content moderation, dispute handling, and platform health.
 \end{itemize}
 
 \section{Operating Environment}
-BurnLab targets modern desktop and mobile web browsers, including Chrome, Firefox, Edge, and Safari. The application shall be responsive to various device sizes and input modalities.
+BurnLab targets modern desktop and mobile browsers (Chrome, Firefox, Edge, Safari) and shall be responsive across device sizes.
 
 \section{Design and Implementation Constraints}
-BurnLab will initially operate on small-scale servers, limiting supported concurrent user counts relative to large-scale e-commerce platforms. The technology stack includes Django, HTML, and CSS. Firebase will be used as a cloud-hosted database. All communications will use HTTPS with TLS. Passwords will be protected via industry-standard hashing. Sellers must provide allergen information for applicable content to help users avoid harmful ingredients.
+Initial deployment uses small-scale servers, limiting concurrency compared with large e-commerce sites. The stack includes Django, HTML, and CSS; Firebase provides cloud-hosted database services. Communications use HTTPS with TLS; passwords are stored with industry-standard hashing. Sellers must provide allergen information for applicable content.
 
 \chapter{System Features}
+\textit{The functional requirements are organized by feature. Each feature includes a description, stimulus/response sequences, and verifiable requirements labeled \textbf{REQ-}\#.}
 
 \section{Profile Registry}
-\subsection{Description and Priority}
-This feature allows users to create and maintain accounts using an email address and password. It is \textbf{High Priority} because it is required for core interactions.
-
-\subsection{Stimulus/Response Sequences}
-\subsubsection*{Profile as Admin}
-\begin{itemize}
-    \item Admin navigates to \textquotedblleft Profile\textquotedblright{} in the Admin Console.
-    \item The system loads stored details.
-    \item Admin edits fields and saves changes.
-    \item The system validates input and updates the profile.
-    \item The system displays \textquotedblleft Profile updated successfully.\textquotedblright
-\end{itemize}
-
-\subsubsection*{Profile Request as Seller}
-\begin{itemize}
-    \item User navigates to \textquotedblleft Apply as Seller.\textquotedblright
-    \item User enters business name, address, and tax ID.
-    \item User uploads verification documents.
-    \item The system validates required information.
-    \item The application status is set to \textbf{Pending Review}.
-    \item The system notifies the user: \textquotedblleft Your seller request is under review.\textquotedblright
-\end{itemize}
-
-\subsubsection*{Seller Profile Denied — False Information}
-\begin{itemize}
-    \item Admin reviews the application and detects false or misleading information.
-    \item Admin clicks \textquotedblleft Deny\textquotedblright{} and records a reason.
-    \item The system updates the status to \textbf{Denied}.
-    \item The system notifies the seller: \textquotedblleft Your application was denied due to false information.\textquotedblright
-\end{itemize}
-
-\subsubsection*{Seller Profile Denied — Business Not Found}
-\begin{itemize}
-    \item Admin reviews the application and cannot verify business existence.
-    \item Admin clicks \textquotedblleft Deny\textquotedblright{} with reason \textquotedblleft Business not found.\textquotedblright
-    \item The system updates the status to \textbf{Denied}.
-    \item The system notifies the seller: \textquotedblleft Your application was denied because the business could not be verified.\textquotedblright
-\end{itemize}
-
-\subsubsection*{Profile as Buyer}
-\begin{itemize}
-    \item Buyer navigates to \textquotedblleft My Profile.\textquotedblright
-    \item The system loads stored information.
-    \item Buyer edits personal details and clicks \textquotedblleft Save.\textquotedblright
-    \item The system validates input and updates the record.
-    \item The system confirms: \textquotedblleft Profile updated.\textquotedblright
-\end{itemize}
-
-\subsection{Functional Requirements}
-\noindent \textbf{REQ-1:} When both email and password meet required standards, the system shall accept the new user account.\\
-\textbf{REQ-2:} If the email or password is invalid, the system shall display an error message to the user.\\
-\textbf{REQ-3:} The system shall associate each account with one of the roles: \textbf{User (Buyer)}, \textbf{Seller}, or \textbf{Admin}.
+\begin{subs}
+    \subsection{Description and priority}
+    Enables account creation and profile maintenance using email and password. \textbf{Priority: High.}
+    \subsection{Stimulus/Response Sequences}
+    \textbf{Profile as Admin}
+    \begin{itemize}
+        \item Admin opens \textquotedblleft Profile\textquotedblright{} in the Admin Console.
+        \item System loads stored details; admin edits and saves.
+        \item System validates input, updates profile, and confirms success.
+    \end{itemize}
+    \textbf{Profile Request as Seller}
+    \begin{itemize}
+        \item User opens \textquotedblleft Apply as Seller.\textquotedblright
+        \item User provides business name, address, tax ID, and documents.
+        \item System validates and sets status to \textbf{Pending Review}; user is notified.
+    \end{itemize}
+    \textbf{Seller Profile Denied — False Information}
+    \begin{itemize}
+        \item Admin detects misleading information and clicks \textquotedblleft Deny\textquotedblright{} with reason.
+        \item System sets status to \textbf{Denied} and notifies the seller.
+    \end{itemize}
+    \textbf{Seller Profile Denied — Business Not Found}
+    \begin{itemize}
+        \item Admin cannot verify business; denies with reason \textquotedblleft Business not found.\textquotedblright
+        \item System sets status to \textbf{Denied} and notifies the seller.
+    \end{itemize}
+    \textbf{Profile as Buyer}
+    \begin{itemize}
+        \item Buyer opens \textquotedblleft My Profile,\textquotedblright{} edits details, and saves.
+        \item System validates and confirms update.
+    \end{itemize}
+    \subsection{Functional Requirements}
+    REQ-1: When email and password meet required standards, the system shall create the user account.\\
+    REQ-2: If email or password is invalid, the system shall display an error message.\\
+    REQ-3: The system shall associate each account with one role: Buyer, Seller, or Admin.
+\end{subs}
 
 \section{Login and Logout System}
-\subsection{Description and Priority}
-This feature validates user credentials and establishes authenticated sessions. It is \textbf{High Priority} because it gates access to core functionality.
-
-\subsection{Stimulus/Response Sequences}
-\subsubsection*{Login as Seller}
-\begin{itemize}
-    \item Seller navigates to the BurnLab login page and selects \textquotedblleft Login as Seller.\textquotedblright
-    \item Seller enters email and password.
-    \item The system validates the credentials.
-    \item If valid, the system redirects to the \textbf{Seller Dashboard}.
-    \item If invalid, the system displays: \textquotedblleft Invalid login credentials.\textquotedblright
-\end{itemize}
-
-\subsubsection*{Login as Buyer}
-\begin{itemize}
-    \item Buyer navigates to the BurnLab login page and selects \textquotedblleft Login as Buyer.\textquotedblright
-    \item Buyer enters email and password.
-    \item The system validates the credentials.
-    \item If valid, the system redirects to the \textbf{Homepage}.
-    \item If invalid, the system displays: \textquotedblleft Email or password not recognized.\textquotedblright
-\end{itemize}
-
-\subsubsection*{Login as Admin}
-\begin{itemize}
-    \item Admin navigates to the BurnLab login page and selects \textquotedblleft Login as Admin.\textquotedblright
-    \item Admin enters email/username and password.
-    \item The system validates credentials against the Admin directory.
-    \item If valid, the system redirects to the \textbf{Admin Console}.
-    \item If invalid, the system displays: \textquotedblleft Login failed.\textquotedblright
-    \item If a non-admin attempts admin login, the system blocks access and redirects to the \textbf{Homepage}.
-\end{itemize}
-
-\subsubsection*{Logout}
-\begin{itemize}
-    \item Any authenticated user clicks \textquotedblleft Logout.\textquotedblright
-    \item The system ends the session and clears authentication tokens.
-    \item The system redirects the user to the \textbf{Login} page.
-    \item If a session is inactive for 15 minutes, the system automatically logs out the user and displays: \textquotedblleft Session expired.\textquotedblright
-\end{itemize}
-
-\subsection{Functional Requirements}
-\noindent \textbf{REQ-4:} If the user provides a valid email–password combination, the system shall authenticate the user and redirect to the appropriate landing page.\\
-\textbf{REQ-5:} If the email or password is incorrect, the system shall display an error message.
+\begin{subs}
+    \subsection{Description and priority}
+    Authenticates users and establishes sessions; provides logout and inactivity timeouts. \textbf{Priority: High.}
+    \subsection{Stimulus/Response Sequences}
+    \textbf{Login as Seller}
+    \begin{itemize}
+        \item Seller selects \textquotedblleft Login as Seller,\textquotedblright{} enters credentials.
+        \item If valid, system redirects to \textbf{Seller Dashboard}; otherwise shows error.
+    \end{itemize}
+    \textbf{Login as Buyer}
+    \begin{itemize}
+        \item Buyer selects \textquotedblleft Login as Buyer,\textquotedblright{} enters credentials.
+        \item If valid, system redirects to \textbf{Homepage}; otherwise shows error.
+    \end{itemize}
+    \textbf{Login as Admin}
+    \begin{itemize}
+        \item Admin selects \textquotedblleft Login as Admin,\textquotedblright{} enters email/username and password.
+        \item System validates against admin directory; on success redirects to \textbf{Admin Console}; otherwise shows error.
+        \item Non-admin attempts are blocked and redirected to the \textbf{Homepage}.
+    \end{itemize}
+    \textbf{Logout}
+    \begin{itemize}
+        \item Any authenticated user clicks \textquotedblleft Logout.\textquotedblright
+        \item System ends session, clears tokens, and redirects to the Login page.
+        \item After 15 minutes of inactivity, the system auto-logs out with \textquotedblleft Session expired.\textquotedblright
+    \end{itemize}
+    \subsection{Functional Requirements}
+    REQ-4: On valid credentials, the system shall authenticate and redirect to the appropriate landing page.\\
+    REQ-5: On invalid credentials, the system shall display an informative error message.
+\end{subs}
 
 \section{Marketplace}
-\subsection{Description and Priority}
-The Marketplace allows users to view available products and add items to a shopping cart for purchase. It is \textbf{High Priority} due to its centrality to platform value.
-
-\subsection{Stimulus/Response Sequences}
-\subsubsection*{Seller Requests to Publish a Product}
-\begin{itemize}
-    \item Seller navigates to \textquotedblleft Add Product.\textquotedblright
-    \item Seller enters title, description, price, and stock, and uploads images.
-    \item Seller submits the product for review.
-    \item The system validates inputs and sets status to \textbf{Pending Admin Approval}.
-    \item The system notifies the seller: \textquotedblleft Your product has been submitted for review.\textquotedblright
-\end{itemize}
-
-\subsubsection*{Admin Approves Product}
-\begin{itemize}
-    \item Admin reviews pending products.
-    \item If compliant, Admin clicks \textquotedblleft Approve.\textquotedblright
-    \item The system changes status to \textbf{Active} and publishes the product to the Marketplace.
-    \item The system notifies the seller: \textquotedblleft Your product has been approved.\textquotedblright
-\end{itemize}
-
-\subsubsection*{Admin Denies Product}
-\begin{itemize}
-    \item Admin reviews a pending product and identifies a violation or issue.
-    \item Admin clicks \textquotedblleft Deny\textquotedblright{} and enters a reason.
-    \item The system updates status to \textbf{Denied}.
-    \item The system notifies the seller, including the denial reason.
-\end{itemize}
-
-\subsubsection*{Marketplace Quantity Updates}
-\begin{itemize}
-    \item Buyer views a product listing.
-    \item The system displays current stock quantity.
-    \item Buyer adds an item to the cart.
-    \item The system reduces available quantity accordingly.
-    \item If stock reaches zero, the system marks the item \textbf{Sold Out}.
-\end{itemize}
-
-\subsubsection*{Navigate to Marketplace Page}
-\begin{itemize}
-    \item User clicks \textquotedblleft Marketplace\textquotedblright{} in site navigation.
-    \item The system loads the Marketplace page with pagination and filters.
-    \item The user can return to the \textbf{Homepage} at any time.
-\end{itemize}
-
-\subsection{Functional Requirements}
-\noindent \textbf{REQ-6:} The system shall allow users to add items to the cart from the Marketplace.\\
-\textbf{REQ-7:} The system shall provide pagination to browse additional inventory.\\
-\textbf{REQ-8:} The system shall allow users to navigate from the Marketplace to the Shopping Cart.\\
-\textbf{REQ-9:} The system shall allow users to return to the Homepage from the Marketplace.
+\begin{subs}
+    \subsection{Description and priority}
+    Allows browsing, filtering, and purchasing of products; manages publication workflow. \textbf{Priority: High.}
+    \subsection{Stimulus/Response Sequences}
+    \textbf{Seller Requests to Publish a Product}
+    \begin{itemize}
+        \item Seller submits title, description, price, stock, and images.
+        \item System validates inputs and sets status \textbf{Pending Admin Approval}; seller is notified.
+    \end{itemize}
+    \textbf{Admin Approves Product}
+    \begin{itemize}
+        \item Admin approves compliant products; system sets status \textbf{Active} and publishes.
+    \end{itemize}
+    \textbf{Admin Denies Product}
+    \begin{itemize}
+        \item Admin denies with reason; system sets status \textbf{Denied} and notifies seller.
+    \end{itemize}
+    \textbf{Marketplace Quantity Updates}
+    \begin{itemize}
+        \item Buyer adds item to cart; system decrements stock and marks \textbf{Sold Out} when zero.
+    \end{itemize}
+    \textbf{Navigate to Marketplace Page}
+    \begin{itemize}
+        \item User opens Marketplace via navigation; system shows items with pagination and filters.
+    \end{itemize}
+    \subsection{Functional Requirements}
+    REQ-6: The system shall allow adding items to the cart from Marketplace listings.\\
+    REQ-7: The system shall provide pagination for browsing inventory.\\
+    REQ-8: The system shall allow navigation from Marketplace to Shopping Cart.\\
+    REQ-9: The system shall allow returning from Marketplace to the Homepage.
+\end{subs}
 
 \section{Order History}
-\subsection{Description and Priority}
-Order History records purchases and sales made through BurnLab. It is \textbf{High Priority} because it supports dispute resolution and record keeping.
-
-\subsection{Stimulus/Response Sequences}
-\subsubsection*{Buyer Views Receipt Documentation}
-\begin{itemize}
-    \item Buyer selects an \textbf{OrderID} from the list of orders.
-    \item The system displays links to the receipt (PDF) and invoice.
-    \item Buyer opens the receipt PDF.
-    \item Buyer optionally uses the search toolbar to find another product of interest.
-\end{itemize}
-
-\subsubsection*{Seller Views Order Invoices}
-\begin{itemize}
-    \item Seller navigates to recent orders.
-    \item Seller iterates through \textbf{OrderID} entries to process purchases.
-    \item Seller opens invoice and receipt documents for fulfillment.
-    \item Seller returns to the Homepage after completing work. If the session is left idle, the system logs the seller out after the inactivity threshold.
-\end{itemize}
-
-\subsection{Functional Requirements}
-\noindent \textbf{REQ-10:} The system shall allow users to navigate from the Homepage to the Order History page.\\
-\textbf{REQ-11:} The system shall allow users to navigate from the Order History page back to the Homepage.\\
-\textbf{REQ-12:} The system shall display each OrderID and provide access to the corresponding invoice and receipt files.
+\begin{subs}
+    \subsection{Description and priority}
+    Provides access to past orders and related artifacts (invoice, receipt) for buyers and sellers. \textbf{Priority: High.}
+    \subsection{Stimulus/Response Sequences}
+    \textbf{Buyer Views Receipt Documentation}
+    \begin{itemize}
+        \item Buyer selects an \textbf{OrderID}; system shows links to receipt (PDF) and invoice.
+    \end{itemize}
+    \textbf{Seller Views Order Invoices}
+    \begin{itemize}
+        \item Seller opens recent orders, iterates through \textbf{OrderIDs}, and opens documents for fulfillment.
+        \item If session idles past threshold, system logs out automatically.
+    \end{itemize}
+    \subsection{Functional Requirements}
+    REQ-10: The system shall allow navigation from the Homepage to Order History.\\
+    REQ-11: The system shall allow navigation from Order History back to the Homepage.\\
+    REQ-12: The system shall display each OrderID and provide access to invoice and receipt files.
+\end{subs}
 
 \section{Shopping Cart}
-\subsection{Description and Priority}
-The Shopping Cart lists selected items with their identifiers and aggregated pricing. It is \textbf{High Priority} because it is the primary location for users to review and modify purchase selections.
-
-\subsection{Stimulus/Response Sequences}
-\subsubsection*{User Enters Payment and Shipping Information}
-\begin{itemize}
-    \item Buyer enters payment card information and shipping address in the provided fields.
-    \item The system enables the \textquotedblleft Pay\textquotedblright{} action once required fields are valid.
-\end{itemize}
-
-\subsubsection*{User Makes Purchase}
-\begin{itemize}
-    \item Buyer clicks the purchase button.
-    \item The system displays the total price and prompts for any missing required information.
-    \item If card information is invalid, the system requests valid details.
-    \item If the address is missing, the system requires an address.
-    \item Upon valid inputs, the system verifies inventory and funds authorization.
-    \item If funds are insufficient, the system declines the card and informs the buyer.
-    \item If any items are out of stock, the system informs the buyer and halts checkout.
-    \item If all checks pass, the system confirms: \textquotedblleft Your order has been placed.\textquotedblright{} An \textbf{OrderID} is generated, and receipts/invoices are issued to both buyer and relevant sellers.
-\end{itemize}
-
-\subsection{Functional Requirements}
-\noindent \textbf{REQ-13:} The system shall allow users to complete checkout and purchase all items in the cart after providing valid payment and shipping information.\\
-\textbf{REQ-14:} The system shall allow users to remove any item from the cart.\\
-\textbf{REQ-15:} The system shall allow users to navigate back to the Homepage from the Shopping Cart.
+\begin{subs}
+    \subsection{Description and priority}
+    Lists selected items, quantities, and totals; supports checkout. \textbf{Priority: High.}
+    \subsection{Stimulus/Response Sequences}
+    \textbf{User Enters Payment and Shipping Information}
+    \begin{itemize}
+        \item Buyer enters card details and address; system enables payment when fields are valid.
+    \end{itemize}
+    \textbf{User Makes Purchase}
+    \begin{itemize}
+        \item System verifies inputs, inventory, and authorization.
+        \item On invalid card or missing address, system prompts for correction.
+        \item On insufficient funds or out-of-stock items, system informs buyer and halts checkout.
+        \item On success, system confirms order, generates \textbf{OrderID}, and issues receipt/invoice.
+    \end{itemize}
+    \subsection{Functional Requirements}
+    REQ-13: The system shall complete checkout when valid payment and shipping information are provided.\\
+    REQ-14: The system shall allow removing items from the cart.\\
+    REQ-15: The system shall allow navigation from the Cart back to the Homepage.
+\end{subs}
 
 \section{Homepage}
-\subsection{Description and Priority}
-The Homepage serves as the primary navigation hub and provides the only global logout entry point. It is \textbf{High Priority}.
-
-\subsection{Stimulus/Response Sequences}
-\subsubsection*{User Navigation from Homepage}
-\begin{itemize}
-    \item Guest user clicks the \textbf{Login} icon and is taken to the Login page.
-    \item Authenticated user navigates to \textbf{Marketplace}, \textbf{Order History}, or \textbf{Shopping Cart} via icons or links.
-    \item User searches for an item and is taken to the corresponding item page.
-\end{itemize}
-
-\subsubsection*{Guest Access Restrictions}
-\begin{itemize}
-    \item If a guest attempts to access Marketplace, Shopping Cart, Order History, or search capabilities, the system displays: \textquotedblleft User must be logged in.\textquotedblright
-\end{itemize}
-
-\subsection{Functional Requirements}
-\noindent \textbf{REQ-16:} The Homepage shall provide visible navigation to the Marketplace, Shopping Cart, and Order History.\\
-\textbf{REQ-17:} The system shall allow users to log out via an icon or link on the Homepage.
+\begin{subs}
+    \subsection{Description and priority}
+    Primary navigation hub; provides global logout entry point. \textbf{Priority: High.}
+    \subsection{Stimulus/Response Sequences}
+    \textbf{User Navigation}
+    \begin{itemize}
+        \item Guest selects \textbf{Login}; authenticated users navigate to Marketplace, Order History, or Cart.
+        \item User may search for items from the Homepage.
+    \end{itemize}
+    \textbf{Guest Access Restrictions}
+    \begin{itemize}
+        \item If a guest attempts protected pages or search, system displays: \textquotedblleft User must be logged in.\textquotedblright
+    \end{itemize}
+    \subsection{Functional Requirements}
+    REQ-16: The Homepage shall provide visible navigation to Marketplace, Shopping Cart, and Order History.\\
+    REQ-17: The system shall allow users to log out via an icon or link on the Homepage.
+\end{subs}
 
 \section{Search Toolbar}
-\subsection{Description and Priority}
-The Search Toolbar improves user experience for large catalogs by enabling quick discovery. It is \textbf{Medium Priority}.
-
-\subsection{Stimulus/Response Sequences}
-\subsubsection*{Buyer Searches for a Popular Fitness Plan}
-\begin{itemize}
-    \item Buyer clicks the search bar and enters a query.
-    \item Buyer submits the search.
-    \item The system returns matching results; the buyer may add an item to the cart and proceed to purchase.
-\end{itemize}
-
-\subsubsection*{Admin Updates Product via Search}
-\begin{itemize}
-    \item Admin receives a request to remove a product from the website.
-    \item Admin searches by \textbf{ItemID} and navigates to the item page.
-    \item Admin removes the item from the Marketplace as appropriate.
-\end{itemize}
-
-\subsection{Functional Requirements}
-\noindent \textbf{REQ-18:} The search bar shall support queries by \textbf{ItemID} and product \textbf{nomenclature} in the Marketplace.\\
-\textbf{REQ-19:} The search bar shall support queries by \textbf{OrderID} to locate order-related artifacts when authorized.
+\begin{subs}
+    \subsection{Description and priority}
+    Improves discovery across large catalogs and artifacts. \textbf{Priority: Medium.}
+    \subsection{Stimulus/Response Sequences}
+    \textbf{Buyer Searches for a Plan}
+    \begin{itemize}
+        \item Buyer enters a query; system returns matches; buyer may add items to cart.
+    \end{itemize}
+    \textbf{Admin Updates Product via Search}
+    \begin{itemize}
+        \item Admin searches by \textbf{ItemID} to open an item page and remove it if appropriate.
+    \end{itemize}
+    \subsection{Functional Requirements}
+    REQ-18: The search bar shall support queries by \textbf{ItemID} and product nomenclature.\\
+    REQ-19: The search bar shall support authorized queries by \textbf{OrderID}.
+\end{subs}
 
 \chapter{Other Nonfunctional Requirements}
 
 \section{Performance Requirements}
 \begin{itemize}
-    \item The website shall load its primary interface in less than 2 seconds under nominal conditions.
-    \item The website should support up to 75 concurrent users.
-    \item The website should support at least 1{,}000 registered users.
-    \item The website should maintain at least 99\% uptime.
+    \item Primary interface shall load in $< 2$ seconds under nominal conditions.
+    \item The system should support $\geq 75$ concurrent users.
+    \item The system should support at least 1{,}000 registered users.
+    \item Target uptime is $\geq 99\%$.
 \end{itemize}
 
 \section{Safety Requirements}
 \begin{itemize}
-    \item BurnLab shall display a disclaimer stating it is not a substitute for medical or professional healthcare advice. Users are encouraged to consult a physician before starting any fitness or nutrition plan.
-    \item The platform shall provide allergy and dietary restriction filtering to help prevent exposure to harmful ingredients.
-    \item The system shall implement validation checks to reduce errors in financial transactions and order processing, ensuring users are not mistakenly charged.
-    \item In case of system failures, the platform shall redirect users to an error page with safe recovery options (e.g., retry or cancel) to prevent data corruption.
+    \item BurnLab shall display a medical disclaimer and encourage consultation with a physician before starting plans.
+    \item Allergy/dietary filters shall help prevent exposure to harmful ingredients.
+    \item Financial and order processing shall include validation to prevent erroneous charges.
+    \item On failures, users shall be redirected to a safe recovery page (retry/cancel) to avoid data corruption.
 \end{itemize}
 
 \section{Security Requirements}
 \begin{itemize}
-    \item All communications between client and server shall use HTTPS with TLS encryption.
-    \item User authentication shall require strong passwords (minimum 8 characters, including numbers, special characters, and mixed case).
+    \item All communications shall use HTTPS with TLS.
+    \item Authentication shall require strong passwords (min 8 chars, numbers, special characters, mixed case).
     \item Passwords shall be stored using industry-standard hashing (e.g., bcrypt or SHA-256 with salt).
-    \item The system shall enforce automatic logout after a defined period of inactivity (e.g., 15 minutes).
-    \item Sensitive payment data shall never be stored in plain text, and payment processing shall comply with PCI DSS.
-    \item Only authorized administrators shall have access to seller and buyer data in accordance with least-privilege principles.
+    \item Sessions shall auto-expire after 15 minutes of inactivity.
+    \item Payment data shall never be stored in plain text and processing shall comply with PCI DSS.
+    \item Only authorized administrators shall access buyer/seller data (least privilege).
 \end{itemize}
 
 \section{Software Quality Attributes}
 \begin{itemize}
-    \item \textbf{Usability:} The platform shall provide a clean and intuitive interface enabling new users to navigate with minimal instruction.
-    \item \textbf{Reliability:} The platform shall target 99\% uptime and provide backup and recovery procedures for unexpected failures.
-    \item \textbf{Maintainability:} The codebase shall follow modular design and documentation standards to facilitate updates and fixes.
-    \item \textbf{Scalability:} The architecture shall scale from hundreds to thousands of users without significant performance degradation.
-    \item \textbf{Portability:} The platform shall function on major browsers (Chrome, Firefox, Edge, Safari) and be responsive on desktop and mobile devices.
-    \item \textbf{Testability:} Features shall include automated unit and integration tests to verify correctness.
+    \item \textbf{Usability:} Clean, intuitive interface enabling quick onboarding.
+    \item \textbf{Reliability:} Target 99\% uptime with backup/recovery procedures.
+    \item \textbf{Maintainability:} Modular codebase with documentation standards.
+    \item \textbf{Scalability:} Scales from hundreds to thousands of users with minimal degradation.
+    \item \textbf{Portability:} Works across major browsers; responsive on desktop and mobile.
+    \item \textbf{Testability:} Automated unit and integration tests verify correctness.
 \end{itemize}
 
 \chapter{Other Requirements}
-\noindent \textbf{Database Requirements:} The system shall maintain user accounts, profiles, order histories, and product listings in a secure relational database.\\[4pt]
-\textbf{Legal Requirements:} The platform shall comply with applicable data privacy regulations, including GDPR (for EU users) and CCPA (for California users).
+\textbf{Database Requirements:} Maintain user accounts, profiles, order histories, and product listings in a secure relational database.\\[4pt]
+\textbf{Legal Requirements:} Comply with applicable data privacy regulations (e.g., GDPR for EU users, CCPA for California users).
 
 \newpage
+
 \end{document}
