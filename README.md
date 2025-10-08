@@ -1,2 +1,6 @@
 # SE_Project
 #Burnlab is self-contained website. Its a marketplace where users can purchase specific nutritions sold by professionals.The system of this web application will use methods of interconnected relational databases. It will have 3 distinct interfaces for buyers,sellers and admins. 3 type of distinct profiles can be created. Buyers can search and purchase products, manage their shopping list, and see order history. Sellers can only add new products with the approval of admins. 
+
+#Meeting Minutes:
+09/26/25    90 minutes    General preperation for 3rd sprint
+09/29/25    30 minutes    Architecture and SRS discussions
