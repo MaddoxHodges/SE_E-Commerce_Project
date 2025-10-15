@@ -4,9 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketplace</title>
+
 </head>
 <body>
     <h1>Marketplace</h1>
+    {% for row in grid %}
+            {% for product in row %}
+                <div style= 
+                            "
+                            padding: 5px;
+                            display: table-cell;
+                            vertical-align: bottom;
+                            width: 300px; 
+                            height: 400px; 
+                            border: 2px solid black;">
+                    <p>
+                        <a href="details?product_id={{product.product_id}}">{{product.title}}</a> <br> 
+                        Price: ${{product.price}} <br> <br>
+                    </p>
+                </div>
+
+                <div style= 
+                    "
+                    display: table-cell;
+                    width: 20px; 
+                    height: 400px; 
+                    border: 0px solid black;">
+                </div>
+            {% endfor %}
+            <br>
+    {% endfor %}
     <p>Check out my <a href="/home">Home</a> page.</p>
     </h2>
 </body>

@@ -30,5 +30,9 @@ urlpatterns = [
 
     path('marketplace/', views.marketplace),
 
+    path('marketplace/details', views.details),
+
+    path('addtocart', views.addtocart),
+
     path('cart/', views.shoppingcart),
 ]
