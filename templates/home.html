@@ -1,0 +1,18 @@
+<!doctype html>
+<html><body>
+  <h1>Home</h1>
+  <nav>
+    {% if user.is_authenticated %}
+      <p>Signed in as <strong>{{ user.email|default:user.username }}</strong></p>
+      <p><a href="/logout/">Logout</a></p>
+    {% else %}
+      <p><a href="/login/">Login</a> · <a href="/register/">Register</a></p>
+    {% endif %}
+    <p><a href="/about/">About</a></p>
+    <p><a href="/cart/">Shopping Cart</a></p>
+    <p><a href="/marketplace/">Marketplace</a></p>
+  </nav>
+  {% for message in messages %}
+    <p style="color:#b00020">{{ message }}</p>
+  {% endfor %}
+</body></html>
