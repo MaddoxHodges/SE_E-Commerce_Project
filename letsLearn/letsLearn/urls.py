@@ -35,4 +35,18 @@ urlpatterns = [
     path('addtocart', views.addtocart),
 
     path('cart/', views.shoppingcart),
+
+    path('support/', views.support),
+
+    path('login/', views.login),
+
+    path('createProfile/', views.createProfile),
+
+    path('productPage/', views.productPage),
+
+    path('newListing/', views.newListing),
+
+    path('productViewer/', views.productViewer)
 ]
+
+
