@@ -3,133 +3,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Listing</title>
+  <title>BurnLab – Create Listing</title>
   <style>
+    :root {
+      --burn-dark: #1a2a46;
+      --burn-mid: #23395d;
+      --burn-accent: #007bff;
+      --burn-light: #9ec5ff;
+      --burn-bg: #f4f6f8;
+    }
+
     body {
       font-family: "Segoe UI", Arial, sans-serif;
-      background-color: #f4f6f8;
+      background-color: var(--burn-bg);
       margin: 0;
-      padding: 20px;
+      padding: 0;
     }
 
-    h1, h2 {
+    header {
+      background: var(--burn-mid);
+      color: white;
       text-align: center;
-      color: #333;
+      padding: 1.5rem 0;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0);
     }
 
-    a {
-      color: #007bff;
+    nav {
+      background: var(--burn-dark);
+      text-align: center;
+      padding: 0.6rem 0;
+    }
+
+    nav a {
+      color: var(--burn-light);
       text-decoration: none;
-      margin-right: 10px;
+      margin: 0 1rem;
+      font-weight: 600;
+      position: relative;
+      transition: color 0.3s;
     }
 
-    a:hover {
-      text-decoration: underline;
+    nav a::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--burn-accent);
+      transition: width 0.3s;
     }
 
-    form {
+    nav a:hover {
+      color: white;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 700px;
+      margin: 2rem auto;
       background: #fff;
-      padding: 20px;
-      margin: 20px auto;
-      border-radius: 8px;
-      max-width: 600px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--burn-mid);
+      margin-bottom: 1.5rem;
     }
 
     label {
       display: block;
-      margin-top: 10px;
+      margin-top: 15px;
       font-weight: bold;
+      color: var(--burn-accent);
     }
 
     input[type="text"],
     input[type="number"],
+    input[type="file"],
     textarea {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
       border-radius: 5px;
       border: 1px solid #ccc;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--burn-accent);
+      box-shadow: 0 0 4px var(--burn-light);
+      outline: none;
     }
 
     input[type="submit"] {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background-color: #007bff;
+      display: block;
+      margin: 30px auto 0;
+      padding: 12px 28px;
+      background-color: var(--burn-accent);
       border: none;
       color: white;
-      border-radius: 5px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
     }
 
     input[type="submit"]:hover {
       background-color: #0056b3;
+      transform: scale(1.03);
     }
 
-    /* --- Table Styling --- */
-    table {
-      width: 90%;
-      max-width: 1000px;
-      margin: 20px auto;
-      border-collapse: collapse;
-      background: #fff;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    .upload-box {
+      background-color: #f9f9fb;
+      border: 2px dashed var(--burn-light);
+      text-align: center;
+      padding: 20px;
       border-radius: 8px;
-      overflow: hidden;
+      margin-top: 20px;
+      color: #555;
+      transition: border-color 0.3s, background-color 0.3s;
     }
 
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
+    .upload-box:hover {
+      background-color: #eef5ff;
+      border-color: var(--burn-accent);
     }
-
-    th {
-      background-color: #007bff;
-      color: white;
-      font-weight: 600;
-    }
-
-    tr:hover {
-      background-color: #f1f5ff;
-    }
-
 
   </style>
 </head>
 
 <body>
-  <h1>Create Your Listing</h1>
+  <header>
+    <h1>BurnLab Product Management</h1>
+  </header>
 
-  <p>
-    <a href="/logout">Logout</a>
+  <nav>
     <a href="/home">Home</a>
     <a href="/productPage">Product Page</a>
-  </p>
+    <a href="/logout">Logout</a>
+  </nav>
 
-  <!-- Product Form -->
-  <form id="listingForm">
-    <label for="productName">Product Name:</label>
-    <input type="text" id="productName" name="productName" placeholder="Enter your product's name" required>
+  <main>
+    <h2>Create Your Listing</h2>
 
-    <label for="productDes">Description:</label>
-    <input type="text" id="productDes" name="productDes" placeholder="Describe your product" required>
+    <form id="listingForm">
+      <label for="productName">Product Name:</label>
+      <input type="text" id="productName" name="productName" placeholder="Enter your product name" required>
 
-    <label for="productPrice">Price:</label>
-    <input type="number" id="productPrice" name="productPrice" placeholder="Item price" required>
+      <label for="productDes">Description:</label>
+      <textarea id="productDes" name="productDes" placeholder="Describe your product" rows="4" required></textarea>
 
-    <input type="submit" value="Save Listing">
-  </form>
+      <label for="productPrice">Price:</label>
+      <input type="number" id="productPrice" name="productPrice" placeholder="Item price" required>
 
-  <!-- Upload Form -->
-  <form class="box">
-    <p><strong>Upload product photos below</strong></p>
-    <div class="box_input">
-      <input class="box_file" type="file" id="file" multiple>
-      <label for="file">Choose files or drag them here.</label>
-    </div>
-    <input type="submit" value="Upload Photos">
-  </form>
+      <div class="upload-box">
+        <p><strong>Upload product photos</strong></p>
+        <input type="file" id="file" name="files[]" multiple>
+      </div>
 
+      <input type="submit" value="Submit Listing">
+    </form>
+  </main>
 </body>
 </html>
+
