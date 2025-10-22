@@ -19,8 +19,14 @@
                             height: 400px; 
                             border: 2px solid black;">
                     <p>
-                        <a href="details?product_id={{product.product_id}}">{{product.title}}</a> <br> 
-                        Price: ${{product.price}} <br> <br>
+                        <a href="details?product_id={{product.id}}">{{product.title}}</a> <br> 
+                        Price: ${{product.price}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            {% if product.stock_qty <= 0 %}
+                                OUT OF STOCK
+                            {% else %}
+                                Stock: {{product.stock_qty}}
+                            {% endif %}
+                        <br> <br>
                     </p>
                 </div>
 
@@ -34,6 +40,14 @@
             {% endfor %}
             <br>
     {% endfor %}
+
+    <p style="text-align: center">
+        page<br>
+        {% if prev_page >= 1 %}
+            <a href="?page={{prev_page}}">{{prev_page}}  </a> 
+        {% endif %}
+        {{page}}  <a href="?page={{next_page}}">{{next_page}}</a>
+    </p>
     <p>Check out my <a href="/home">Home</a> page.</p>
     </h2>
 </body>

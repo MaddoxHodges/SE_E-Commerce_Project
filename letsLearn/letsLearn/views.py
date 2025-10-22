@@ -1,8 +1,12 @@
+import json
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template import loader
 import math
+
+from letsLearn.models import Product, Cart
+from django.contrib.auth.models import User
 
 
 ######Homepage Links########
@@ -17,117 +21,42 @@ def about(request):
 def marketplace(request):
 
     template = loader.get_template("marketplace.html")
-    pg_num = request.GET.get("page", 1)
+    page = request.GET.get("page", 1)
     try:
-        pg_num = int(pg_num)
+        page = int(page)
     except ValueError as error:
-        pg_num = 1
+        page = 1
     
-    pg_num = max(pg_num, 1)
+    page = max(page, 1)
     ## pg_num = min(pg_num, 1)  waiting on db to check for max page number
 
     context =  {
-        "products": [
-            {
-                "title": "Product 1",
-                "price": 1.10,
-                "stock_qty": 3,
-                "description": "Description of product.",
-                "seller_id": 0,
-                "product_id": 111
-            },
-            {
-                "title": "Product 2",
-                "price": 66.0,
-                "stock_qty": 0,
-                "description": "Different description of product.",
-                "seller_id": 1,
-                "product_id": 66
-            },            
-            {
-                "title": "Product 3",
-                "price": -20.28,
-                "stock_qty": -10,
-                "description": "Other, unique description of product.",
-                "seller_id": 2,
-                "product_id": 182
-            },
-                        {
-                "title": "Product 1a",
-                "price": 1.10,
-                "stock_qty": 3,
-                "description": "Description of product.",
-                "seller_id": 0,
-                "product_id": 111
-            },
-            {
-                "title": "Product 2a",
-                "price": 66.0,
-                "stock_qty": 0,
-                "description": "Different description of product.",
-                "seller_id": 1,
-                "product_id": 66
-            },            
-            {
-                "title": "Product 3a",
-                "price": -20.28,
-                "stock_qty": -10,
-                "description": "Other, unique description of product.",
-                "seller_id": 2,
-                "product_id": 182
-            },
-                        {
-                "title": "Product 1b",
-                "price": 1.10,
-                "stock_qty": 3,
-                "description": "Description of product.",
-                "seller_id": 0,
-                "product_id": 111
-            },
-            {
-                "title": "Product 2b",
-                "price": 66.0,
-                "stock_qty": 0,
-                "description": "Different description of product.",
-                "seller_id": 1,
-                "product_id": 66
-            },            
-            {
-                "title": "Product 3b",
-                "price": -20.28,
-                "stock_qty": -10,
-                "description": "Other, unique description of product.",
-                "seller_id": 2,
-                "product_id": 182
-            },
-                        {
-                "title": "Product 1c",
-                "price": 1.10,
-                "stock_qty": 3,
-                "description": "Description of product.",
-                "seller_id": 0,
-                "product_id": 111
-            },
-            {
-                "title": "Product 2c",
-                "price": 66.0,
-                "stock_qty": 0,
-                "description": "Different description of product.",
-                "seller_id": 1,
-                "product_id": 66
-            },            
-        ],
+        'next_page': page + 1,
+        'prev_page': page - 1,
+        'page': page,
+
     }
 
+    # p = Product(title="Product 2", price=517, stock_qty=1, description="product 2 description")
+    # p.save()
+    # p = Product(title="Product 3", price=8, stock_qty=0, description="product 3 description")
+    # p.save()
+
+    # for i in range(20):
+    #     p = Product(title=f"Product {i + 4}", price=100 + 20 * i, stock_qty=i, description=f"product {i} description")
+    #     p.save()
+
+    products = Product.objects.all()[(page - 1) * 12:(page * 12)]
+
     grid = []
-    for row in range(math.ceil(len(context["products"]) / 3)):
+    for row in range(math.ceil(len(products) / 3)):
         row_list = []
         for index in range(3):
             product_index = (row * 3) + index
-            if len(context["products"]) <= product_index :
+            if len(products) <= product_index :
                 break
 
-            row_list.append(context["products"][product_index])
+            row_list.append(products[product_index])
         grid.append(row_list)
     
     context["grid"] = grid
@@ -137,26 +66,64 @@ def marketplace(request):
 def details(request):
     template = loader.get_template("details.html")
     context =  {
-        "product_id": request.GET.get("product_id"),
-
-        "product":{
-                "title": "Product 1",
-                "price": 1.10,
-                "stock_qty": 3,
-                "description": "Description of product.",
-                "seller_id": 0,
-                "product_id": 111
-            }
+        "product": Product.objects.get(id=request.GET.get("product_id")),
     }
-
 
     return HttpResponse(template.render(context, request))
 
-def addtocart(request):
-    return JsonResponse({'status': 'OK'})
+def addtocart(request: HttpResponse):
+    if request.method == 'POST':
+            raw_body = request.body
+            try:
+                product_id = json.loads(raw_body.decode('utf-8'))
+            except json.JSONDecodeError:
+                return JsonResponse({'error' : 'Invalid JSON format'}, status = 400)
+            
+            product = Product.objects.get(id=product_id)
+
+            purchase_total = 1
+            products_in_cart = Cart.objects.filter(user_id=1,product_id=product_id)
+
+            if len(products_in_cart) > 0:
+                purchase_total += products_in_cart[0].quantity
+            if product.stock_qty - purchase_total >= 0:
+                if len(products_in_cart) == 1:
+                    products_in_cart[0].quantity += 1
+                    products_in_cart[0].save()
+                else:
+                    products_in_cart = Cart(user_id=User.objects.get(id=1), product_id=Product.objects.get(id=product_id), quantity=1)
+                    products_in_cart.save()
+                    
+                return JsonResponse({'status' : 'OK'})
+            
+            return JsonResponse({'error' : 'insufficient product amount'})
+            
+            
+    return JsonResponse({'error' : 'Only POST requests are allowed'}, status = 405)
 
 def shoppingcart(request):
-    return render(request, 'cart.html')
+    template = loader.get_template("cart.html")
+
+    #p = Cart(user_id=User.objects.get(id=1), product_id=Product.objects.get(id=1), quantity=2)
+    #p.save()
+    #p = Cart(user_id=User.objects.get(id=1), product_id=Product.objects.get(id=20), quantity=1)
+    #p.save()
+
+    cart = Cart.objects.filter(user_id=1)
+    total_price = 0
+    prices = []
+
+    for cart_item in cart:
+        price = cart_item.product_id.price * cart_item.quantity
+        prices.append(price)
+        total_price += price
+
+    context =  {
+        "cart": zip(cart, prices),
+        "total_price": total_price,
+    }
+
+    return HttpResponse(template.render(context, request))
 
 def productPage(request):
     return render(request, 'productPage.html')

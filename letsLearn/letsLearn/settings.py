@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    ## supporting addition of the database
+    'letsLearn'
 ]
 
 MIDDLEWARE = [

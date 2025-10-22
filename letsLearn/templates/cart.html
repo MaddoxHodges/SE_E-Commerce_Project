@@ -7,6 +7,13 @@
 </head>
 <body>
     <h1>Shopping Cart</h1>
+        {% for cart_item, price in cart %}
+            {{cart_item.product_id.title}} | {{cart_item.quantity}} | 
+            ${{price}} | <a href="?product_id={{cart_item.product_id.id}}">remove from cart</a><br>
+        {% endfor %}
+
+    <p>Total Price: ${{total_price}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="checkout">checkout</a><br><br></p>
     <p>Check out our <a href="/home">Home</a> page.</p>
     <p><a href="/logout">Logout</a></p>
 </body>
