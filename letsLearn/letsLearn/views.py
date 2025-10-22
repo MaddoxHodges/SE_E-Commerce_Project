@@ -32,6 +32,8 @@ def login(request):
 ######Login Page#########
 def createProfile(request):
     return render(request, 'createProfile.html')
+def productEdit(request):
+    return render(request, 'productEdit.html')
 
 
 ######Product Page#######
@@ -55,3 +57,13 @@ def newListing(request):
 def productViewer(request):
     products = Product.objects.all()
     return render(request, 'productViewer.html', {'products': products})
+#######Admin Support#########
+def tickets(request):
+    return render(request, 'tickets.html')
+
+def productReview(request):
+    return render(request, 'productReview.html')
+
+def NewTicket(request):
+    return render(request, 'NewTicket.html')
+

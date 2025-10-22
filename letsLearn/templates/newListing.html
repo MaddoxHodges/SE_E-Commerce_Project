@@ -1,34 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Listing</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BurnLab – Create Listing</title>
+  <style>
+    :root {
+      --burn-dark: #1a2a46;
+      --burn-mid: #23395d;
+      --burn-accent: #007bff;
+      --burn-light: #9ec5ff;
+      --burn-bg: #f4f6f8;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--burn-bg);
+      margin: 40px;
+    }
+
+    h1 {
+      color: var(--burn-dark);
+    }
+
+    form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+
+    input, button {
+      margin-top: 10px;
+      display: block;
+      width: 100%;
+      padding: 8px;
+    }
+
+    button {
+      background-color: var(--burn-accent);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: var(--burn-mid);
+    }
+  </style>
 </head>
 <body>
-    <h1>Create Your Listing</h1>
-    <p><a href="/home">Home</a></p>
 
-    <!-- ✅ unified form that posts to Django -->
-    <form method="POST" enctype="multipart/form-data" action="/newListing/">
-        {% csrf_token %}
-        
-        <label for="productName">Product Name:</label>
-        <input type="text" id="productName" name="name" placeholder="Enter your product's name"><br>
+  <h1>Create Your Product Listing</h1>
+  <p><a href="/productViewer/">View Products</a></p>
 
-        <label for="productDes">Description:</label>
-        <input type="text" id="productDes" name="description" placeholder="Describe your product"><br>
+  <!-- ✅ FORM PROPERLY PLACED OUTSIDE STYLE -->
+  <form method="POST" enctype="multipart/form-data" action="/newListing/">
+      {% csrf_token %}
+      
+      <label for="productName">Product Name:</label>
+      <input type="text" id="productName" name="name" placeholder="Enter product name" required>
 
-        <label for="productPrice">Price:</label>
-        <input type="number" id="productPrice" name="price" step="0.01" placeholder="Enter product price"><br>
+      <label for="productDes">Description:</label>
+      <input type="text" id="productDes" name="description" placeholder="Describe your product" required>
 
-        <p>Upload product photos below</p>
-        <div class="box_input">
-            <input class="box_file" type="file" name="image" id="file" data-multiple-caption="{count} files selected" accept="image/*"/>
-            <label for="file"><strong>Choose a file</strong><span class="box_dragndrop"> or drag it here</span>.</label>
-        </div>
+      <label for="productPrice">Price:</label>
+      <input type="number" id="productPrice" name="price" step="0.01" placeholder="Enter price" required>
 
-        <button class="box_button" type="submit">Upload</button>
-    </form>
+      <button type="submit">Submit Product</button>
+  </form>
+
 </body>
 </html>
