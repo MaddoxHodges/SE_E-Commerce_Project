@@ -1,5 +1,8 @@
-#from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from .forms import ProductForm
+from .models import Product
+
 
 ######Homepage Links########
 def homepage(request):
@@ -33,8 +36,22 @@ def createProfile(request):
 
 ######Product Page#######
 def newListing(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        price = request.POST.get('price')
+       
+
+        Product.objects.create(
+            name=name,
+            description=description,
+            price=price,
+            
+        )
+
+        return redirect('/productViewer/')
+    
     return render(request, 'newListing.html')
-
 def productViewer(request):
-    return render(request, 'productViewer.html')
-
+    products = Product.objects.all()
+    return render(request, 'productViewer.html', {'products': products})

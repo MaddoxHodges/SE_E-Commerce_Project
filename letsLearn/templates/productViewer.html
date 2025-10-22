@@ -3,41 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Burnlab-Product Viewer</title>
+    <title>Burnlab - Product Viewer</title>
     <h1>Current Listings</h1>
     <p><a href="/home">Home</a></p>
     <p><a href="/logout">Logout</a></p>
     <style>
-        table{
-            width:80%;
+        table {
+            width: 80%;
             border-collapse: collapse;
         }
-        th,td{
+        th, td {
             border: 1px solid #ddd;
             padding: 7px;
             text-align: left;
         }
-        th{
-            background-color:#f2f2f2;
+        th {
+            background-color: #f2f2f2;
+        }
+        /* ✅ Added a hover effect and spacing for clarity */
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .top-controls {
+            margin-bottom: 15px;
+        }
+        /* ✅ Added button-like link styling for Add Product */
+        .add-product {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .add-product:hover {
+            background-color: #45a049;
         }
     </style>
-    </head>
-    <body>
-    <table>
-        <thead>
-            <tr>
-                <th>ProductID</th>
-                <th>Product Name</th>
-                <th>Product Links</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
-    </body>
+</head>
+<body>
+
+<!-- ✅ Added quick status display -->
+<div class="top-controls">
+    <strong>Total Products:</strong> {{ products|length }}
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ProductID</th>
+            <th>Product Name</th>
+            <th>Product Description</th>
+            <th>Price</th>
+            <th>Image</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in products %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.description }}</td>
+            <td>${{ p.price }}</td>
+            <td>
+                {% if p.image %}
+                    <img src="{{ p.image.url }}" alt="{{ p.name }}" width="80">
+                {% else %}
+                    No image
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No products listed yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- ✅ Changed link to a styled button -->
+<p><a class="add-product" href="/newListing/">+ Add New Product</a></p>
+
+</body>
 </html>

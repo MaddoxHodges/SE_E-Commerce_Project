@@ -9,20 +9,26 @@
     <h1>Create Your Listing</h1>
     <p><a href="/home">Home</a></p>
 
-    <form action="/submit" method="post">
+    <!-- ✅ unified form that posts to Django -->
+    <form method="POST" enctype="multipart/form-data" action="/newListing/">
+        {% csrf_token %}
+        
         <label for="productName">Product Name:</label>
-        <input type="text" id="productName" name="productName" placeholder="Enter your product's name"><br>
+        <input type="text" id="productName" name="name" placeholder="Enter your product's name"><br>
+
         <label for="productDes">Description:</label>
-        <input type="text" id="productDes" name="productDes" placeholder="Describe your product"><br>
-    </form>
-    <p>Upload product photos below</p>
-    <form class="box" method="post" action="/upload" enctype="multipart/form-data">
+        <input type="text" id="productDes" name="description" placeholder="Describe your product"><br>
+
+        <label for="productPrice">Price:</label>
+        <input type="number" id="productPrice" name="price" step="0.01" placeholder="Enter product price"><br>
+
+        <p>Upload product photos below</p>
         <div class="box_input">
-            <input class="box_file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple/>
+            <input class="box_file" type="file" name="image" id="file" data-multiple-caption="{count} files selected" accept="image/*"/>
             <label for="file"><strong>Choose a file</strong><span class="box_dragndrop"> or drag it here</span>.</label>
-            <button class="box_button" type="submit">Upload</button>
         </div>
-        <input type="submit" value="Submit"><br>
+
+        <button class="box_button" type="submit">Upload</button>
     </form>
 </body>
 </html>
