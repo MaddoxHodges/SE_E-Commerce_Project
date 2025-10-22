@@ -42,7 +42,16 @@ urlpatterns = [
 
     path('newListing/', views.newListing),
 
-    path('productViewer/', views.productViewer)
+    path('productViewer/', views.productViewer),
+
+    path('productEdit/', views.productEdit),
+
+    path('tickets/', views.tickets),
+
+    path('productReview/', views.productReview),
+
+    path('NewTicket/', views.NewTicket),
 ]
+
 
 
