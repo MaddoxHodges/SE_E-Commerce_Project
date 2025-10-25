@@ -13,6 +13,7 @@ def about(request):
 def BuyerHome(request):
     return render(request, 'BuyerHome.html')
 
+
 def marketplace(request):
 
     return render(request,'marketplace.html')
