@@ -47,9 +47,9 @@ urlpatterns = [
 
     path('productPage/', views.productPage),
 
-    path('newListing/', views.newListing),
+    #path('newListing/', views.newListing),
 
-    path('productViewer/', views.productViewer),
+    #path('productViewer/', views.productViewer),
 
     path('productEdit/', views.productEdit),
 
