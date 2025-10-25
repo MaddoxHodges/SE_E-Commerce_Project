@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Editor</title>
+</head>
+<body>
+    <h1>Product Editor</h1>
+    <p><a href="/home">Home</a></p>
+    <p><a href="/logout">Logout</a></p></p:>
+    <p><a href="/productPage">Product Page</a></p>
+    <form action="/submit" method="post">
+        <label for="productName">Product Name:</label>
+        <input type="text" id="productName" name="productName" placeholder="Enter your product's name"><br>
+        <label for="productDes">Description:</label>
+        <input type="text" id="productDes" name="productDes" placeholder="Describe your product"><br>
+    </form>
+    <p>Upload product photos below</p>
+    <form class="box" method="post" action="/upload" enctype="multipart/form-data">
+        <div class="box_input">
+            <input class="box_file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple/>
+            <label for="file"><strong>Choose a file</strong><span class="box_dragndrop"> or drag it here</span>.</label>
+            <button class="box_button" type="submit">Upload</button>
+        </div>
+        <input type="submit" value="Submit"><br>
+    </form>
+</body>
+</html>
