@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BurnLab – Admin Tickets Awaiting Action</title>
+
+  <style>
+    :root {
+      --burn-dark: #1a2a46;
+      --burn-mid: #23395d;
+      --burn-accent: #007bff;
+      --burn-light: #9ec5ff;
+      --burn-bg: #f4f6f8;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: var(--burn-bg);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: var(--burn-mid);
+      color: #fff;
+      text-align: center;
+      padding: 1.5rem 0;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    nav {
+      background: var(--burn-dark);
+      text-align: center;
+      padding: 0.6rem 0;
+    }
+
+    nav a {
+      color: var(--burn-light);
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 600;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--burn-accent);
+      transition: width 0.3s;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    main {
+      padding: 40px 0;
+    }
+
+    .refresh-btn {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 10px 20px;
+      background-color: var(--burn-accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    .refresh-btn:hover {
+      background-color: #0056b3;
+    }
+
+    table {
+      width: 90%;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--burn-accent);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #eef4ff;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .no-tickets {
+      text-align: center;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Tickets Awaiting Action</h1>
+  </header>
+
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/support">Support Page</a>
+    <a href="/logout">Logout</a>
+  </nav>
+
+  <main>
+    <button class="refresh-btn" id="refresh-btn">Refresh Tickets</button>
+
+    <table id="ticket-table">
+      <thead>
+        <tr>
+          <th>Ticket ID</th>
+          <th>Description</th>
+          <th>Email</th>
+          <th>User Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="no-tickets"><td colspan="4">No tickets awaiting action.</td></tr>
+        <!-- Example rows (for preview)
+        <tr>
+          <td>1021</td>
+          <td>Payment issue during checkout</td>
+          <td>buyer@example.com</td>
+          <td>Buyer</td>
+        </tr>
+        <tr>
+          <td>1022</td>
+          <td>Product listing not updating</td>
+          <td>seller@example.com</td>
+          <td>Seller</td>
+        </tr>
+        -->
+      </tbody>
+    </table>
+  </main>
+
+  <script>
+    const TicketTableBody = document.querySelector("#ticket-table tbody");
+    const refreshBtn = document.getElementById("refresh-btn");
+
+
+    function renderTickets() {
+      TicketTableBody.innerHTML = "";
+
+      if (tickets.length === 0) {
+        TicketTableBody.innerHTML = `<tr class="no-tickets"><td colspan="4">No tickets awaiting action.</td></tr>`;
+        return;
+      }
+
+      tickets.forEach(ticket => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${ticket.id}</td>
+          <td>${ticket.description}</td>
+          <td>${ticket.email}</td>
+          <td>${ticket.userType}</td>
+        `;
+        TicketTableBody.appendChild(row);
+      });
+    }
+
+    function loadTickets() {
+      renderTickets();
+    }
+
+    refreshBtn.addEventListener("click", loadTickets);
+    document.addEventListener("DOMContentLoaded", loadTickets);
+  </script>
+</body>
+</html>

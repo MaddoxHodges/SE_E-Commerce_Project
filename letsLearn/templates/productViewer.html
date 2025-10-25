@@ -1,43 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Burnlab-Product Viewer</title>
-    <h1>Current Listings</h1>
-    <p><a href="/home">Home</a></p>
-    <p><a href="/logout">Logout</a></p>
-    <style>
-        table{
-            width:80%;
-            border-collapse: collapse;
-        }
-        th,td{
-            border: 1px solid #ddd;
-            padding: 7px;
-            text-align: left;
-        }
-        th{
-            background-color:#f2f2f2;
-        }
-    </style>
-    </head>
-    <body>
-    <table>
-        <thead>
-            <tr>
-                <th>ProductID</th>
-                <th>Product Name</th>
-                <th>Product Links</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BurnLab – Product Viewer</title>
+  <style>
+    :root {
+      --burn-dark: #1a2a46;
+      --burn-mid: #23395d;
+      --burn-accent: #007bff;
+      --burn-light: #9ec5ff;
+      --burn-bg: #f4f6f8;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: var(--burn-bg);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: var(--burn-mid);
+      color: #fff;
+      text-align: center;
+      padding: 1.5rem 0;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    nav {
+      background: var(--burn-dark);
+      text-align: center;
+      padding: 0.6rem 0;
+    }
+
+    nav a {
+      color: var(--burn-light);
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 600;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--burn-accent);
+      transition: width 0.3s;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    main {
+      padding: 40px 0;
+    }
+
+    table {
+      width: 90%;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--burn-accent);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #eef4ff;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .no-products {
+      text-align: center;
+      color: #777;
+    }
+
+    .product-link a {
+      color: var(--burn-accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .product-link a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>BurnLab Product Listings</h1>
+  </header>
+
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/productPage">Product Page</a>
+    <a href="/logout">Logout</a>
+  </nav>
+
+  <main>
+    <table id="product-table">
+      <thead>
+        <tr>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Product Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="no-products">
+          <td colspan="3">No current listings available.</td>
+        </tr>
+      </tbody>
     </table>
-    </body>
+  </main>
+</body>
+</html>
+
+
 </html>

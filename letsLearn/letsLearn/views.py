@@ -142,14 +142,19 @@ def login(request):
 ######Login Page#########
 def createProfile(request):
     return render(request, 'createProfile.html')
+def productEdit(request):
+    return render(request, 'productEdit.html')
 
 
-######Product Page#######
-def newListing(request):
-    return render(request, 'newListing.html')
+#######Admin Support#########
+def tickets(request):
+    return render(request, 'tickets.html')
 
-def productViewer(request):
-    return render(request, 'productViewer.html')
+def productReview(request):
+    return render(request, 'productReview.html')
+
+def NewTicket(request):
+    return render(request, 'NewTicket.html')
 
 def intToPrice(price):
     price = str(price)

@@ -1,19 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Burnlab-Product Page</title>
-</head>
-<body>
-    <h1>Burnlab-Product Page</h1>
-    <p><a href="/home">Home</a></p>
-    <p><a href="/logout">Logout</a></p>
-    <h2>Create a product</h2>
-    <p><a href="/newListing">New Listing</a></p>
-    <h3>View products</h3>
-    <p><a href="/productViewer">View Listings</a></p>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BurnLab – Product Page</title>
 
-    
+  <style>
+body{
+    background:#f5f8fc;
+    color:#2b2b2b;
+    font-family:"Source Sans Pro",sans-serif;
+    margin:0;
+}
+header{
+    background:#23395d;
+    color:#fff;
+    text-align:center;
+    padding:1.5rem 0;
+}
+nav{background:#1a2a46;
+    text-align:center;
+    padding:0.5rem 0;
+}
+nav a{color:#9ec5ff;
+    text-decoration:none;
+    margin:0 1rem;
+    font-weight:600;
+}
+nav a:hover{color:#fff;
+}
+main{display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:40px;
+    max-width:900px;
+    margin:50px auto;
+}
+section{background:#fff;padding:30px;
+    border-radius:8px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+section h2{color:#23395d;
+    margin-top:0;
+}
+section a{display:inline-block;
+    margin-top:10px;
+    background:#23395d;
+    color:#fff;
+    padding:10px 20px;
+    border-radius:5px;
+    text-decoration:none;
+}
+section a:hover{
+    background:#0d1c3a;
+}
+</style>
+
+</head>
+
+<body>
+  <header>
+    <h1>BurnLab – Product Management</h1>
+  </header>
+
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/logout">Logout</a>
+    <a href="/newTicket">Support Ticket</a>
+  </nav>
+
+  <main>
+    <section>
+      <h2>Create a Product</h2>
+      <a href="/newListing">New Listing</a>
+    </section>
+
+    <section>
+      <h3>View Existing Products</h3>
+      <a href="/productViewer">View Listings</a>
+    </section>
+  </main>
 </body>
 </html>
+
