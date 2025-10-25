@@ -65,8 +65,11 @@ def marketplace(request):
 
 def details(request):
     template = loader.get_template("details.html")
+    product = Product.objects.get(id=request.GET.get("product_id"))
     context =  {
-        "product": Product.objects.get(id=request.GET.get("product_id")),
+        "inStock": 1,
+        "product": product,
+        "price": intToPrice(product.price)
     }
 
     return HttpResponse(template.render(context, request))
@@ -115,9 +118,12 @@ def shoppingcart(request):
 
     for cart_item in cart:
         price = cart_item.product_id.price * cart_item.quantity
-        prices.append(price)
-        total_price += price
 
+        total_price += price
+        print("price: " + str(price) + "  total: " + str(total_price))
+        prices.append(intToPrice(price))
+
+    total_price = intToPrice(total_price)
     context =  {
         "cart": zip(cart, prices),
         "total_price": total_price,
@@ -145,3 +151,11 @@ def newListing(request):
 def productViewer(request):
     return render(request, 'productViewer.html')
 
+def intToPrice(price):
+    price = str(price)
+    size = len(price)
+    while size < 3:
+        price = "0" + price
+
+    result = price[:(size - 2)] + "." + price[(size - 2):]
+    return result

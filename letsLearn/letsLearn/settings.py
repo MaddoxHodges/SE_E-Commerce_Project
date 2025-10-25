@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    ## supporting addition of the database
-    'letsLearn'
+    'letsLearn',
+    'authapp'
 ]
 
 MIDDLEWARE = [

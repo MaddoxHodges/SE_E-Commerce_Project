@@ -7,11 +7,25 @@
 </head>
 <body>
     <h1>Shopping Cart</h1>
-        {% for cart_item, price in cart %}
-            {{cart_item.product_id.title}} | {{cart_item.quantity}} | 
-            ${{price}} | <a href="?product_id={{cart_item.product_id.id}}">remove from cart</a><br>
-        {% endfor %}
+    <h1 style="text-align: right">
+        <a href="http://127.0.0.1:8000/marketplace/">Marketplace</a>&nbsp;&nbsp;&nbsp;&nbsp;
+    </h1>
+    <table>
+        <tr>
+            <th>Product Name&nbsp;&nbsp;&nbsp;</th>
+            <th>Quantity&nbsp;&nbsp;&nbsp;</th>
+            <th>Price&nbsp;&nbsp;&nbsp;</th>
 
+        </tr>
+        {% for cart_item, price in cart %}
+            <tr>
+                <th>{{cart_item.product_id.title}}</th>
+                <th>{{cart_item.quantity}}</th>
+                <th>${{price}}</th> 
+                <th><a href="?product_id={{cart_item.product_id.id}}">remove from cart</a></th>
+            </tr>
+        {% endfor %}
+    </table>
     <p>Total Price: ${{total_price}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <a href="checkout">checkout</a><br><br></p>
     <p>Check out our <a href="/home">Home</a> page.</p>

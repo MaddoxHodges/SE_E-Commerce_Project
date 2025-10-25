@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart</title>
-</head>
-<body>
-    <h1>Login to your account!</h1>
-    <p><a href="/home"></a></p>
-</body>
-</html>
+<!doctype html>
+<html><body>
+  <h2>Login</h2>
+  <form method="post">{% csrf_token %}
+    <div><input name="email" type="email" placeholder="Email" required></div>
+    <div><input name="password" type="password" placeholder="Password" required></div>
+    <button type="submit">Login</button>
+  </form>
+  <p><a href="/register/">Create account</a></p>
+  {% for message in messages %}<p style="color:#b00020">{{ message }}</p>{% endfor %}
+</body></html>
