@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Ticket Dashboard</title>
+</head>
+<body>
+
+<div class="ticket-system">
+    <h2>Support Ticket Dashboard</h2>
+    <p><a href='/home'>Home</a></p>
+    <div class="user-info">
+        <p id="user-role">Role: <span>Seller</span></p>
+        <p id="user-name">User: <span>JohnSmith@aol.com</span></p>
+    </div>
+
+    <form id="ticket-form">
+        <input type="text" id="subject" placeholder="Ticket Subject" required><br>
+        <textarea id="description" placeholder="Describe your issue..." required></textarea><br>
+        <button type="submit">Create Ticket</button>
+    </form>
+
+    <h3>Your Tickets</h3>
+    <style>
+        table{
+            width:80%;
+            border-collapse: collapse;
+        }
+        th,td{
+            border: 1px solid #000000;
+            padding: 7px;
+            text-align: left;
+        }
+        th{
+            background-color:#f2f2f2;
+        }
+    </style>
+    <table>
+        <thead>
+            <tr>
+                <th>TicketID</th>
+                <th>Description</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
