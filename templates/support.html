@@ -1,13 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Support</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BurnLab – Admin Support</title>
+
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* --- Unified BurnLab Header --- */
+    header {
+      background-color: #1a2a46; /* BurnLab dark blue */
+      padding: 20px 0 10px 0;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    header h1 {
+      color: #ffffff;
+      margin: 0 0 10px 0;
+      font-size: 1.8em;
+      letter-spacing: 0.5px;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding-bottom: 10px;
+    }
+
+    nav a {
+      color: #9ec5ff;
+      text-decoration: none;
+      padding: 10px 20px;
+      margin: 0 10px;
+      font-weight: 500;
+      transition: background-color 0.3s, color 0.3s;
+      border-radius: 6px;
+    }
+
+    nav a:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    /* --- Content --- */
+    .content {
+      text-align: center;
+      margin-top: 60px;
+      color: #444;
+      font-size: 1.1em;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #007bff;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Shopping Cart</h1>
-    <p>Check out my <a href="/home">Home</a> page.</p>
-    </h2>
+  <header>
+    <h1>Burnlab - Admin Support</h1>
+    <nav>
+      <a href="/home">Home</a>
+      <a href="/logout">Logout</a>
+      <a href="/tickets">Tickets</a>
+      <a href="/productReview">Admin Review</a>
+      <a href="/webUsers">Website Users</a>
+    </nav>
+  </header>
+
+  <div class="content">
+    <p>Welcome to the BurnLab Admin Support Panel.</p>
+    <p>Select a section above to manage tickets, products, or user accounts.</p>
+  </div>
 </body>
 </html>
