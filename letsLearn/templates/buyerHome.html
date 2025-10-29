@@ -1,18 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Burnlab</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to BurnLab</title>
+
+  <style>
+    :root {
+      --burn-dark: #1a2a46;
+      --burn-mid: #23395d;
+      --burn-accent: #007bff;
+      --burn-light: #9ec5ff;
+      --burn-bg: #f5f8fc;
+    }
+
+    body {
+      background: var(--burn-bg);
+      color: #2b2b2b;
+      font-family: "Source Sans Pro", sans-serif;
+      margin: 0;
+    }
+
+    header {
+      background: var(--burn-mid);
+      color: #fff;
+      text-align: center;
+      padding: 1.5rem 0;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    nav {
+      background: var(--burn-dark);
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      padding: 0.8rem 1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    nav a {
+      color: var(--burn-light);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      font-size: 1rem;
+      transition: color 0.25s ease;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    main {
+      text-align: center;
+      margin: 80px auto;
+      max-width: 800px;
+    }
+
+    main h2 {
+      color: var(--burn-mid);
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    main p {
+      color: #555;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    main a {
+      color: var(--burn-accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    main a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+
+  </style>
 </head>
+
 <body>
-    <p>Check out my <a href="/about">About</a> page.</p>
-<nav>
-    <a href="/cart">Shopping Cart</a></p>
+  <header>
+    <h1>Welcome to BurnLab</h1>
+  </header>
+
+  <nav>
+    <a href="/cart">Shopping Cart</a>
     <a href="/marketplace">Marketplace</a>
     <a href="/logout">Logout</a>
-    <a href="/createProfile">Create a new profile</a>
-    
-</nav>
+    <a href="/createProfile">Create a New Profile</a>
+  </nav>
+
+  <main>
+
+    <p>Welcome to BurnLab — your place to buy, sell, and manage your digital products.</p>
+    <p>Check out our <a href="/about">About</a> page to learn more about us.</p>
+  </main>
+
 </body>
 </html>
