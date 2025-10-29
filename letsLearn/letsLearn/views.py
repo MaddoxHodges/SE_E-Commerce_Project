@@ -104,6 +104,8 @@ def addtocart(request: HttpResponse):
             
     return JsonResponse({'error' : 'Only POST requests are allowed'}, status = 405)
 
+
+
 def shoppingcart(request):
     template = loader.get_template("cart.html")
 
@@ -164,3 +166,13 @@ def intToPrice(price):
 
     result = price[:(size - 2)] + "." + price[(size - 2):]
     return result
+
+
+def buyerHome(request):
+    return render(request, 'buyerHome.html')
+
+def newListing(request):
+    return render(request, 'buyerHome.html')
+
+def productViewer(request):
+    return render(request, 'productViewer.html')
