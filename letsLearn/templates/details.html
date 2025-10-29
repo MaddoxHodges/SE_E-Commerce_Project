@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% load static %}
+    {% csrf_token %}
+
+    <script src="{% static 'cart.js' %}"></script>
+    <title>{{product.title}}</title>
+</head>
+<body>
+    <h1>{{product.title}}</h1>
+
+    <p>
+        {{product.description}} <br> 
+        ${{price}} <br> <br>
+        <button onclick="addToCart({{product.id}})">Add to Cart</button> <br> 
+
+
+    </p>
+
+    <script>
+        function verifyPurchase(inStock) {
+            if (inStock) {
+                alert("Product added to cart");
+            } else {
+                alert("Could not add product to cart");
+            }
+        }
+    </script>
+
+    <p>Check out my <a href="/home">Home</a> page.</p>
+</body>
+</html>
