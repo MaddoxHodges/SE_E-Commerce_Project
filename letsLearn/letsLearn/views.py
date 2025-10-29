@@ -14,6 +14,12 @@ def homepage(request):
     #return HttpResponse("Hello World! I'm Home.")
     return render(request, 'home.html')
 
+def newListing(request):
+    return render(request, 'newListing.html')
+
+def productViewer(request):
+    return render(request, 'productViewer.html')
+
 def about(request):
     #return HttpResponse("My About page.")
     return render(request, 'about.html')
@@ -163,4 +169,5 @@ def intToPrice(price):
         price = "0" + price
 
     result = price[:(size - 2)] + "." + price[(size - 2):]
+
     return result
