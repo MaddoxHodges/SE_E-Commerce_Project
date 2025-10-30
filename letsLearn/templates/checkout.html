@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout</title>
+</head>
+<body>
+    <h1>Checkout</h1>
+    <table>
+        <tr>
+            <th>Product Name&nbsp;&nbsp;&nbsp;</th>
+            <th>Quantity&nbsp;&nbsp;&nbsp;</th>
+            <th>Price&nbsp;&nbsp;&nbsp;</th>
+
+        </tr>
+        {% for item in product_data %}
+            <tr>
+                <th>{{item.title}}</th>
+                <th>{{item.quantity}}</th>
+                <th>${{item.price}}</th> 
+            </tr>
+        {% endfor %}
+    </table>
+    <p>Price: ${{price}}<br>
+        Tax: ${{tax}}<br>
+        Shipping: ${{shipping}}<br>
+        ----------------------------------------
+    </p>
+    
+    <p style="font-size: larger;">Total Price: ${{total}}</p>
+    <form action="/placeorder/" method="post">
+        {% csrf_token %}
+        <div>
+            <label for="address">Enter shipping address: </label>
+            <input type="text" name="address" id="address" required />
+        </div>
+        <div>
+            <input type="submit" value="Place Order" />
+        </div>
+    </form>
+    <p>Check out our <a href="/home">Home</a> page.</p>
+    <p><a href="/logout">Logout</a></p>
+</body>
+</html>

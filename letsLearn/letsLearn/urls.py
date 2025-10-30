@@ -37,6 +37,10 @@ urlpatterns = [
 
     path('cart/', views.shoppingcart),
 
+    path('checkout/', views.checkout),
+
+    path('placeorder/', views.placeorder),
+
     path('support/', views.support),
 
     path('login/', auth_views.login_view, name='login'),
