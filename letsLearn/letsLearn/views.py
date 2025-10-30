@@ -221,8 +221,8 @@ def tickets(request):
 def productReview(request):
     return render(request, 'productReview.html')
 
-def NewTicket(request):
-    return render(request, 'NewTicket.html')
+def newTicket(request):
+    return render(request, 'newTicket.html')
 
 def intToPrice(price):
     price = str(price)
@@ -239,7 +239,7 @@ def buyerHome(request):
     return render(request, 'buyerHome.html')
 
 def newListing(request):
-    return render(request, 'buyerHome.html')
+    return render(request, 'newListing.html')
 
 def productViewer(request):
     return render(request, 'productViewer.html')
