@@ -3,10 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Welcome to Burnlab!</title>
+        <style>
+        :root {
+  --burn-dark: #1a2a46;
+  --burn-mid: #23395d;
+  --burn-accent: #007bff;
+  --burn-light: #9ec5ff;
+  --burn-bg: #f4f6f8;
+}
+
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--burn-bg);
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+h1 {
+  background: var(--burn-mid);
+  color: #fff;
+  text-align: center;
+  padding: 1.5rem 0;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  margin: 0;
+}
+
+/* --- Top Links --- */
+div[style*="text-align: right"] {
+  background: var(--burn-dark);
+  padding: 0.6rem 2rem;
+  text-align: right !important;
+}
+
+div[style*="text-align: right"] a {
+  color: var(--burn-light);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 1rem;
+  transition: color 0.3s;
+}
+
+div[style*="text-align: right"] a:hover {
+  color: #fff;
+}
+
+
+table {
+  width: 90%;
+  margin: 40px auto;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: var(--burn-accent);
+  color: white;
+  font-weight: 600;
+}
+
+tr:hover {
+  background-color: #eef4ff;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* --- Links --- */
+a {
+  color: var(--burn-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+
+p {
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+p a {
+  color: var(--burn-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+p a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+    </style>
 </head>
 <body>
-    <h1>Home</h1>
+    <h1>Welcome to Burnlab![DEVELOPER]</h1>
     <nav>
         {% if user.is_authenticated %}
             <p>Signed in as <strong>{{ user.email|default:user.username }}</strong></p>
@@ -21,9 +126,12 @@
         <p><a href="/productPage">View Products</a></p>
         <p><a href="/login">Login</a></p>
         <p><a href="/createProfile">Create a new profile</a></p>
+        <p><a href="/newTicket">Create a ticket</a></p>
+        <p><a href="/buyerHome">Buyer Homepage</a></p>
     </nav>
     {% for message in messages %}
         <p style="color:#b00020">{{ message }}</p>
     {% endfor %}
 </body>
 </html>
+

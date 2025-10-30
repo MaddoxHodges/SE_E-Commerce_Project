@@ -1,59 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Support Ticket Dashboard</title>
-</head>
-<body>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BurnLab – Support Ticket Dashboard</title>
 
-<div class="ticket-system">
-    <h2>Support Ticket Dashboard</h2>
-    <p><a href='/home'>Home</a></p>
+  <style>
+    :root {
+      --burn-dark: #1a2a46;
+      --burn-mid: #23395d;
+      --burn-accent: #007bff;
+      --burn-light: #9ec5ff;
+      --burn-bg: #f5f8fc;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--burn-bg);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    /* --- Header --- */
+    header {
+      background: var(--burn-mid);
+      color: #fff;
+      text-align: center;
+      padding: 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* --- Navigation --- */
+    nav {
+      background: var(--burn-dark);
+      text-align: center;
+      padding: 0.7rem 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    nav a {
+      color: var(--burn-light);
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    /* --- Main Container --- */
+    .ticket-system {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .ticket-system h2 {
+      text-align: center;
+      color: var(--burn-mid);
+      margin-bottom: 20px;
+    }
+
+    .user-info {
+      margin-bottom: 25px;
+      background: #eef4ff;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
+
+    .user-info p {
+      margin: 6px 0;
+    }
+
+    /* --- Ticket Form --- */
+    #ticket-form {
+      margin-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #ticket-form input,
+    #ticket-form textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      resize: none;
+    }
+
+    #ticket-form button {
+      width: 150px;
+      padding: 10px;
+      background: var(--burn-accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+      align-self: center;
+    }
+
+    #ticket-form button:hover {
+      background: #0056b3;
+    }
+
+    /* --- Table Styling --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: var(--burn-accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #eef4ff;
+    }
+
+    .status {
+      font-weight: 600;
+    }
+
+    .pending {
+      color: #d4a017;
+    }
+
+    .resolved {
+      color: #2e8b57;
+    }
+
+    .open {
+      color: #007bff;
+    }
+
+    .no-tickets {
+      text-align: center;
+      color: #777;
+      font-style: italic;
+      padding: 25px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>BurnLab – Support Ticket Dashboard</h1>
+  </header>
+
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/logout">Logout</a>
+    <a href="/marketplace">Marketplace</a>
+  </nav>
+
+  <div class="ticket-system">
+    <h2>Your Support Tickets</h2>
+
     <div class="user-info">
-        <p id="user-role">Role: <span>Seller</span></p>
-        <p id="user-name">User: <span>JohnSmith@aol.com</span></p>
+      <p><strong>Role:</strong> Buyer</p>
+      <p><strong>User:</strong> JaneDoe@burnlab.com</p>
     </div>
 
     <form id="ticket-form">
-        <input type="text" id="subject" placeholder="Ticket Subject" required><br>
-        <textarea id="description" placeholder="Describe your issue..." required></textarea><br>
-        <button type="submit">Create Ticket</button>
+      <input type="text" id="subject" placeholder="Ticket Subject">
+      <textarea id="description" placeholder="Describe your issue..."></textarea>
+      <button type="button">Create Ticket</button>
     </form>
 
-    <h3>Your Tickets</h3>
-    <style>
-        table{
-            width:80%;
-            border-collapse: collapse;
-        }
-        th,td{
-            border: 1px solid #000000;
-            padding: 7px;
-            text-align: left;
-        }
-        th{
-            background-color:#f2f2f2;
-        }
-    </style>
+    <h3>Active Tickets</h3>
     <table>
-        <thead>
-            <tr>
-                <th>TicketID</th>
-                <th>Description</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
+      <thead>
+        <tr>
+          <th>Ticket ID</th>
+          <th>Description</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>#00123</td>
+          <td>Unable to add item to cart.</td>
+          <td class="status open">Open</td>
+        </tr>
+        <tr>
+          <td>#00110</td>
+          <td>Payment failed on checkout.</td>
+          <td class="status pending">Pending Review</td>
+        </tr>
+        <tr>
+          <td>#00094</td>
+          <td>Received wrong product in last order.</td>
+          <td class="status resolved">Resolved</td>
+        </tr>
+      </tbody>
     </table>
-</div>
-
-<script src="script.js"></script>
+  </div>
 </body>
 </html>

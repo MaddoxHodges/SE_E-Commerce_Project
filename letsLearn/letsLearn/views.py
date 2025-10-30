@@ -14,9 +14,19 @@ def homepage(request):
     #return HttpResponse("Hello World! I'm Home.")
     return render(request, 'home.html')
 
+def newListing(request):
+    return render(request, 'newListing.html')
+
+def productViewer(request):
+    return render(request, 'productViewer.html')
+
 def about(request):
     #return HttpResponse("My About page.")
     return render(request, 'about.html')
+
+def BuyerHome(request):
+    return render(request, 'BuyerHome.html')
+
 
 def marketplace(request):
 
@@ -100,6 +110,8 @@ def addtocart(request: HttpResponse):
             
             
     return JsonResponse({'error' : 'Only POST requests are allowed'}, status = 405)
+
+
 
 def shoppingcart(request):
     template = loader.get_template("cart.html")
@@ -221,3 +233,13 @@ def intToPrice(price):
 
     result = price[:(size - 2)] + "." + price[(size - 2):]
     return result
+
+
+def buyerHome(request):
+    return render(request, 'buyerHome.html')
+
+def newListing(request):
+    return render(request, 'buyerHome.html')
+
+def productViewer(request):
+    return render(request, 'productViewer.html')
