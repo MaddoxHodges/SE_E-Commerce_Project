@@ -15,8 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 from . import views
+from authapp import views as auth_views
 
 urlpatterns = [
     #path ('', include('members.urls')),
@@ -30,13 +31,19 @@ urlpatterns = [
 
     path('marketplace/', views.marketplace),
 
+    path('marketplace/details', views.details),
+
+    path('addtocart', views.addtocart),
+
     path('cart/', views.shoppingcart),
 
     path('support/', views.support),
 
-    path('login/', views.login),
+    path('login/', auth_views.login_view, name='login'),
 
-    path('createProfile/', views.createProfile),
+    path('register/', auth_views.register_view, name='register'),
+
+    path('logout/', auth_views.logout_view, name='logout'),
 
     path('productPage/', views.productPage),
 
@@ -55,6 +62,7 @@ urlpatterns = [
 
     path('BuyerHome/', views.BuyerHome),
 ]
+
 
 
 
