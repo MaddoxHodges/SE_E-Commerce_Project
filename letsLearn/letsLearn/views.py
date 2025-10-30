@@ -18,6 +18,10 @@ def about(request):
     #return HttpResponse("My About page.")
     return render(request, 'about.html')
 
+def BuyerHome(request):
+    return render(request, 'BuyerHome.html')
+
+
 def marketplace(request):
 
     template = loader.get_template("marketplace.html")
