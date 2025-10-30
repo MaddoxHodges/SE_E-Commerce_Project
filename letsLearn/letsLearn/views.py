@@ -47,9 +47,9 @@ def marketplace(request):
 
     }
 
-    # p = Product(title="Product 2", price=517, stock_qty=1, description="product 2 description")
+    # p = Product(title="Product 1", price=517, stock_qty=1, description="product 1 description")
     # p.save()
-    # p = Product(title="Product 3", price=8, stock_qty=0, description="product 3 description")
+    # p = Product(title="Product 2", price=8, stock_qty=0, description="product 2 description")
     # p.save()
 
     # for i in range(20):
