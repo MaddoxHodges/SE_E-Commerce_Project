@@ -1,11 +1,11 @@
 import json
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.template import loader
 import math
 
-from letsLearn.models import Product, Cart
+from letsLearn.models import Product
 from django.contrib.auth.models import User
 
 
@@ -84,19 +84,16 @@ def addtocart(request: HttpResponse):
             
             product = Product.objects.get(id=product_id)
 
-            purchase_total = 1
-            products_in_cart = Cart.objects.filter(user_id=1,product_id=product_id)
+            cart = request.session.get("cart", {})
+            # non string keys are converted into strings when passed into the cart, no idea why but it will not work unless you match it correctly 
+            # (ex: getting the number 20 would attempt to get from an entirely new entry in the cookie labled as 20 while the actual data was being stored under the string "20")
+            products_in_cart = cart.get(str(product_id), 0)
+            purchase_total = 1 + products_in_cart
 
-            if len(products_in_cart) > 0:
-                purchase_total += products_in_cart[0].quantity
             if product.stock_qty - purchase_total >= 0:
-                if len(products_in_cart) == 1:
-                    products_in_cart[0].quantity += 1
-                    products_in_cart[0].save()
-                else:
-                    products_in_cart = Cart(user_id=User.objects.get(id=1), product_id=Product.objects.get(id=product_id), quantity=1)
-                    products_in_cart.save()
-                    
+                cart[str(product_id)] = purchase_total
+                request.session["cart"] = cart
+
                 return JsonResponse({'status' : 'OK'})
             
             return JsonResponse({'error' : 'insufficient product amount'})
@@ -107,26 +104,85 @@ def addtocart(request: HttpResponse):
 def shoppingcart(request):
     template = loader.get_template("cart.html")
 
-    #p = Cart(user_id=User.objects.get(id=1), product_id=Product.objects.get(id=1), quantity=2)
-    #p.save()
-    #p = Cart(user_id=User.objects.get(id=1), product_id=Product.objects.get(id=20), quantity=1)
-    #p.save()
-
-    cart = Cart.objects.filter(user_id=1)
+    cart = request.session.get("cart", {})
     total_price = 0
-    prices = []
+    product_data = []
 
-    for cart_item in cart:
-        price = cart_item.product_id.price * cart_item.quantity
+    deletion_id = request.GET.get("product_id")
+    if deletion_id in cart:
+        cart[deletion_id] -= 1
+        if cart[deletion_id] == 0:
+            del cart[deletion_id]
+        request.session["cart"] = cart
+    for product_id in cart:
+        # get the price of the item from the database and multiply it by the quanity in the cart cookie
+        products = Product.objects.get(id=product_id)
+        price = products.price * cart[product_id]
 
         total_price += price
-        print("price: " + str(price) + "  total: " + str(total_price))
-        prices.append(intToPrice(price))
+        product_data.append({"quantity": cart[product_id], "title": products.title, "price": intToPrice(price), "product_id": product_id})
 
     total_price = intToPrice(total_price)
     context =  {
-        "cart": zip(cart, prices),
+        "product_data": product_data,
         "total_price": total_price,
+    }
+
+    return HttpResponse(template.render(context, request))
+
+def checkout(request):
+    template = loader.get_template("checkout.html")
+
+    cart = request.session.get("cart", {})
+    total_price = 0
+    product_data = []
+
+    for product_id in cart:
+        # get the price of the item from the database and multiply it by the quanity in the cart cookie
+        products = Product.objects.get(id=product_id)
+        if products.stock_qty < cart[product_id]:
+            if (products.stock_qty == 0):
+                del cart[product_id]
+            else:
+                cart[product_id] = products.stock_qty
+
+        price = products.price * cart[product_id]
+
+        total_price += price
+        product_data.append({"quantity": cart[product_id], "title": products.title, "price": intToPrice(price), "product_id": product_id})
+
+    request.session["cart"] = cart
+
+    context =  {
+        "product_data": product_data,
+        "price": intToPrice(total_price),
+        "tax": round(total_price/100 * .07, 2),
+        "shipping": intToPrice(1700),
+        "total": round(total_price/100 * 1.07 + 17, 2)
+
+    }
+
+    return HttpResponse(template.render(context, request))
+
+def placeorder(request):
+    template = loader.get_template("placeorder.html")
+
+    cart = request.session.get("cart", {})
+    total_price = 0
+
+    for product_id in cart:
+        product = Product.objects.get(id=product_id)
+        if product.stock_qty < cart[product_id]:
+            return redirect("/checkout")
+
+    for product_id in cart:
+        product = Product.objects.get(id=product_id)
+        product.stock_qty -= cart[product_id]
+        product.save()
+    
+    request.session["cart"] = {}
+
+    context =  {
     }
 
     return HttpResponse(template.render(context, request))
@@ -161,6 +217,7 @@ def intToPrice(price):
     size = len(price)
     while size < 3:
         price = "0" + price
+        size = len(price)
 
     result = price[:(size - 2)] + "." + price[(size - 2):]
     return result

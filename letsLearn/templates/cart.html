@@ -17,17 +17,17 @@
             <th>Price&nbsp;&nbsp;&nbsp;</th>
 
         </tr>
-        {% for cart_item, price in cart %}
+        {% for item in product_data %}
             <tr>
-                <th>{{cart_item.product_id.title}}</th>
-                <th>{{cart_item.quantity}}</th>
-                <th>${{price}}</th> 
-                <th><a href="?product_id={{cart_item.product_id.id}}">remove from cart</a></th>
+                <th>{{item.title}}</th>
+                <th>{{item.quantity}}</th>
+                <th>${{item.price}}</th> 
+                <th><a href="?product_id={{item.product_id}}">remove from cart</a></th>
             </tr>
         {% endfor %}
     </table>
     <p>Total Price: ${{total_price}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="checkout">checkout</a><br><br></p>
+    <a href="/checkout">checkout</a><br><br></p>
     <p>Check out our <a href="/home">Home</a> page.</p>
     <p><a href="/logout">Logout</a></p>
 </body>
