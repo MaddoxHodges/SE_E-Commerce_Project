@@ -1,0 +1,12 @@
+<!doctype html>
+<html><body>
+  <h2>Register New Admin</h2>
+  <nav><a href='/support'>Admin Support</a></nav>
+  <form method="post">{% csrf_token %}
+    <div><input name="email" type="email" placeholder="Admin Email" required></div>
+    <div><input name="password" type="password" placeholder="Password (min 8)" required></div>
+    <div><input name="confirm" type="password" placeholder="Confirm password" required></div>
+    <button type="submit">Register Admin</button>
+  </form>
+  
+</body></html>

@@ -62,9 +62,11 @@ urlpatterns = [
     path('productReview/', views.productReview),
 
 
-    path('NewTicket/', views.NewTicket),
+    path('newTicket/', views.newTicket),
 
-    path('BuyerHome/', views.BuyerHome),
+    path('buyerHome/', views.buyerHome),
+
+    path('newAdmin/', views.newAdmin),
 ]
 
 
