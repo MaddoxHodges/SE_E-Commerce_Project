@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template import loader
+from django.contrib.auth import authenticate, login as auth_login
 import math
 
 from letsLearn.models import Product
@@ -24,7 +25,7 @@ def about(request):
     #return HttpResponse("My About page.")
     return render(request, 'about.html')
 
-def BuyerHome(request):
+def buyerHome(request):
     return render(request, 'BuyerHome.html')
 
 
@@ -199,30 +200,74 @@ def placeorder(request):
 
     return HttpResponse(template.render(context, request))
 
-def productPage(request):
-    return render(request, 'productPage.html')
 
-def support(request):
-    return render(request, 'support.html')
 
-def login(request):
-    return render(request, 'login.html')
+
+
 ######Login Page#########
-def createProfile(request):
-    return render(request, 'createProfile.html')
-def productEdit(request):
-    return render(request, 'productEdit.html')
+def login(request):
+    return render(request,"login.html")
 
 
 #######Admin Support#########
 def tickets(request):
     return render(request, 'tickets.html')
 
+def support(request):
+    return render(request, 'support.html')
+
+def newAdmin(request):
+    admin_created = False
+    error = ""
+
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm = request.POST.get("confirm")
+
+        if User.objects.filter(username=email).exists():
+            error = "Admin with this email already exists"
+        
+        elif password != confirm:
+            error = "Passwords do not match"
+
+        elif len(password) < 8:
+            error = "Password must be at least 8 characters"
+
+        else:
+            User.objects.create_user(
+                username=email,
+                email=email,
+                password=password,
+                is_staff=True,
+                is_superuser=True
+            )
+            admin_created = True
+
+    return render(request, 'newAdmin.html', {"admin_created": admin_created, "error": error})
+
+########Seller Pages##########
 def productReview(request):
     return render(request, 'productReview.html')
 
+<<<<<<< HEAD
 def newTicket(request):
     return render(request, 'newTicket.html')
+=======
+def productEdit(request):
+    return render(request, 'productEdit.html')
+
+def productPage(request):
+    return render(request, 'productPage.html')
+
+def newTicketSeller(request):
+    return render(request, 'newTicketSeller.html')
+
+def newTicket(request):
+    return render(request, 'newTicket.html')
+
+
+>>>>>>> origin/main
 
 def intToPrice(price):
     price = str(price)
@@ -243,3 +288,6 @@ def newListing(request):
 
 def productViewer(request):
     return render(request, 'productViewer.html')
+
+
+

@@ -5,8 +5,10 @@
     <div><input name="email" type="email" placeholder="Email" required></div>
     <div><input name="password" type="password" placeholder="Password (min 8)" required></div>
     <div><input name="confirm" type="password" placeholder="Confirm password" required></div>
+    <label><input type="checkbox" name="is_seller">Register as a seller</label>
     <button type="submit">Register</button>
   </form>
+  
   <p><a href="/login/">Already have an account? Login</a></p>
   {% for message in messages %}<p style="color:#b00020">{{ message }}</p>{% endfor %}
 </body></html>
