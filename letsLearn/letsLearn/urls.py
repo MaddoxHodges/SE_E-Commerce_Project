@@ -63,15 +63,11 @@ urlpatterns = [
 
     path('newTicket/', views.newTicket),
 
-<<<<<<< HEAD
-    path('buyerHome/', views.buyerHome),
-=======
     path('newTicket/', views.newTicket),
 
     path('buyerHome/', views.buyerHome),
 
     path('newAdmin/', views.newAdmin),
->>>>>>> origin/main
 ]
 
 

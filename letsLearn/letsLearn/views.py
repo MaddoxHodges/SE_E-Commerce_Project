@@ -250,10 +250,6 @@ def newAdmin(request):
 def productReview(request):
     return render(request, 'productReview.html')
 
-<<<<<<< HEAD
-def newTicket(request):
-    return render(request, 'newTicket.html')
-=======
 def productEdit(request):
     return render(request, 'productEdit.html')
 
@@ -267,7 +263,6 @@ def newTicket(request):
     return render(request, 'newTicket.html')
 
 
->>>>>>> origin/main
 
 def intToPrice(price):
     price = str(price)
