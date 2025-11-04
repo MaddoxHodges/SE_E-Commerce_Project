@@ -32,13 +32,9 @@
     <p style="font-size: larger;">Total Price: ${{total}}</p>
     <form action="/placeorder/" method="post">
         {% csrf_token %}
-        <div>
-            <label for="address">Enter shipping address: </label>
-            <input type="text" name="address" id="address" required />
-        </div>
-        <div>
-            <input type="submit" value="Place Order" />
-        </div>
+        {{ form }}
+
+        <input type="submit" value="Place Order"/>
     </form>
     <p>Check out our <a href="/home">Home</a> page.</p>
     <p><a href="/logout">Logout</a></p>

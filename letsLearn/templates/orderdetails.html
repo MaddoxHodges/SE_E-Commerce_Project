@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% load static %}
+    {% csrf_token %}
+
+    <script src="{% static 'cart.js' %}"></script>
+    <title>Your Order</title>
+</head>
+<body>
+    <h1>Your Order</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Return</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <th>{{item.product.title}}</th>
+                    <th>{{item.item.qty}}</th>
+                    <th>${{item.total}}</th> 
+                    {% if item.item.return_requested %}
+                        <th>return requested</th>
+                    {% else %}
+                        <th><a href="?order_id={{order.id}}&order_item_id={{item.item.id}}">request return</a></th>
+                    {% endif %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">This order has no items.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="total">
+        <strong>Date Ordered:</strong> {{order.created_at}}<br>
+        <strong>Subtotal:</strong> ${{formated_prices.0}}<br>
+        <strong>Tax:</strong> ${{formated_prices.1}}<br>
+        <strong>Shipping:</strong> ${{formated_prices.2}}<br>
+        <strong>Total:</strong> ${{formated_prices.3}}<br><br>
+
+        <strong>Shipping Address:</strong> {{order.address}}<br>
+    </div>
+    <p>Check out my <a href="/home">Home</a> page.</p>
+</body>
+</html>

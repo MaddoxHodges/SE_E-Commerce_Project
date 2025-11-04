@@ -41,6 +41,10 @@ urlpatterns = [
 
     path('placeorder/', views.placeorder),
 
+    path('vieworders/', views.vieworders),
+
+    path('vieworders/details', views.orderdetails),
+
     path('support/', views.support),
 
     path('login/', auth_views.login_view, name='login'),
@@ -61,6 +65,7 @@ urlpatterns = [
 
     path('productReview/', views.productReview),
 
+    path('newTicket/', views.newTicket),
 
     path('newTicket/', views.newTicket),
 
