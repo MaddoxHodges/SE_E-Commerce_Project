@@ -27,9 +27,18 @@ def register_view(request):
 
         user = User.objects.create_user(username=email, email=email, password=password)
         
-        SellerProfile.objects.create(user=user, is_seller=is_seller)
+        SellerProfile.objects.create(
+            user=user,
+            is_seller=is_seller,          
+            is_pending=is_seller,     
+            is_approved=not is_seller,
+            is_banned=False
+        )
 
-        messages.success(request, "Account created. Please sign in.")
+        if is_seller:
+            messages.success(request, "Account created. Your seller request is pending admin approval.")
+        else:
+            messages.success(request, "Account created. Please sign in.")
         return redirect("login")
 
     return render(request, "register.html")
@@ -40,21 +49,35 @@ def login_view(request):
         email = (request.POST.get("email") or "").strip().lower()
         password = request.POST.get("password") or ""
         user = authenticate(request, username=email, password=password)
+        
         if user is None:
             messages.error(request, "Invalid email or password.")
             return redirect("login")
         login(request, user)
 
+        sp = getattr(user, "sellerprofile", None)
+
         if user.is_superuser or user.is_staff:
             return redirect("/support/")
-        
-        if hasattr(user,"sellerprofile") and user.sellerprofile.is_seller:
+        if sp and sp.is_banned:
+            logout(request)
+            messages.error(request, "Your account is banned.")
+            return redirect("login")
+            
+        if sp and sp.is_pending and not sp.is_approved:
+            logout(request)
+            messages.info(request, "Your seller account request is still pending approval.")
+            return redirect("login")
+
+        if sp and sp.is_approved and sp.is_seller:
             return redirect("/productPage/")
+
         return redirect("/buyerHome/")
     return render(request, "login.html")
-
 
 def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect("/")
+
+

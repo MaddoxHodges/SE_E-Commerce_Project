@@ -5,6 +5,10 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.contrib.auth import authenticate, login as auth_login
+from .models import SupportTicket, TicketMessage
+from authapp.models import SellerProfile
+from django.contrib import messages
+
 from datetime import datetime
 from django.db.models import Q
 import math
@@ -20,6 +24,10 @@ from .forms import CheckoutForm
 def homepage(request):
     #return HttpResponse("Hello World! I'm Home.")
     return render(request, 'home.html')
+
+
+def productViewer(request):
+    return render(request, 'productViewer.html')
 
 def about(request):
     #return HttpResponse("My About page.")
@@ -57,7 +65,7 @@ def marketplace(request):
     #     p = Product(title=f"Product {i + 3}", price=100 + 20 * i, stock_qty=i, description=f"product {i + 3} description")
     #     p.save()
 
-    products = Product.objects.all()[(page - 1) * 12:(page * 12)]
+    products = Product.objects.filter(is_approved=True)[(page - 1) * 12:(page * 12)]
 
     grid = []
     for row in range(math.ceil(len(products) / 3)):
@@ -299,11 +307,130 @@ def login(request):
     return render(request,"login.html")
 
 
-#######Admin Support#########
+########Admin Support#########
+
+def productReview(request):
+    if not request.user.is_staff:
+        return redirect("/home")
+
+    pending_sellers = SellerProfile.objects.filter(is_seller=True, is_approved=False)
+    pending_products = Product.objects.filter(is_approved=False)
+
+    return render(request, "productReview.html", {
+        "pending_sellers": pending_sellers,
+        "pending_products": pending_products
+    })
+
+
+def processModeration(request):
+    if request.method != "POST":
+        return redirect("productReview")
+
+    # GET lists from POST form
+    approved_sellers = request.POST.getlist("approve_seller")
+    approved_products = request.POST.getlist("approve_product")
+
+    # Approve Sellers
+    for user_id in approved_sellers:
+        try:
+            profile = SellerProfile.objects.get(user__id=user_id)
+            profile.is_seller = True
+            profile.is_pending = False
+            profile.is_approved = True
+            profile.save()
+        except SellerProfile.DoesNotExist:
+            pass
+
+    # Approve Products
+    for product_id in approved_products:
+        try:
+            product = Product.objects.get(id=product_id)
+            product.is_pending = False
+            product.is_approved = True
+            product.save()
+        except Product.DoesNotExist:
+            pass
+
+    messages.success(request, "Approvals processed successfully.")
+    return redirect("productReview")
+
+
+
+
+
 def tickets(request):
-    return render(request, 'tickets.html')
+    
+    if not request.user.is_staff:
+        return redirect("/home")
+
+    tickets = SupportTicket.objects.all().order_by("-id")
+
+    return render(request, "tickets.html", {
+        "tickets": tickets,
+        "role": "Admin"
+    })
+
+def closeTicket(request, ticket_id):
+    if not request.user.is_staff:
+        return redirect("/newTicket/")  
+
+    try:
+        ticket = SupportTicket.objects.get(id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return redirect("/tickets/")
+
+    ticket.status = "Closed"
+    ticket.save()
+
+    return redirect(f"/replyTicket/{ticket_id}/")
+
+
+def replyTicket(request, ticket_id):
+    try:
+        ticket = SupportTicket.objects.get(id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return redirect("/newTicket/")
+
+    
+    if request.method == "POST" and ticket.status != "Closed":
+    
+        msg = request.POST.get("message") or request.POST.get("response") or ""
+        msg = msg.strip()
+
+        
+        if msg == "":
+            from django.contrib import messages
+            messages.error(request, "Message cannot be empty.")
+            return redirect(f"/replyTicket/{ticket_id}/")
+
+        TicketMessage.objects.create(
+            ticket=ticket,
+            sender=request.user,
+            message=msg
+        )
+
+        
+        if request.user.is_staff:
+            ticket.status = "Pending User"
+        else:
+            ticket.status = "Pending Admin"
+
+        ticket.save()
+        return redirect(f"/replyTicket/{ticket_id}/")
+
+    
+    ticket_messages = ticket.messages.order_by("timestamp")
+
+    return render(request, "replyTicket.html", {
+        "ticket": ticket,
+        "messages": ticket_messages
+    })
+
+
+
 
 def support(request):
+    
     return render(request, 'support.html')
 
 def newAdmin(request):
@@ -337,20 +464,76 @@ def newAdmin(request):
     return render(request, 'newAdmin.html', {"admin_created": admin_created, "error": error})
 
 ########Seller Pages##########
-def productReview(request):
-    return render(request, 'productReview.html')
+def productViewer(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    products = Product.objects.filter(seller=request.user, is_approved=True).order_by("-id")
+
+    return render(request, 'productViewer.html', {"products": products})
+
 
 def productEdit(request):
-    return render(request, 'productEdit.html')
+    if request.method == "POST":
+        product_id = request.POST.get("product_id") 
+
+        product = Product.objects.get(id=product_id)
+
+        # verify seller owns product
+        if request.user != product.seller:
+            return redirect("/home")
+
+        
+        product.title = request.POST.get("title")
+        product.description = request.POST.get("description")
+        product.price = request.POST.get("price")
+        product.stock = request.POST.get("stock")
+        product.save()
+
+        return redirect("/productPage")
+
+    else:
+        # If GET, show the edit page
+        product_id = request.GET.get("product_id")
+        product = Product.objects.get(id=product_id)
+
+        return render(request, "productedit.html", {"product": product})
+
 
 def productPage(request):
     return render(request, 'productPage.html')
 
-def newTicketSeller(request):
-    return render(request, 'newTicketSeller.html')
 
 def newTicket(request):
-    return render(request, 'newTicket.html')
+    
+    user = request.user
+
+    if user.is_superuser or user.is_staff:
+        role = "Admin"
+    elif hasattr(user, "sellerprofile") and user.sellerprofile.is_seller:
+        role = "Seller"
+    else:
+        role = "Buyer"
+    if request.method == "POST":
+        subject = request.POST.get("subject")
+        message = request.POST.get("message")
+
+        SupportTicket.objects.create(
+            user=user,
+            subject=subject,
+            description=message,
+            status="Open"
+        )
+
+        if role == "Seller":
+            return redirect("/productPage/")
+        else:
+            return redirect("/buyerHome/")
+
+    # Load user's tickets
+    tickets = SupportTicket.objects.filter(user=user).order_by("-id")
+
+    return render(request, "newTicket.html", {"tickets": tickets, "role": role})
 
 
 
@@ -369,37 +552,25 @@ def buyerHome(request):
     return render(request, 'buyerHome.html')
 
 def newListing(request):
-    if request.method == 'POST':
-        id = request.POST.get('id') or None
-        seller_id = request.POST.get('seller_id') or None
-        category_id = request.POST.get('category_id') or None
-        title = request.POST.get('title') or None
-        description = request.POST.get('description') or None
-        price_cents = request.POST.get('price_cents') or None
-        status = request.POST.get('status') or None
-        main_image_url = request.POST.get('main_image_url') or None
-        created_at = request.POST.get('created_at') or None
-        updated_at = request.POST.get('updated_at') or None
 
-        if not created_at:
-            created_at = datetime.now()
-        if not updated_at:
-            updated_at = datetime.now()
+    if request.method == "POST":
+        title = request.POST.get("productName")
+        desc = request.POST.get("productDes")
+        price = request.POST.get("productPrice")
+
+        price_value = float(price)
 
         Product.objects.create(
-            id=id,
-            seller_id=seller_id,
-            category_id=category_id,
             title=title,
-            description=description,
-            price_cents=price_cents,
-            status=status,
-            main_image_url=main_image_url,
-            created_at=created_at,
-            updated_at=updated_at,
+            description=desc,
+            price=price_value,
+            stock=1,                  
+            seller=request.user,
+            is_approved=False  
         )
 
-        return redirect('/productViewer/')
+        return redirect("/productPage/")
+
     return render(request, 'newListing.html')
 
 
@@ -407,6 +578,8 @@ def productViewer(request):
     products = Product.objects.all()
     context = {'products': products}
     return render(request, 'productViewer.html', context)
+  
+  
 def searchProducts(request):
     query = request.GET.get('q', '').strip()
     products = []
@@ -419,10 +592,98 @@ def searchProducts(request):
             products = Product.objects.filter(description__icontains=query)
     else:
         products = Product.objects.all()
-
     context = {
         'products': products,
         'query': query,
         'search_performed': bool(query),
     }
     return render(request, 'searchProducts.html', context)
+  
+  
+def replyUser(request, ticket_id):
+    # Safe ticket lookup
+    try:
+        ticket = SupportTicket.objects.get(id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return redirect("/newTicket/")
+
+    # Only ticket owner can reply
+    if ticket.user != request.user:
+        return HttpResponse("Unauthorized", status=403)
+
+    # No replies if ticket is closed
+    if ticket.status == "Closed":
+        return redirect("/newTicket/")
+
+    # Handle reply form
+    if request.method == "POST":
+        user_message = request.POST.get("message")
+
+        # Create reply
+        TicketMessage.objects.create(
+            ticket=ticket,
+            sender=request.user,
+            message=user_message
+        )
+
+        # Update status so admin knows they need to respond
+        ticket.status = "Pending Admin"
+        ticket.save()
+
+        return redirect(f"/replyTicket/{ticket_id}/")
+
+    return redirect(f"/replyTicket/{ticket_id}/")
+
+def webUsers(request):
+    if not request.user.is_staff:
+        return redirect("/home")
+
+    users = User.objects.all()
+    user_data = []
+
+    for u in users:
+        profile = getattr(u, "sellerprofile", None)
+        role = "Seller" if profile and profile.is_seller else "Buyer"
+        is_banned = profile.is_banned if profile else False
+        
+        user_data.append({
+            "id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "role": role,
+            "is_banned": is_banned
+        })
+
+    return render(request, "webUsers.html", {"users": user_data})
+
+def banUser(request, user_id):
+    if request.method == "POST":
+        user = User.objects.get(id=user_id)
+        
+        # Prevent admin ban
+        if user.is_superuser:
+            messages.error(request, "Admins cannot be banned.")
+            return redirect("webUsers")
+
+        profile, _ = SellerProfile.objects.get_or_create(user=user)
+        profile.is_banned = True
+        profile.save()
+
+        # Refresh so UI reflects instantly
+        profile.refresh_from_db()
+
+        messages.success(request, f"{user.username} has been banned.")
+    return redirect("webUsers")
+
+
+def unbanUser(request, user_id):
+    if request.method == "POST":
+        user = User.objects.get(id=user_id)
+        profile, _ = SellerProfile.objects.get_or_create(user=user)
+        profile.is_banned = False
+        profile.save()
+        profile.refresh_from_db()
+
+        messages.success(request, f"{user.username} has been unbanned.")
+    return redirect("webUsers")
+   

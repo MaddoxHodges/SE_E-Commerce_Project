@@ -16,6 +16,20 @@
     <p>
         {{product.description}} <br> 
         ${{price}} <br> <br>
+        <button onclick="addToCart('{{ product.id }}')">Add to Cart</button>
+ <br> 
+    </p>
+
+    <script>
+        function verifyPurchase(inStock) {
+            if (inStock) {
+                alert("Product added to cart");
+            } else {
+                alert("Could not add product to cart");
+            }
+        }
+    </script>
+
         <button onclick="addToCart({{product.id}}, document.getElementById('qty').value)">Add to Cart</button>
         <input type="number" min="1" max="{{ product.stock_qty }}" value="1" id="qty"/> <br> 
     </p>

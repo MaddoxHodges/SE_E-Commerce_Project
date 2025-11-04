@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
+
+User = get_user_model()
+
 
 class Product(models.Model): #updated for product related section
     id = models.IntegerField(primary_key=True)
@@ -43,6 +47,23 @@ class Orders(models.Model):
         default=Status.PLACED,
     )
 
+
+
+class SupportTicket(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=255)
+    description = models.TextField()
+    response = models.TextField(blank=True, null=True)   # <--- admin reply
+    status = models.CharField(max_length=20, default="Open") # Open / Pending / Resolved
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class TicketMessage(models.Model):
+    ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return f"{self.subject} ({self.user.username})"
 class OrderItems(models.Model):
     order_id = models.ForeignKey(Orders, on_delete=models.CASCADE)
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
