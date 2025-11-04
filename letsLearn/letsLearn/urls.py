@@ -72,6 +72,9 @@ urlpatterns = [
     path('buyerHome/', views.buyerHome),
 
     path('newAdmin/', views.newAdmin),
+
+    path("searchProducts/", views.searchProducts),
+
 ]
 
 

@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.contrib.auth import authenticate, login as auth_login
+from datetime import datetime
+from django.db.models import Q
 import math
 
 from letsLearn.models import Product
@@ -18,12 +20,6 @@ from .forms import CheckoutForm
 def homepage(request):
     #return HttpResponse("Hello World! I'm Home.")
     return render(request, 'home.html')
-
-def newListing(request):
-    return render(request, 'newListing.html')
-
-def productViewer(request):
-    return render(request, 'productViewer.html')
 
 def about(request):
     #return HttpResponse("My About page.")
@@ -373,10 +369,60 @@ def buyerHome(request):
     return render(request, 'buyerHome.html')
 
 def newListing(request):
+    if request.method == 'POST':
+        id = request.POST.get('id') or None
+        seller_id = request.POST.get('seller_id') or None
+        category_id = request.POST.get('category_id') or None
+        title = request.POST.get('title') or None
+        description = request.POST.get('description') or None
+        price_cents = request.POST.get('price_cents') or None
+        status = request.POST.get('status') or None
+        main_image_url = request.POST.get('main_image_url') or None
+        created_at = request.POST.get('created_at') or None
+        updated_at = request.POST.get('updated_at') or None
+
+        if not created_at:
+            created_at = datetime.now()
+        if not updated_at:
+            updated_at = datetime.now()
+
+        Product.objects.create(
+            id=id,
+            seller_id=seller_id,
+            category_id=category_id,
+            title=title,
+            description=description,
+            price_cents=price_cents,
+            status=status,
+            main_image_url=main_image_url,
+            created_at=created_at,
+            updated_at=updated_at,
+        )
+
+        return redirect('/productViewer/')
     return render(request, 'newListing.html')
 
+
 def productViewer(request):
-    return render(request, 'productViewer.html')
+    products = Product.objects.all()
+    context = {'products': products}
+    return render(request, 'productViewer.html', context)
+def searchProducts(request):
+    query = request.GET.get('q', '').strip()
+    products = []
 
+    if query:
+    
+        products = Product.objects.filter(title__icontains=query)
 
+        if not products.exists():
+            products = Product.objects.filter(description__icontains=query)
+    else:
+        products = Product.objects.all()
 
+    context = {
+        'products': products,
+        'query': query,
+        'search_performed': bool(query),
+    }
+    return render(request, 'searchProducts.html', context)

@@ -133,14 +133,23 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="no-products">
-          <td colspan="3">No current listings available.</td>
-        </tr>
+        {% if products %}
+          {% for product in products %}
+          <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.title }}</td>
+            <td class="product-link">
+              <a href="/details?product_id={{ product.id }}">View Product</a>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr class="no-products">
+            <td colspan="3">No current listings available.</td>
+          </tr>
+        {% endif %}
       </tbody>
     </table>
   </main>
 </body>
-</html>
-
-
 </html>
