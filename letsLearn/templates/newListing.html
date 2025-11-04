@@ -159,11 +159,35 @@
       <label for="productName">Product Name:</label>
       <input type="text" id="productName" name="productName" placeholder="Enter your product name" required>
 
-      <label for="productDes">Description:</label>
-      <textarea id="productDes" name="productDes" placeholder="Describe your product" rows="4" required></textarea>
+      <label for="id">Product ID:</label>
+      <input type="number" id="id" name="id" placeholder="Enter unique product ID" required>
 
-      <label for="productPrice">Price:</label>
-      <input type="number" id="productPrice" name="productPrice" placeholder="Item price" required>
+      <label for="seller_id">Seller ID:</label>
+      <input type="number" step="0.1" id="seller_id" name="seller_id" placeholder="Enter seller ID" required>
+
+      <label for="category_id">Category ID:</label>
+      <input type="number" step="0.1" id="category_id" name="category_id" placeholder="Enter category ID" required>
+
+      <label for="title">Product Title:</label>
+      <input type="text" id="title" name="title" placeholder="Enter product title" required>
+
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" placeholder="Enter detailed description" rows="4" required></textarea>
+
+      <label for="price_cents">Price (in cents):</label>
+      <input type="number" step="0.01" id="price_cents" name="price_cents" placeholder="e.g., 1999 for $19.99" required>
+
+      <label for="status">Status:</label>
+      <input type="text" id="status" name="status" value="active" required>
+
+      <label for="main_image_url">Main Image URL:</label>
+      <input type="text" id="main_image_url" name="main_image_url" placeholder="Paste image link (optional)">
+
+      <label for="created_at">Created At:</label>
+      <input type="text" id="created_at" name="created_at" placeholder="Leave blank for auto timestamp">
+
+      <label for="updated_at">Updated At:</label>
+      <input type="text" id="updated_at" name="updated_at" placeholder="Leave blank for auto timestamp">
 
       <div class="upload-box">
         <p><strong>Upload product photos</strong></p>

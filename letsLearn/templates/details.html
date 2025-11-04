@@ -30,5 +30,10 @@
         }
     </script>
 
+        <button onclick="addToCart({{product.id}}, document.getElementById('qty').value)">Add to Cart</button>
+        <input type="number" min="1" max="{{ product.stock_qty }}" value="1" id="qty"/> <br> 
+    </p>
+
+    <p>Check out my <a href="/home">Home</a> page.</p>
 </body>
 </html>
