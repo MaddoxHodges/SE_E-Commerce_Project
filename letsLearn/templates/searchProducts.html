@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Products</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #23395d;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+    main {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .product {
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .product:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Search Products</h1>
+  </header>
+  <main>
+    <form method="get" action="/searchProducts/">
+      <input type="text" name="q" placeholder="Search for a product..." value="{{ query }}">
+      <button type="submit">Search</button>
+    </form>
+
+    {% if search_performed %}
+      {% if products %}
+        {% for product in products %}
+          <div class="product">
+            <h3>{{ product.title }}</h3>
+            <p>{{ product.description }}</p>
+            <p><strong>Price:</strong> ${{ product.price_cents }}</p>
+            <a href="/details?product_id={{ product.id }}">View Details →</a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No matching products found.</p>
+      {% endif %}
+    {% endif %}
+  </main>
+</body>
+</html>
