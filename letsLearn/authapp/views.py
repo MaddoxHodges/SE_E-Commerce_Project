@@ -57,27 +57,21 @@ def login_view(request):
 
         sp = getattr(user, "sellerprofile", None)
 
-        # Admin accounts
         if user.is_superuser or user.is_staff:
             return redirect("/support/")
-
-        # Banned users
         if sp and sp.is_banned:
             logout(request)
             messages.error(request, "Your account is banned.")
             return redirect("login")
-
-        # Pending seller accounts cannot access seller pages yet
+            
         if sp and sp.is_pending and not sp.is_approved:
             logout(request)
             messages.info(request, "Your seller account request is still pending approval.")
             return redirect("login")
 
-        # Approved sellers go to seller dashboard
         if sp and sp.is_approved and sp.is_seller:
             return redirect("/productPage/")
 
-        # Default buyers
         return redirect("/buyerHome/")
     return render(request, "login.html")
 
