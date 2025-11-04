@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from django.template import loader
 from django.contrib.auth import authenticate, login as auth_login
 from datetime import datetime
+from django.db.models import Q
 import math
 
 from letsLearn.models import Product
@@ -312,16 +313,22 @@ def productViewer(request):
     products = Product.objects.all()
     context = {'products': products}
     return render(request, 'productViewer.html', context)
-def productPage(request):
-    query = request.GET.get('q', '')  
+def searchProducts(request):
+    query = request.GET.get('q', '').strip()
+    products = []
+
     if query:
-        products = Product.objects.filter(
-            Q(title__icontains=query) | Q(description__icontains=query)
-        )
+    
+        products = Product.objects.filter(title__icontains=query)
+
+        if not products.exists():
+            products = Product.objects.filter(description__icontains=query)
     else:
-        products = Product.objects.all
+        products = Product.objects.all()
 
-    context = {'products': products, 'query': query}
-    return render(request, 'productPage.html', context)
-
-
+    context = {
+        'products': products,
+        'query': query,
+        'search_performed': bool(query),
+    }
+    return render(request, 'searchProducts.html', context)
