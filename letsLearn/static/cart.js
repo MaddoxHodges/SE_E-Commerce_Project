@@ -1,4 +1,4 @@
-const addToCart = (product_id) => {
+const addToCart = (product_id, qty) => {
     fetch("/addtocart", {
     method: "POST",
     credentials: "same-origin",
@@ -6,7 +6,7 @@ const addToCart = (product_id) => {
         "X-Requested-With": "XMLHttpRequest",
         "X-CSRFToken": getCookie("csrftoken"),
     },
-    body: JSON.stringify(product_id)
+    body: JSON.stringify([product_id, qty])
     })
     .then(response => response.json())
     .then(data => {

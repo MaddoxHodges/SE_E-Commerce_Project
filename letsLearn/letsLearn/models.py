@@ -22,7 +22,7 @@ class Product(models.Model): #updated for product related section
 
 
 class Orders(models.Model):
-    user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    #user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     subtotal_cents = models.IntegerField()
     tax_cents = models.IntegerField()
     shipping_cents = models.IntegerField()
@@ -42,3 +42,10 @@ class Orders(models.Model):
         choices=Status.choices, # initially was choices = Status, but it was giving an error
         default=Status.PLACED,
     )
+
+class OrderItems(models.Model):
+    order_id = models.ForeignKey(Orders, on_delete=models.CASCADE)
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
+    qty = models.IntegerField()
+    price_cents = models.IntegerField()
+    return_requested = models.BooleanField()
