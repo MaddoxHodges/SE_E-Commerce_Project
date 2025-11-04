@@ -16,7 +16,8 @@
     <p>
         {{product.description}} <br> 
         ${{price}} <br> <br>
-        <button onclick="addToCart({{product.id}})">Add to Cart</button> <br> 
+        <button onclick="addToCart({{product.id}}, document.getElementById('qty').value)">Add to Cart</button>
+        <input type="number" min="1" max="{{ product.stock_qty }}" value="1" id="qty"/> <br> 
     </p>
 
     <p>Check out my <a href="/home">Home</a> page.</p>
