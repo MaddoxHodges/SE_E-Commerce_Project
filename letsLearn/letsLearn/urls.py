@@ -55,11 +55,9 @@ urlpatterns = [
 
     path('productViewer/', views.productViewer),
 
-    path('productEdit/', views.productEdit),
+    path('productEdit/', views.productEdit, name='productEdit'),
 
     path('tickets/', views.tickets),
-
-    path('productReview/', views.productReview),
 
 
     path('newTicket/', views.newTicket),
@@ -67,6 +65,22 @@ urlpatterns = [
     path('buyerHome/', views.buyerHome),
 
     path('newAdmin/', views.newAdmin),
+
+    path("replyTicket/<int:ticket_id>/", views.replyTicket, name="replyTicket"),
+    path("closeTicket/<int:ticket_id>/", views.closeTicket, name="closeTicket"),
+
+
+    ##banning actions##
+    path('webUsers/', views.webUsers, name='webUsers'),
+    path('banUser/<int:user_id>/', views.banUser, name='banUser'),
+    path('unbanUser/<int:user_id>/', views.unbanUser, name='unbanUser'),
+
+    ###Admin Reviews###
+   
+    path("productReview/", views.productReview, name="productReview"),
+    path("productReview/process/", views.processModeration, name="processModeration"),
+
+
 ]
 
 

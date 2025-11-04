@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Editor</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BurnLab – Edit Listing</title>
   <style>
     :root {
       --burn-dark: #1a2a46;
@@ -87,7 +87,6 @@
 
     input[type="text"],
     input[type="number"],
-    input[type="file"],
     textarea {
       width: 100%;
       padding: 10px;
@@ -121,44 +120,44 @@
       background-color: #0056b3;
       transform: scale(1.03);
     }
-
-    .upload-box {
-      background-color: #f9f9fb;
-      border: 2px dashed var(--burn-light);
-      text-align: center;
-      padding: 20px;
-      border-radius: 8px;
-      margin-top: 20px;
-      color: #555;
-      transition: border-color 0.3s, background-color 0.3s;
-    }
-
-    .upload-box:hover {
-      background-color: #eef5ff;
-      border-color: var(--burn-accent);
-    }
-
   </style>
 </head>
+
 <body>
-    <h1>Product Editor</h1>
-    <p><a href="/home">Home</a></p>
-    <p><a href="/logout">Logout</a></p></p:>
-    <p><a href="/productPage">Product Page</a></p>
-    <form action="/submit" method="post">
-        <label for="productName">Product Name:</label>
-        <input type="text" id="productName" name="productName" placeholder="Enter your product's name"><br>
-        <label for="productDes">Description:</label>
-        <input type="text" id="productDes" name="productDes" placeholder="Describe your product"><br>
-    </form>
-    <p>Upload product photos below</p>
-    <form class="box" method="post" action="/upload" enctype="multipart/form-data">
-        <div class="box_input">
-            <input class="box_file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple/>
-            <label for="file"><strong>Choose a file</strong><span class="box_dragndrop"> or drag it here</span>.</label>
-            <button class="box_button" type="submit">Upload</button>
-        </div>
-        <input type="submit" value="Submit"><br>
-    </form>
+
+<header>
+  <h1>BurnLab Product Management</h1>
+</header>
+
+<nav>
+  <a href="/home">Home</a>
+  <a href="/productPage">Product Page</a>
+  <a href="/logout">Logout</a>
+</nav>
+
+<main>
+  <h2>Edit Your Listing</h2>
+
+  <form id="editForm" method="POST" action="/productEdit/">
+      {% csrf_token %}
+
+      <input type="hidden" name="product_id" value="{{ product.id }}">
+
+      <label for="productName">Product Name:</label>
+      <input type="text" id="productName" name="title" value="{{ product.title }}" required>
+
+      <label for="productDes">Description:</label>
+      <textarea id="productDes" name="description" rows="4" required>{{ product.description }}</textarea>
+
+      <label for="productPrice">Price:</label>
+      <input type="number" id="productPrice" name="price" value="{{ product.price }}" step="0.01" required>
+
+      <label for="productStock">Stock:</label>
+      <input type="number" id="productStock" name="stock" value="{{ product.stock }}" min="0" required>
+
+      <input type="submit" value="Save Changes">
+  </form>
+</main>
+
 </body>
 </html>

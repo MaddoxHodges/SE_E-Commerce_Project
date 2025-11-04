@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BurnLab – User Management</title>
+
+<style>
+:root {
+  --burn-dark: #1a2a46;
+  --burn-mid: #23395d;
+  --burn-accent: #007bff;
+  --burn-light: #9ec5ff;
+  --burn-bg: #f5f8fc;
+}
+
+body {
+  margin: 0;
+  font-family: "Source Sans Pro", sans-serif;
+  background: var(--burn-bg);
+  color: #2b2b2b;
+}
+
+header {
+  background: var(--burn-mid);
+  color: #fff;
+  text-align: center;
+  padding: 1.4rem 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+nav {
+  background: var(--burn-dark);
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1rem;
+}
+
+nav a {
+  color: var(--burn-light);
+  text-decoration: none;
+  font-weight: 600;
+  transition: .2s;
+}
+
+nav a:hover {
+  color: #fff;
+}
+
+.container {
+  width: 85%;
+  max-width: 900px;
+  margin: 30px auto;
+}
+
+/* Table */
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.user-table th {
+  background: var(--burn-mid);
+  color: white;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.user-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.user-table tr:hover {
+  background: #eef4ff;
+}
+
+/* Buttons */
+.action-btn {
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.ban-btn {
+  background: #d9534f;
+  color: white;
+}
+.ban-btn:hover {
+  background: #b52b27;
+}
+
+.unban-btn {
+  background: #2e7d32;
+  color: white;
+}
+.unban-btn:hover {
+  background: #1b5e20;
+}
+</style>
+</head>
+
+<body>
+
+<header>BurnLab User Management</header>
+
+<nav>
+  <a href="/support">Support Dashboard</a>
+  <a href="/logout">Logout</a>
+</nav>
+
+<div class="container">
+{% if messages %}
+<div style="background:#e6f4ff;border:1px solid #8ac5ff;padding:10px;margin-bottom:15px;border-radius:6px;">
+    {% for message in messages %}
+        <p style="margin:0;font-weight:bold;color:#004a99;">{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+<h2>Registered Accounts</h2>
+
+<table class="user-table">
+  <tr>
+    <th>ID</th>
+    <th>Email</th>
+    <th>Role</th>
+    <th>Status</th>
+    <th>Action</th>
+  </tr>
+
+{% for u in users %}
+<tr>
+  <td>{{ u.id }}</td>
+  <td>{{ u.email }}</td>
+  <td>{{ u.role }}</td>
+
+  <td>
+    {% if u.is_banned %}
+      <span style="color:red; font-weight:bold;">Banned</span>
+    {% else %}
+      <span style="color:green; font-weight:bold;">Active</span>
+    {% endif %}
+  </td>
+
+  <td>
+    <form method="POST" action="{% if u.is_banned %}/unbanUser/{{ u.id }}/{% else %}/banUser/{{ u.id }}/{% endif %}">
+      {% csrf_token %}
+      {% if u.is_banned %}
+          <button class="action-btn unban-btn">Unban</button>
+      {% else %}
+          <button class="action-btn ban-btn">Ban</button>
+      {% endif %}
+    </form>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="5"><i>No users found.</i></td></tr>
+{% endfor %}
+
+
+</table>
+
+</div>
+
+</body>
+</html>
