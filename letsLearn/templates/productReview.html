@@ -9,16 +9,17 @@
     --burn-dark: #1a2a46;
     --burn-mid: #23395d;
     --burn-accent: #007bff;
+    --burn-danger: #cc0000;
     --burn-light: #9ec5ff;
     --burn-bg: #f5f8fc;
 }
 
+/* Layout and Styles Same as before */
 body {
     font-family: Arial, sans-serif;
     background: var(--burn-bg);
     margin: 0;
 }
-
 header {
     background: var(--burn-mid);
     color: #fff;
@@ -27,19 +28,16 @@ header {
     font-size: 22px;
     font-weight: bold;
 }
-
 nav {
     background: var(--burn-dark);
     padding: 10px;
     text-align: center;
 }
-
 nav a {
     color: var(--burn-light);
     font-weight: bold;
     text-decoration: none;
     margin: 0 15px;
-    transition: 0.2s;
 }
 nav a:hover { color: #fff; }
 
@@ -51,45 +49,31 @@ nav a:hover { color: #fff; }
     border-radius: 8px;
     border: 1px solid #ddd;
 }
-
-h2 {
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 25px;
 }
-
 th, td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: center;
 }
-
 th {
     background: var(--burn-mid);
     color: #fff;
 }
-
-tr:hover {
-    background-color: #eef4ff;
-}
-
 button {
     padding: 10px 18px;
-    background-color: var(--burn-accent);
     border: none;
     color: #fff;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
 }
-button:hover {
-    background-color: #005fcc;
-}
+button:hover { opacity: .9; }
+.btn-approve { background: var(--burn-accent); }
+.btn-reject { background: var(--burn-danger); }
 
 .message-box {
     background: #e6f4ff;
@@ -101,6 +85,15 @@ button:hover {
     color: #004a99;
 }
 </style>
+
+<script>
+// Prevent approving + rejecting same row
+function toggleCheck(target, counterpartName) {
+    const row = target.closest("tr");
+    const other = row.querySelector(`input[name='${counterpartName}']`);
+    if (target.checked) other.checked = false;
+}
+</script>
 </head>
 
 <body>
@@ -122,34 +115,32 @@ button:hover {
 </div>
 {% endif %}
 
-<form method="POST" action="/productReview/process/">
+<form method="POST" action="/productReview/">
 {% csrf_token %}
 
-<!-- Pending Sellers -->
+<!-- Seller Approvals -->
 <h2>Pending Seller Approvals</h2>
 <table>
 <tr>
     <th>User ID</th>
     <th>Email</th>
-    <th>Request Type</th>
     <th>Approve</th>
+    <th>Reject</th>
 </tr>
 
 {% for s in pending_sellers %}
 <tr>
     <td>{{ s.user.id }}</td>
     <td>{{ s.user.email }}</td>
-    <td>Seller Account Request</td>
-
-    <td><input type="checkbox" name="approve_seller" value="{{ s.user.id }}"></td>
+    <td><input type="checkbox" name="approve_seller" value="{{ s.user.id }}" onclick="toggleCheck(this, 'reject_seller')"></td>
+    <td><input type="checkbox" name="reject_seller" value="{{ s.user.id }}" onclick="toggleCheck(this, 'approve_seller')"></td>
 </tr>
 {% empty %}
-<tr><td colspan="4"><i>No pending seller approval requests.</i></td></tr>
+<tr><td colspan="4"><i>No pending seller requests.</i></td></tr>
 {% endfor %}
 </table>
 
-
-<!-- Pending Product Approvals -->
+<!-- Product Approvals -->
 <h2>Pending Product Approvals</h2>
 <table>
 <tr>
@@ -157,6 +148,7 @@ button:hover {
     <th>Product Name</th>
     <th>Seller</th>
     <th>Approve</th>
+    <th>Reject</th>
 </tr>
 
 {% for p in pending_products %}
@@ -164,18 +156,17 @@ button:hover {
     <td>{{ p.id }}</td>
     <td>{{ p.title }}</td>
     <td>{{ p.seller.username }}</td>
-
-    <td><input type="checkbox" name="approve_product" value="{{ p.id }}"></td>
+    <td><input type="checkbox" name="approve_product" value="{{ p.id }}" onclick="toggleCheck(this, 'reject_product')"></td>
+    <td><input type="checkbox" name="reject_product" value="{{ p.id }}" onclick="toggleCheck(this, 'approve_product')"></td>
 </tr>
 {% empty %}
-<tr><td colspan="4"><i>No pending products for review.</i></td></tr>
+<tr><td colspan="5"><i>No pending products.</i></td></tr>
 {% endfor %}
 </table>
 
-<button type="submit">Approve Selected</button>
+<button class="btn-approve" type="submit">Submit Decisions</button>
 
 </form>
 </div>
-
 </body>
 </html>

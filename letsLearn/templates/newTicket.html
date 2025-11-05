@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Support Tickets - BurnLab</title>
+<title>BurnLab – Support Tickets</title>
 
 <style>
 :root {
@@ -15,147 +15,132 @@
 
 body {
   background: var(--burn-bg);
-  color: #2b2b2b;
-  font-family: "Source Sans Pro", sans-serif;
+  font-family: "Segoe UI", sans-serif;
   margin: 0;
 }
 
-/* ----- HEADER ----- */
+/* Header */
 header {
   background: var(--burn-mid);
-  color: #fff;
+  color: white;
   text-align: center;
-  padding: 1.5rem 0;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  padding: 1.2rem;
+  font-size: 1.6rem;
+  font-weight: bold;
 }
 
-/* ----- NAVBAR ----- */
+/* Navbar */
 nav {
   background: var(--burn-dark);
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 0.8rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  padding: 12px;
+  text-align: center;
 }
-
 nav a {
   color: var(--burn-light);
+  margin: 0 20px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 1rem;
 }
+nav a:hover { color: white; }
 
-nav a:hover { color: #fff; }
-
-/* ----- PAGE CONTAINER ----- */
+/* Layout */
 .container {
   width: 85%;
   max-width: 900px;
-  margin: 40px auto;
+  margin: 30px auto;
 }
 
-/* ----- TABLE ----- */
-.ticket-table {
+/* Ticket table */
+table {
   width: 100%;
-  border-collapse: collapse;
   background: white;
+  border-collapse: collapse;
+  margin-bottom: 30px;
   border-radius: 10px;
   overflow: hidden;
-  margin-top: 25px;
 }
-
-.ticket-table th {
+th {
   background: var(--burn-mid);
   color: white;
   padding: 12px;
 }
-
-.ticket-table td {
-  padding: 12px;
+td {
   text-align: center;
-  border-bottom: 1px solid #eee;
+  padding: 12px;
+  border-bottom: 1px solid #e4e4e4;
 }
-.ticket-table tr:hover { background: #eef4ff; }
+tr:hover { background: #eef4ff; }
 
-/* ----- STATUS BADGES ----- */
+/* Status Tags */
 .status-tag {
-  padding: 5px 10px;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 5px;
   font-weight: bold;
-  font-size: 0.85rem;
+  font-size: .85rem;
 }
+.status-open { background:#c8e6c9; color:#2e7d32; }
+.status-pending-admin { background:#fff3cd; color:#856404; }
+.status-pending-user { background:#bbdefb; color:#1565c0; }
+.status-closed { background:#ffcdd2; color:#b71c1c; }
 
-.status-open { background:#c8e6c9; color:#2e7d32;}
-.status-pending-admin { background:#fff3cd; color:#856404;}
-.status-pending-user { background:#bbdefb; color:#1565c0;}
-.status-closed { background:#ffcdd2; color:#b71c1c;}
-
-/* ----- FORM ----- */
+/* Form Box */
 form {
-  background: #fff;
+  background: white;
   padding: 20px;
-  margin-top: 40px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid #ddd;
 }
-
 input, textarea {
   width: 100%;
   padding: 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
   margin-bottom: 12px;
-  resize: none;             /* prevent drag resize */
-  -webkit-user-drag: none;  /* disable drag */
 }
+textarea { height: 120px; resize: none; }
 
-/* ----- BUTTONS ----- */
-.submit-btn {
+/* Buttons */
+button {
   background: var(--burn-accent);
   color: white;
   padding: 10px 18px;
-  border:none;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight:600;
+  font-weight: bold;
 }
-.submit-btn:hover { background:#005fcc; }
+button:hover { background:#005fcc; }
 
-.view-link {
+.view-btn {
   background: var(--burn-accent);
-  color:white;
-  padding:6px 12px;
-  border-radius:6px;
-  text-decoration:none;
-  font-weight:600;
+  padding: 6px 10px;
+  text-decoration: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
 }
-.view-link:hover { background:#0056b3; }
+.view-btn:hover { background:#0056b3; }
 </style>
 
 </head>
 
 <body>
 
-<header>
-  <h1>BurnLab Support</h1>
-</header>
+<header>BurnLab Support</header>
 
 <nav>
-    {% if role == "Seller" %}
-        <a href="/productPage">Home</a>
-    {% else %}
-        <a href="/buyerHome">Home</a>
-    {% endif %}
-    <a href="/logout">Logout</a>
+  {% if role == "Seller" %}
+    <a href="/productPage">Home</a>
+  {% else %}
+    <a href="/buyerHome">Home</a>
+  {% endif %}
+  <a href="/logout">Logout</a>
 </nav>
 
 <div class="container">
 
-<h2>Your Support Tickets</h2>
-
-<table class="ticket-table">
+<h2>Your Tickets</h2>
+<table>
 <tr>
   <th>ID</th>
   <th>Subject</th>
@@ -174,29 +159,29 @@ input, textarea {
         {% elif t.status == 'Pending User' %}status-pending-user
         {% elif t.status == 'Closed' %}status-closed
         {% endif %}
-      ">{{ t.status }}</span>
+      ">
+      {{ t.status }}
+      </span>
   </td>
-  <td><a class="view-link" href="/replyTicket/{{ t.id }}/">Open</a></td>
+  <td><a class="view-btn" href="/replyTicket/{{ t.id }}/">Open</a></td>
 </tr>
 {% empty %}
 <tr><td colspan="4"><i>No tickets yet.</i></td></tr>
 {% endfor %}
 </table>
 
-<h2>Create New Ticket</h2>
 
+<h2>Create a Support Ticket</h2>
 <form method="POST" action="/newTicket/">
   {% csrf_token %}
 
-  <input type="hidden" name="role" value="{{ role }}">
+  <label>Subject</label>
+  <input type="text" name="subject" placeholder="Enter ticket subject..." required>
 
-  <label>Subject:</label>
-  <input type="text" name="subject" required>
+  <label>Message</label>
+  <textarea name="message" placeholder="Describe the issue..." required></textarea>
 
-  <label>Message:</label>
-  <textarea name="message" rows="4" required></textarea>
-
-  <button type="submit" class="submit-btn">Submit Ticket</button>
+  <button type="submit">Submit Ticket</button>
 </form>
 
 </div>

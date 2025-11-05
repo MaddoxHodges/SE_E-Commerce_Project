@@ -1,42 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | BurnLab</title>
 
-    <title>Checkout</title>
+<style>
+:root {
+  --burn-dark: #1a2a46;
+  --burn-mid: #23395d;
+  --burn-accent: #007bff;
+  --burn-light: #9ec5ff;
+  --burn-bg: #f5f8fc;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--burn-bg);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: var(--burn-mid);
+  color: #fff;
+  text-align: center;
+  padding: 1.4rem;
+  font-size: 1.6rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.container {
+  max-width: 900px;
+  background: #fff;
+  margin: 30px auto;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th {
+  background: var(--burn-accent);
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:nth-child(even) td {
+  background-color: #f6f9ff;
+}
+
+.total-box {
+  padding: 15px;
+  background: #eef4ff;
+  border-radius: 8px;
+  margin-top: 15px;
+  font-size: 1.1rem;
+}
+
+.total-final {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--burn-accent);
+  margin-top: 10px;
+}
+
+button, input[type="submit"] {
+  background: var(--burn-accent);
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+button:hover, input[type="submit"]:hover {
+  background: #0056b3;
+}
+
+a {
+  color: var(--burn-mid);
+  font-weight: bold;
+  text-decoration: none;
+  margin-top: 15px;
+  display: inline-block;
+}
+
+a:hover {
+  color: var(--burn-accent);
+}
+</style>
 </head>
+
 <body>
-    <h1>Checkout</h1>
-    <table>
-        <tr>
-            <th>Product Name&nbsp;&nbsp;&nbsp;</th>
-            <th>Quantity&nbsp;&nbsp;&nbsp;</th>
-            <th>Price&nbsp;&nbsp;&nbsp;</th>
 
-        </tr>
-        {% for item in product_data %}
-            <tr>
-                <th>{{item.title}}</th>
-                <th>{{item.quantity}}</th>
-                <th>${{item.price}}</th> 
-            </tr>
-        {% endfor %}
-    </table>
-    <p>Price: ${{price}}<br>
-        Tax: ${{tax}}<br>
-        Shipping: ${{shipping}}<br>
-        ----------------------------------------
-    </p>
-    
-    <p style="font-size: larger;">Total Price: ${{total}}</p>
-    <form action="/placeorder/" method="post">
-        {% csrf_token %}
-        {{ form }}
+<header>Checkout</header>
 
-        <input type="submit" value="Place Order"/>
-    </form>
-    <p>Check out our <a href="/home">Home</a> page.</p>
-    <p><a href="/logout">Logout</a></p>
+<div class="container">
+
+  <table>
+    <tr>
+      <th>Product</th>
+      <th>Qty</th>
+      <th>Price</th>
+    </tr>
+
+    {% for item in product_data %}
+    <tr>
+      <td>{{ item.title }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>${{ item.price }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div class="total-box">
+    <p>Subtotal: ${{ price }}</p>
+    <p>Tax: ${{ tax }}</p>
+    <p>Shipping: ${{ shipping }}</p>
+  </div>
+
+  <p class="total-final">Total: ${{ total }}</p>
+
+  <form action="/placeorder/" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <br>
+    <input type="submit" value="Place Order">
+  </form>
+
+  <a href="/cart/">← Back to Cart</a>
+  <a style="float:right;" href="/logout">Logout</a>
+
+</div>
+
 </body>
 </html>
