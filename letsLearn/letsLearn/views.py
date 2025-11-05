@@ -249,6 +249,7 @@ def placeorder(request):
 
             
             order = Orders(
+                user=request.user,           # <--- ADD THIS FIELD
                 created_at=datetime.now(),
                 address=address,
                 subtotal_cents=0,
@@ -310,51 +311,36 @@ def placeorder(request):
 
 
 def vieworders(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
 
-    template = loader.get_template("vieworders.html")
-    page = request.GET.get("page", 1)
-    try:
-        page = int(page)
-    except ValueError as error:
-        page = 1
-    
+    page = int(request.GET.get("page", 1))
     page = max(page, 1)
-    ## pg_num = min(pg_num, 1)  waiting on db to check for max page number
 
-    context =  {
-        'next_page': page + 1,
-        'prev_page': page - 1,
-        'page': page,
+    # only fetch user's orders
+    orders = Orders.objects.filter(user=request.user).order_by("-created_at")[(page - 1) * 12:(page * 12)]
 
-    }
-
-    # o = Orders(subtotal_cents=100, tax_cents=7, shipping_cents=1300, total_cents=1407, address="Test Address 1", created_at=datetime.datetime(2025, 10, 28, 12, 38, 0))
-    # o.save()
-
-    # o = Orders(subtotal_cents=1700, tax_cents=119, shipping_cents=1300, total_cents=3119, address="Test Address 1", created_at=datetime.datetime(2025, 11, 2, 9, 15, 0))
-    # o.save()
-
-
-    orders = Orders.objects.all()[(page - 1) * 12:(page * 12)]
-
+    # build into 3 column grid (like your old version)
     grid = []
     for row in range(math.ceil(len(orders) / 3)):
         row_list = []
         for index in range(3):
-            product_index = (row * 3) + index
-            if len(orders) <= product_index :
+            i = (row * 3) + index
+            if i >= len(orders):
                 break
-
-            row_list.append(orders[product_index])
+            row_list.append(orders[i])
         grid.append(row_list)
-    
-    context["grid"] = grid
 
-    return HttpResponse(template.render(context, request))
+    return render(request, "vieworders.html", {
+        "grid": grid,
+        "page": page,
+        "next_page": page + 1,
+        "prev_page": page - 1,
+    })
 
-def orderdetails(request):
-    template = loader.get_template("orderdetails.html")
-    order = Orders.objects.get(id=request.GET.get("order_id"))
+
+def orderdetails(request, order_id):
+    order = Orders.objects.get(id=order_id)
 
     return_id = request.GET.get("order_item_id")
     if return_id is not None:
@@ -367,7 +353,6 @@ def orderdetails(request):
 
     orderitems = []
     for item in OrderItems.objects.filter(order_id=order.id):
-        # item.product_id is a FK to Product; Django gives you the instance as item.product_id
         product = item.product_id
         orderitems.append({
             "item": item,
@@ -382,12 +367,12 @@ def orderdetails(request):
         intToPrice(order.total_cents),
     ]
 
-    context = {
+    return render(request, "orderdetails.html", {
         "order": order,
         "items": orderitems,
         "formated_prices": prices
-    }
-    return HttpResponse(template.render(context, request))
+    })
+
 
 
 ######Login Page#########
@@ -667,35 +652,33 @@ def buyerHome(request):
 def newListing(request):
     if not request.user.is_authenticated:
         return redirect("login")
+    
+def newListing(request):
 
     if request.method == "POST":
-        title = request.POST.get("productName").strip()
-        desc = request.POST.get("productDes").strip()
-        
-        # Price & Stock
-        price = float(request.POST.get("productPrice"))
-        stock = int(request.POST.get("stock"))
-
-        price_cents = int(price * 100)
+        productName = request.POST.get("productName")
+        productDes = request.POST.get("productDes")
+        productPrice = request.POST.get("productPrice")
+        stock = request.POST.get("stock")
 
         product = Product.objects.create(
-            title=title,
-            description=desc,
-            price_cents=price_cents,
-            stock=stock,  # ✅ Save stock
             seller_id=request.user.id,
-            status="pending",
+            title=productName,
+            description=productDes,
+            price_cents=int(float(productPrice) * 100),
+            stock=int(stock)
         )
 
-        # ✅ Handle images (future expansion)
-        images = request.FILES.getlist("images")
-        # todo: store images later
+        image_file = request.FILES.get("images")
 
-        messages.success(request, "Product submitted for review ✅")
+        if image_file:
+            product.main_image = image_file
+            product.save()
+
         return redirect("/productPage/")
 
-    return render(request, "newListing.html")
-
+    template = loader.get_template("newListing.html")
+    return HttpResponse(template.render({}, request))
 
 def productViewer(request):
     if not request.user.is_authenticated:
@@ -820,3 +803,41 @@ def unbanUser(request, user_id):
         messages.success(request, f"{user.username} has been unbanned.")
     return redirect("webUsers")
    
+def sellerOrders(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    # you only want orders that contain products owned by this seller
+    items = OrderItems.objects.filter(product_id__seller_id=request.user.id)
+
+    # get distinct order ids
+    order_ids = set(i.order_id.id for i in items)
+
+    orders = Orders.objects.filter(id__in=order_ids).order_by("-created_at")
+
+    return render(request, "sellerOrders.html", {"orders": orders})
+
+
+def sellerOrderDetails(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    oid = request.GET.get("order_id")
+    if not oid:
+        return redirect("/sellerOrders/")
+
+    try:
+        order = Orders.objects.get(id=oid)
+    except Orders.DoesNotExist:
+        return redirect("/sellerOrders/")
+
+    # only items belonging to THIS seller
+    items = OrderItems.objects.filter(
+        order_id=order,
+        product_id__seller_id=request.user.id
+    )
+
+    return render(request, "sellerOrderDetails.html", {
+        "order": order,
+        "items": items
+    })
