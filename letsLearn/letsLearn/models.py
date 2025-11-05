@@ -2,11 +2,24 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
-class Product(models.Model):
-    title = models.CharField(max_length=40)
-    price = models.IntegerField()
-    stock_qty = models.IntegerField()
-    description = models.TextField()
+class Product(models.Model): #updated for product related section
+    id = models.IntegerField(primary_key=True)
+
+    seller_id = models.DecimalField(max_digits=8, decimal_places=1, default=1)
+    category_id = models.DecimalField(max_digits=8, decimal_places=1, default=1)
+    title = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    price_cents = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    status =  models.CharField(max_length=10, default = 'active')
+    main_image_url = models.TextField(blank=True, null=True)
+   
+    created_at = models.TextField(blank=True, null=True)
+    updated_at = models.TextField(blank=True, null=True)
+    class Meta:
+        db_table = 'products'
+    def __str__(self):
+        return self.name
+
 
 class Orders(models.Model):
     #user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
@@ -26,7 +39,7 @@ class Orders(models.Model):
 
     status = models.CharField(
         max_length=1,
-        choices=Status,
+        choices=Status.choices, # initially was choices = Status, but it was giving an error
         default=Status.PLACED,
     )
 
