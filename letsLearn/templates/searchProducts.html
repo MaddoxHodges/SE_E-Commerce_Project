@@ -1,84 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Search Products</title>
-  <style>
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background-color: #f4f6f8;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #23395d;
-      color: white;
-      text-align: center;
-      padding: 1rem;
-    }
-    main {
-      max-width: 800px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    form {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    input[type="text"] {
-      flex: 1;
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background-color: #007bff;
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .product {
-      padding: 10px 0;
-      border-bottom: 1px solid #ddd;
-    }
-    .product:last-child {
-      border-bottom: none;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Search Products</h1>
-  </header>
-  <main>
-    <form method="get" action="/searchProducts/">
-      <input type="text" name="q" placeholder="Search for a product..." value="{{ query }}">
-      <button type="submit">Search</button>
-    </form>
+<meta charset="UTF-8">
+<title>Search Products | BurnLab</title>
 
-    {% if search_performed %}
-      {% if products %}
-        {% for product in products %}
-          <div class="product">
-            <h3>{{ product.title }}</h3>
-            <p>{{ product.description }}</p>
-            <p><strong>Price:</strong> ${{ product.price_cents }}</p>
-            <a href="/details?product_id={{ product.id }}">View Details →</a>
-          </div>
-        {% endfor %}
-      {% else %}
-        <p>No matching products found.</p>
-      {% endif %}
+<style>
+:root {
+  --burn-dark: #1a2a46;
+  --burn-mid: #23395d;
+  --burn-accent: #007bff;
+  --burn-light: #9ec5ff;
+  --burn-bg: #f4f6f8;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: var(--burn-bg);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: var(--burn-mid);
+  color: white;
+  text-align: center;
+  padding: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+/* Layout */
+main {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+
+/* Search Bar */
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+input[type="text"] {
+  flex: 1;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background-color: var(--burn-accent);
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+button:hover { background-color: #0056b3; }
+
+/* Product card */
+.product {
+  display: flex;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #ddd;
+}
+.product:last-child { border-bottom: none; }
+
+.product-info { flex: 1; }
+
+.product h3 {
+  margin: 0 0 6px 0;
+  color: var(--burn-mid);
+}
+
+.price {
+  font-weight: bold;
+  color: var(--burn-accent);
+  margin: 5px 0;
+}
+
+a.details-btn {
+  text-decoration: none;
+  font-weight: bold;
+  color: var(--burn-accent);
+}
+a.details-btn:hover { color: #0056b3; }
+</style>
+</head>
+
+<body>
+
+<header>BurnLab Product Search</header>
+
+<main>
+
+  <form method="get" action="/searchProducts/">
+    <input type="text" name="q" placeholder="Search for a product..." value="{{ query }}">
+    <button type="submit">Search</button>
+  </form>
+
+  {% if search_performed %}
+    {% if products %}
+      {% for product in products %}
+
+      <div class="product">
+        <div style="width:90px; height:90px; background:#e6eefc; border-radius:8px;"></div>
+
+        <div class="product-info">
+          <h3>{{ product.title }}</h3>
+          <p>{{ product.description }}</p>
+
+          <!-- ✅ Correct price format -->
+          <p class="price">$ {{ product.display_price }}</p>
+
+          <!-- ✅ Correct link -->
+          <a class="details-btn" href="/details/?product_id={{ product.id }}">View Details →</a>
+
+        </div>
+      </div>
+
+      {% endfor %}
+    {% else %}
+      <p>No matching products found.</p>
     {% endif %}
-  </main>
+  {% endif %}
+
+</main>
+
 </body>
 </html>

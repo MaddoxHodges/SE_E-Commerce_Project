@@ -89,6 +89,8 @@ urlpatterns = [
 
     path("searchProducts/", views.searchProducts),
 
+    path("details/", views.details, name="details"),
+
 ]
 
 

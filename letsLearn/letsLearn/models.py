@@ -6,27 +6,33 @@ from django.contrib.auth.models import User
 User = get_user_model()
 
 
-class Product(models.Model): #updated for product related section
-    id = models.IntegerField(primary_key=True)
+class Product(models.Model):
+    id = models.AutoField(primary_key=True)
 
-    seller_id = models.DecimalField(max_digits=8, decimal_places=1, default=1)
-    category_id = models.DecimalField(max_digits=8, decimal_places=1, default=1)
+    seller_id = models.IntegerField(default=1)  
+    category_id = models.IntegerField(default=1)
+
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    price_cents = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
-    status =  models.CharField(max_length=10, default = 'active')
+
+    price_cents = models.IntegerField(default=0)  
+
+    stock = models.IntegerField(default=0) 
+
+    status = models.CharField(max_length=10, default='active')
     main_image_url = models.TextField(blank=True, null=True)
-   
-    created_at = models.TextField(blank=True, null=True)
-    updated_at = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)  
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         db_table = 'products'
-    def __str__(self):
-        return self.name
 
+    def __str__(self):
+        return self.title or "Untitled Product"
 
 class Orders(models.Model):
-    #user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    
     subtotal_cents = models.IntegerField()
     tax_cents = models.IntegerField()
     shipping_cents = models.IntegerField()
@@ -43,7 +49,7 @@ class Orders(models.Model):
 
     status = models.CharField(
         max_length=1,
-        choices=Status.choices, # initially was choices = Status, but it was giving an error
+        choices=Status.choices,
         default=Status.PLACED,
     )
 
@@ -53,8 +59,8 @@ class SupportTicket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.CharField(max_length=255)
     description = models.TextField()
-    response = models.TextField(blank=True, null=True)   # <--- admin reply
-    status = models.CharField(max_length=20, default="Open") # Open / Pending / Resolved
+    response = models.TextField(blank=True, null=True)   
+    status = models.CharField(max_length=20, default="Open")
     created_at = models.DateTimeField(auto_now_add=True)
 
 class TicketMessage(models.Model):
@@ -70,3 +76,4 @@ class OrderItems(models.Model):
     qty = models.IntegerField()
     price_cents = models.IntegerField()
     return_requested = models.BooleanField()
+

@@ -48,32 +48,51 @@ def login_view(request):
     if request.method == "POST":
         email = (request.POST.get("email") or "").strip().lower()
         password = request.POST.get("password") or ""
-        user = authenticate(request, username=email, password=password)
-        
+
+        # Try to find user by email
+        try:
+            user_obj = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "Invalid email or password.")
+            return redirect("login")
+
+        # Authenticate using username linked to that email
+        user = authenticate(request, username=user_obj.username, password=password)
+
         if user is None:
             messages.error(request, "Invalid email or password.")
             return redirect("login")
+
+        # Successful login
         login(request, user)
 
         sp = getattr(user, "sellerprofile", None)
 
+        # Superuser/staff → admin support panel
         if user.is_superuser or user.is_staff:
             return redirect("/support/")
+
+        # Banned?
         if sp and sp.is_banned:
             logout(request)
             messages.error(request, "Your account is banned.")
             return redirect("login")
-            
-        if sp and sp.is_pending and not sp.is_approved:
+
+        # Seller pending approval
+        if sp and sp.is_seller and not sp.is_approved:
             logout(request)
             messages.info(request, "Your seller account request is still pending approval.")
             return redirect("login")
 
-        if sp and sp.is_approved and sp.is_seller:
+        # Approved seller
+        if sp and sp.is_seller and sp.is_approved:
             return redirect("/productPage/")
 
+        # Default buyer
         return redirect("/buyerHome/")
+
     return render(request, "login.html")
+
 
 def logout_view(request):
     logout(request)
