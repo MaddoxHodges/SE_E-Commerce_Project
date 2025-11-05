@@ -18,6 +18,9 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 from authapp import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     #path ('', include('members.urls')),
@@ -72,10 +75,16 @@ urlpatterns = [
     path('buyerHome/', views.buyerHome),
 
     path('newAdmin/', views.newAdmin),
-
+    
     path("replyTicket/<int:ticket_id>/", views.replyTicket, name="replyTicket"),
+    
     path("closeTicket/<int:ticket_id>/", views.closeTicket, name="closeTicket"),
 
+    path("sellerOrders/", views.sellerOrders, name="sellerOrders"),
+    
+    path("sellerOrders/details", views.sellerOrderDetails, name="sellerOrderDetails"),
+    
+    path("order/<int:order_id>/", views.orderdetails, name="orderDetails"),
 
     ##banning actions##
     path('webUsers/', views.webUsers, name='webUsers'),
@@ -93,6 +102,5 @@ urlpatterns = [
 
 ]
 
-
-
-
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
