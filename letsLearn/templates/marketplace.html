@@ -79,6 +79,15 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     }
 
+    .product-img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+    }
+
     .product-card h3 {
       color: var(--burn-mid);
       font-size: 1.3rem;
@@ -159,9 +168,15 @@
         {% for product in row %}
 
           <div class="product-card" onclick="window.location='/details/?product_id={{ product.id }}'">
+            
+            {% if product.main_image %}
+              <img class="product-img" src="{{ product.main_image.url }}">
+            {% else %}
+              <img class="product-img" src="/static/noimage.png">
+            {% endif %}
+
             <h3>{{ product.title }}</h3>
 
-            <!-- ✅ Proper price value -->
             <p class="price">${{ product.display_price }}</p>
 
             {% if product.stock <= 0 %}
@@ -186,6 +201,5 @@
     <a href="?page={{ next_page }}">Next →</a>
   </div>
 
-  
 </body>
 </html>
