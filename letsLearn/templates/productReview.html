@@ -1,94 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BurnLab – Product Reviews Awaiting Action</title>
+<meta charset="UTF-8">
+<title>BurnLab – Admin Review</title>
 
-  <style>
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background-color: #f4f6f8;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
+:root {
+    --burn-dark: #1a2a46;
+    --burn-mid: #23395d;
+    --burn-accent: #007bff;
+    --burn-danger: #cc0000;
+    --burn-light: #9ec5ff;
+    --burn-bg: #f5f8fc;
+}
 
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+/* Layout and Styles Same as before */
+body {
+    font-family: Arial, sans-serif;
+    background: var(--burn-bg);
+    margin: 0;
+}
+header {
+    background: var(--burn-mid);
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    font-size: 22px;
+    font-weight: bold;
+}
+nav {
+    background: var(--burn-dark);
+    padding: 10px;
+    text-align: center;
+}
+nav a {
+    color: var(--burn-light);
+    font-weight: bold;
+    text-decoration: none;
+    margin: 0 15px;
+}
+nav a:hover { color: #fff; }
 
-    h1 {
-      color: #333;
-      margin-bottom: 10px;
-    }
+.container {
+    width: 80%;
+    margin: 25px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+th {
+    background: var(--burn-mid);
+    color: #fff;
+}
+button {
+    padding: 10px 18px;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+button:hover { opacity: .9; }
+.btn-approve { background: var(--burn-accent); }
+.btn-reject { background: var(--burn-danger); }
 
-    nav a {
-      color: #007bff;
-      text-decoration: none;
-      margin: 0 10px;
-    }
+.message-box {
+    background: #e6f4ff;
+    border: 1px solid #8ac5ff;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #004a99;
+}
+</style>
 
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    table {
-      width: 90%;
-      margin: 20px auto;
-      border-collapse: collapse;
-      background: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #007bff;
-      color: white;
-      font-weight: 600;
-    }
-
-    tr:hover {
-      background-color: #f1f5ff;
-    }
-
-    .no-reviews {
-      text-align: center;
-      color: #777;
-    }
-  </style>
+<script>
+// Prevent approving + rejecting same row
+function toggleCheck(target, counterpartName) {
+    const row = target.closest("tr");
+    const other = row.querySelector(`input[name='${counterpartName}']`);
+    if (target.checked) other.checked = false;
+}
+</script>
 </head>
 
 <body>
-  <header>
-    <h1>Reviews Awaiting Action</h1>
-    <nav>
-      <a href="/logout">Logout</a>
-      <a href="/home">Home</a>
-      <a href="/support">Support Page</a>
-    </nav>
-  </header>
 
-  <table id="review-table">
-    <thead>
-      <tr>
-        <th>Product ID</th>
-        <th>Product Name</th>
-        <th>Description</th>
-        <th>Product Link</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="no-reviews"><td colspan="4">No reviews awaiting action.</td></tr>
-    </tbody>
-  </table>
+<header>Admin Review Panel</header>
+
+<nav>
+    <a href="/support">Support</a>
+    <a href="/logout">Logout</a>
+</nav>
+
+<div class="container">
+
+{% if messages %}
+<div class="message-box">
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="POST" action="/productReview/">
+{% csrf_token %}
+
+<!-- Seller Approvals -->
+<h2>Pending Seller Approvals</h2>
+<table>
+<tr>
+    <th>User ID</th>
+    <th>Email</th>
+    <th>Approve</th>
+    <th>Reject</th>
+</tr>
+
+{% for s in pending_sellers %}
+<tr>
+    <td>{{ s.user.id }}</td>
+    <td>{{ s.user.email }}</td>
+    <td><input type="checkbox" name="approve_seller" value="{{ s.user.id }}" onclick="toggleCheck(this, 'reject_seller')"></td>
+    <td><input type="checkbox" name="reject_seller" value="{{ s.user.id }}" onclick="toggleCheck(this, 'approve_seller')"></td>
+</tr>
+{% empty %}
+<tr><td colspan="4"><i>No pending seller requests.</i></td></tr>
+{% endfor %}
+</table>
+
+<!-- Product Approvals -->
+<h2>Pending Product Approvals</h2>
+<table>
+<tr>
+    <th>Product ID</th>
+    <th>Product Name</th>
+    <th>Seller</th>
+    <th>Approve</th>
+    <th>Reject</th>
+</tr>
+
+{% for p in pending_products %}
+<tr>
+    <td>{{ p.id }}</td>
+    <td>{{ p.title }}</td>
+    <td>{{ p.seller.username }}</td>
+    <td><input type="checkbox" name="approve_product" value="{{ p.id }}" onclick="toggleCheck(this, 'reject_product')"></td>
+    <td><input type="checkbox" name="reject_product" value="{{ p.id }}" onclick="toggleCheck(this, 'approve_product')"></td>
+</tr>
+{% empty %}
+<tr><td colspan="5"><i>No pending products.</i></td></tr>
+{% endfor %}
+</table>
+
+<button class="btn-approve" type="submit">Submit Decisions</button>
+
+</form>
+</div>
 </body>
 </html>
-

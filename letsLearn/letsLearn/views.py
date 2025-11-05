@@ -1,10 +1,16 @@
 import datetime
 import json
+from decimal import Decimal
+
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.contrib.auth import authenticate, login as auth_login
+from .models import SupportTicket, TicketMessage
+from authapp.models import SellerProfile
+from django.contrib import messages
+
 from datetime import datetime
 from django.db.models import Q
 import math
@@ -21,6 +27,10 @@ def homepage(request):
     #return HttpResponse("Hello World! I'm Home.")
     return render(request, 'home.html')
 
+
+def productViewer(request):
+    return render(request, 'productViewer.html')
+
 def about(request):
     #return HttpResponse("My About page.")
     return render(request, 'about.html')
@@ -30,155 +40,201 @@ def buyerHome(request):
 
 
 def marketplace(request):
-
     template = loader.get_template("marketplace.html")
     page = request.GET.get("page", 1)
     try:
         page = int(page)
-    except ValueError as error:
+    except ValueError:
         page = 1
-    
     page = max(page, 1)
-    ## pg_num = min(pg_num, 1)  waiting on db to check for max page number
 
-    context =  {
-        'next_page': page + 1,
-        'prev_page': page - 1,
-        'page': page,
-
-    }
-
-    # p = Product(title="Product 1", price=517, stock_qty=1, description="product 1 description")
-    # p.save()
-    # p = Product(title="Product 2", price=8, stock_qty=0, description="product 2 description")
-    # p.save()
-
-    # for i in range(20):
-    #     p = Product(title=f"Product {i + 3}", price=100 + 20 * i, stock_qty=i, description=f"product {i + 3} description")
-    #     p.save()
-
-    products = Product.objects.all()[(page - 1) * 12:(page * 12)]
+    products = Product.objects.filter(status="active")[(page - 1) * 12:(page * 12)]
 
     grid = []
     for row in range(math.ceil(len(products) / 3)):
         row_list = []
         for index in range(3):
             product_index = (row * 3) + index
-            if len(products) <= product_index :
+            if product_index >= len(products):
                 break
+            
+            p = products[product_index]
+            p.display_price = intToPrice(p.price_cents)  # ✅ add this
+            row_list.append(p)
 
-            row_list.append(products[product_index])
         grid.append(row_list)
-    
-    context["grid"] = grid
 
+    context = {
+        'next_page': page + 1,
+        'prev_page': page - 1,
+        'page': page,
+        'grid': grid,
+    }
     return HttpResponse(template.render(context, request))
+
+
 
 def details(request):
     template = loader.get_template("details.html")
     product = Product.objects.get(id=request.GET.get("product_id"))
-    context =  {
+    
+    price = f"{product.price_cents / 100:.2f}"  # ✅ proper formatting
+    
+    context = {
         "inStock": 1,
         "product": product,
-        "price": intToPrice(product.price)
+        "price": price
     }
-
     return HttpResponse(template.render(context, request))
 
-def addtocart(request: HttpResponse):
-    if request.method == 'POST':
-        raw_body = request.body
-        try:
-            print(json.loads(raw_body.decode('utf-8')))
-            product_id, qty = json.loads(raw_body.decode('utf-8'))
-        except json.JSONDecodeError:
-            return JsonResponse({'error' : 'Invalid JSON format'}, status = 400)
-        
-        product = Product.objects.get(id=product_id)
+def addtocart(request):
+    product_id = request.GET.get("product_id") or request.POST.get("product_id")
+    qty = request.GET.get("qty") or request.POST.get("qty") or 1
 
-        cart = request.session.get("cart", {})
-        # non string keys are converted into strings when passed into the cart, no idea why but it will not work unless you match it correctly 
-        # (ex: getting the number 20 would attempt to get from an entirely new entry in the cookie labled as 20 while the actual data was being stored under the string "20")
-        products_in_cart = cart.get(str(product_id), 0)
-        purchase_total = int(qty) + products_in_cart
+    try:
+        qty = int(qty)
+    except:
+        qty = 1
 
-        if product.stock_qty - purchase_total >= 0:
-            cart[str(product_id)] = purchase_total
-            request.session["cart"] = cart
+    try:
+        p = Product.objects.get(id=product_id, status="active")
+    except Product.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Invalid product"})
 
-            return JsonResponse({'status' : 'OK'})
-        
-        return JsonResponse({'error' : 'insufficient product amount'})
-            
-            
-    return JsonResponse({'error' : 'Only POST requests are allowed'}, status = 405)
+
+    if p.stock <= 0:
+        return JsonResponse({"success": False, "error": "Out of stock"})
+
+    qty = min(qty, p.stock)
+
+
+    cart = request.session.get("cart", {})
+    current = cart.get(str(product_id), 0)
+
+
+    if current + qty > p.stock:
+        return JsonResponse({
+            "success": False,
+            "error": f"Only {p.stock} available"
+        })
+
+    cart[str(product_id)] = current + qty
+    request.session["cart"] = cart
+
+    return JsonResponse({"success": True})
+
 
 
 
 def shoppingcart(request):
     template = loader.get_template("cart.html")
-
     cart = request.session.get("cart", {})
-    total_price = 0
     product_data = []
+    total_cents = 0
 
+    # remove qty if product_id passed
     deletion_id = request.GET.get("product_id")
-    if deletion_id in cart:
+    if deletion_id and deletion_id in cart:
         cart[deletion_id] -= 1
-        if cart[deletion_id] == 0:
+        if cart[deletion_id] <= 0:
             del cart[deletion_id]
         request.session["cart"] = cart
-    for product_id in cart:
-        # get the price of the item from the database and multiply it by the quanity in the cart cookie
-        products = Product.objects.get(id=product_id)
-        price = products.price * cart[product_id]
 
-        total_price += price
-        product_data.append({"quantity": cart[product_id], "title": products.title, "price": intToPrice(price), "product_id": product_id})
+    # Build cart display
+    for product_id, qty in list(cart.items()):
+        try:
+            p = Product.objects.get(id=product_id, status="active")
+        except Product.DoesNotExist:
+            del cart[product_id]
+            request.session["cart"] = cart
+            continue
 
-    total_price = intToPrice(total_price)
-    context =  {
+        qty = int(qty)
+        line_cents = p.price_cents * qty
+        total_cents += line_cents
+
+        product_data.append({
+            "title": p.title,
+            "quantity": qty,
+            "price": f"{line_cents / 100:.2f}",
+            "product_id": product_id
+        })
+
+    request.session["cart"] = cart  
+
+    context = {
         "product_data": product_data,
-        "total_price": total_price,
+        "total_price": f"{total_cents / 100:.2f}",
     }
-
     return HttpResponse(template.render(context, request))
+
+
 
 def checkout(request):
     template = loader.get_template("checkout.html")
-
     cart = request.session.get("cart", {})
-    total_price = 0
+    total_price = Decimal("0.00")
     product_data = []
 
-    for product_id in cart:
-        # get the price of the item from the database and multiply it by the quanity in the cart cookie
-        products = Product.objects.get(id=product_id)
-        if products.stock_qty < cart[product_id]:
-            if (products.stock_qty == 0):
-                del cart[product_id]
-            else:
-                cart[product_id] = products.stock_qty
+    # sanitize cart and compute totals
+    for product_id in list(cart.keys()):
+        try:
+            p = Product.objects.get(id=product_id, status="active")
+        except Product.DoesNotExist:
+            del cart[product_id]
+            request.session["cart"] = cart
+            continue
 
-        price = products.price * cart[product_id]
+        qty = max(1, int(cart[product_id]))
+        cart[product_id] = qty  # normalize
 
-        total_price += price
-        product_data.append({"quantity": cart[product_id], "title": products.title, "price": intToPrice(price), "product_id": product_id})
+        # Convert price_cents (int) into Decimal dollars
+        item_total = Decimal(p.price_cents) * qty / Decimal("100")
+        total_price += item_total
+
+        product_data.append({
+            "quantity": qty,
+            "title": p.title,
+            "price": f"{item_total:.2f}",
+            "product_id": product_id
+        })
 
     request.session["cart"] = cart
 
+    # Tax & shipping
+    tax = total_price * Decimal("0.07")
+    shipping = Decimal("17.00")
+    grand_total = total_price + tax + shipping
 
-    context =  {
+    context = {
         "form": CheckoutForm(),
         "product_data": product_data,
-        "price": intToPrice(total_price),
-        "tax": round(total_price/100 * .07, 2),
-        "shipping": intToPrice(1700),
-        "total": round(total_price/100 * 1.07 + 17, 2)
-
+        "price": f"{total_price:.2f}",
+        "tax": f"{tax:.2f}",
+        "shipping": f"{shipping:.2f}",
+        "total": f"{grand_total:.2f}",
     }
 
     return HttpResponse(template.render(context, request))
+
+    request.session["cart"] = cart
+
+    tax_cents = int(round(total_price * 0.07))
+    shipping_cents = 1700
+    total_cents = total_price + tax_cents + shipping_cents
+
+    context = {
+        "form": CheckoutForm(),
+        "product_data": product_data,
+        "price": intToPrice(total_price),
+        "tax": intToPrice(tax_cents),
+        "shipping": intToPrice(shipping_cents),
+        "total": intToPrice(total_cents),
+    }
+    return HttpResponse(template.render(context, request))
+
+def intToPrice(price_cents):
+    return "{:.2f}".format(Decimal(price_cents) / 100)
 
 def placeorder(request):
     template = loader.get_template("placeorder.html")
@@ -188,36 +244,69 @@ def placeorder(request):
         if form.is_valid():
             address = form.cleaned_data["address"]
             cart = request.session.get("cart", {})
-            total_price = 0
 
-            for product_id in cart:
-                product = Product.objects.get(id=product_id)
-                if product.stock_qty < cart[product_id]:
-                    return redirect("/checkout")
+            total_price = 0 
 
-            order = Orders(created_at=datetime.datetime.now(), address=address, subtotal_cents=0, total_cents=0, tax_cents=0, shipping_cents=0)
-            order.save()
-
-            for product_id in cart:
-                product = Product.objects.get(id=product_id)
-                product.stock_qty -= cart[product_id]
-                product.save()
-
-                total_price += cart[product_id] * product.price
-                order_item = OrderItems(order_id=order, product_id=product, price_cents=product.price, qty=cart[product_id], return_requested=False)
-                order_item.save()
             
-            order.subtotal_cents = total_price
-            order.tax_cents = int(total_price * .07)
-            order.shipping_cents = 1300
-            order.total_cents = 1300 + int(total_price * 1.07)
+            order = Orders(
+                created_at=datetime.now(),
+                address=address,
+                subtotal_cents=0,
+                total_cents=0,
+                tax_cents=0,
+                shipping_cents=0
+            )
             order.save()
+
+            
+            for product_id, qty in cart.items():
+                try:
+                    p = Product.objects.get(id=product_id, status="active")
+                except Product.DoesNotExist:
+                    continue
+
+                qty = max(1, int(qty))
+
+                
+                if qty > p.stock:
+                    qty = p.stock  
+
+                
+                if p.stock <= 0:
+                    continue
+
+                line_cents = qty * p.price_cents
+                total_price += line_cents
+
+                OrderItems.objects.create(
+                    order_id=order,
+                    product_id=p,
+                    price_cents=p.price_cents,
+                    qty=qty,
+                    return_requested=False
+                )
+
+                
+                p.stock -= qty
+                p.save()
+
+            
+            tax_cents = total_price * 7 // 100  # 7%
+            shipping_cents = 1300  # $13.00
+
+            order.subtotal_cents = total_price
+            order.tax_cents = tax_cents
+            order.shipping_cents = shipping_cents
+            order.total_cents = total_price + tax_cents + shipping_cents
+            order.save()
+
+            # ✅ clear cart after save
             request.session["cart"] = {}
 
-    context =  {
-    }
+    return HttpResponse(template.render({}, request))
 
-    return HttpResponse(template.render(context, request))
+
+
 
 
 def vieworders(request):
@@ -269,28 +358,35 @@ def orderdetails(request):
 
     return_id = request.GET.get("order_item_id")
     if return_id is not None:
-        order_item = OrderItems.objects.get(id=return_id)
-        if order_item:
+        try:
+            order_item = OrderItems.objects.get(id=return_id, order_id=order)
             order_item.return_requested = True
             order_item.save()
+        except OrderItems.DoesNotExist:
+            pass
+
     orderitems = []
-
-    # o = OrderItems(order_id=order, product_id=Product.objects.get(id=12), qty=5, price_cents=20, return_requested=False)
-    # o.save()
-    
-
     for item in OrderItems.objects.filter(order_id=order.id):
-        product = Product.objects.get(id=item.product_id.id)
-        orderitems.append({"item": item, "product": product, "total": intToPrice(item.qty * item.price_cents)})
+        # item.product_id is a FK to Product; Django gives you the instance as item.product_id
+        product = item.product_id
+        orderitems.append({
+            "item": item,
+            "product": product,
+            "total": intToPrice(item.qty * item.price_cents)
+        })
 
-    prices = [intToPrice(order.subtotal_cents), intToPrice(order.tax_cents), intToPrice(order.shipping_cents), intToPrice(order.total_cents)]
+    prices = [
+        intToPrice(order.subtotal_cents),
+        intToPrice(order.tax_cents),
+        intToPrice(order.shipping_cents),
+        intToPrice(order.total_cents),
+    ]
 
-    context =  {
+    context = {
         "order": order,
         "items": orderitems,
         "formated_prices": prices
     }
-
     return HttpResponse(template.render(context, request))
 
 
@@ -299,11 +395,149 @@ def login(request):
     return render(request,"login.html")
 
 
-#######Admin Support#########
+########Admin Support#########
+
+def productReview(request):
+    if not request.user.is_staff:
+        return redirect("/home")
+
+    if request.method == "POST":
+
+        # Approve Sellers
+        for uid in request.POST.getlist("approve_seller"):
+            SellerProfile.objects.filter(user_id=uid).update(is_approved=True, is_seller=True)
+
+        # Reject Sellers
+        for uid in request.POST.getlist("reject_seller"):
+            SellerProfile.objects.filter(user_id=uid).update(is_approved=False, is_seller=False, is_banned=True)
+
+        # Approve Products
+        for pid in request.POST.getlist("approve_product"):
+            Product.objects.filter(id=pid).update(status="active")
+
+        # Reject Products
+        for pid in request.POST.getlist("reject_product"):
+            Product.objects.filter(id=pid).update(status="rejected")
+
+        messages.success(request, "Review decisions processed.")
+        return redirect("/productReview/")
+
+    pending_sellers = SellerProfile.objects.filter(is_seller=True, is_approved=False)
+    pending_products = Product.objects.filter(status="pending")
+
+    return render(request, "productReview.html", {
+        "pending_sellers": pending_sellers,
+        "pending_products": pending_products
+    })
+
+
+def processModeration(request):
+    if request.method != "POST":
+        return redirect("productReview")
+
+    approved_sellers = request.POST.getlist("approve_seller")
+    approved_products = request.POST.getlist("approve_product")
+
+    # Approve Sellers
+    for user_id in approved_sellers:
+        try:
+            profile = SellerProfile.objects.get(user__id=user_id)
+            profile.is_seller = True
+            profile.is_pending = False
+            profile.is_approved = True
+            profile.save()
+        except SellerProfile.DoesNotExist:
+            pass
+
+    # Approve Products
+    for product_id in approved_products:
+        try:
+            product = Product.objects.get(id=product_id)
+            product.is_approved = True
+            product.save()
+        except Product.DoesNotExist:
+            pass
+
+    messages.success(request, "Approvals processed successfully.")
+    return redirect("/productReview/")
+
+
+
+
+
 def tickets(request):
-    return render(request, 'tickets.html')
+    
+    if not request.user.is_staff:
+        return redirect("/home")
+
+    tickets = SupportTicket.objects.all().order_by("-id")
+
+    return render(request, "tickets.html", {
+        "tickets": tickets,
+        "role": "Admin"
+    })
+
+def closeTicket(request, ticket_id):
+    if not request.user.is_staff:
+        return redirect("/newTicket/")  
+
+    try:
+        ticket = SupportTicket.objects.get(id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return redirect("/tickets/")
+
+    ticket.status = "Closed"
+    ticket.save()
+
+    return redirect(f"/replyTicket/{ticket_id}/")
+
+
+def replyTicket(request, ticket_id):
+    try:
+        ticket = SupportTicket.objects.get(id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return redirect("/newTicket/")
+
+    
+    if request.method == "POST" and ticket.status != "Closed":
+    
+        msg = request.POST.get("message") or request.POST.get("response") or ""
+        msg = msg.strip()
+
+        
+        if msg == "":
+            from django.contrib import messages
+            messages.error(request, "Message cannot be empty.")
+            return redirect(f"/replyTicket/{ticket_id}/")
+
+        TicketMessage.objects.create(
+            ticket=ticket,
+            sender=request.user,
+            message=msg
+        )
+
+        
+        if request.user.is_staff:
+            ticket.status = "Pending User"
+        else:
+            ticket.status = "Pending Admin"
+
+        ticket.save()
+        return redirect(f"/replyTicket/{ticket_id}/")
+
+    
+    ticket_messages = ticket.messages.order_by("timestamp")
+
+    return render(request, "replyTicket.html", {
+        "ticket": ticket,
+        "messages": ticket_messages
+    })
+
+
+
 
 def support(request):
+    
     return render(request, 'support.html')
 
 def newAdmin(request):
@@ -337,82 +571,148 @@ def newAdmin(request):
     return render(request, 'newAdmin.html', {"admin_created": admin_created, "error": error})
 
 ########Seller Pages##########
-def productReview(request):
-    return render(request, 'productReview.html')
+
 
 def productEdit(request):
-    return render(request, 'productEdit.html')
+    if request.method == "POST":
+        product_id = request.POST.get("product_id")
+        p = Product.objects.get(id=product_id)
+
+        # verify seller owns product
+        if request.user.id != p.seller_id:
+            return redirect("/home")
+
+        p.title = request.POST.get("title")
+        p.description = request.POST.get("description")
+
+        # handle price
+        price_dollars = request.POST.get("price")
+        if price_dollars is not None:
+            try:
+                p.price_cents = int(round(float(price_dollars) * 100))
+            except ValueError:
+                pass
+
+        # ✅ NEW: Update stock
+        stock = request.POST.get("stock")
+        if stock is not None:
+            try:
+                p.stock = int(stock)
+            except ValueError:
+                pass
+
+        p.save()
+        return redirect("/productViewer")
+
+    # GET
+    product_id = request.GET.get("product_id")
+    p = Product.objects.get(id=product_id)
+    if request.user.id != p.seller_id:
+        return redirect("/home")
+    return render(request, "productedit.html", {"product": p})
+
 
 def productPage(request):
     return render(request, 'productPage.html')
 
-def newTicketSeller(request):
-    return render(request, 'newTicketSeller.html')
 
 def newTicket(request):
-    return render(request, 'newTicket.html')
+    user = request.user
+
+    # Determine role
+    if user.is_superuser or user.is_staff:
+        role = "Admin"
+    elif hasattr(user, "sellerprofile") and user.sellerprofile.is_seller:
+        role = "Seller"
+    else:
+        role = "Buyer"
+
+    if request.method == "POST":
+        subject = request.POST.get("subject")
+        message = request.POST.get("message")
+
+        if not message or message.strip() == "":
+            messages.error(request, "Message cannot be empty.")
+            return redirect("/newTicket/")
+
+        
+        ticket = SupportTicket.objects.create(
+            user=user,
+            subject=subject,
+            description=message,
+            status="Open"
+        )
+
+        
+        TicketMessage.objects.create(
+            ticket=ticket,
+            sender=user,
+            message=message
+        )
+
+        return redirect(f"/replyTicket/{ticket.id}/")
+
+    # Load user's tickets
+    tickets = SupportTicket.objects.filter(user=user).order_by("-id")
+
+    return render(request, "newTicket.html", {"tickets": tickets, "role": role})
 
 
 
-def intToPrice(price):
-    price = str(price)
-    size = len(price)
-    while size < 3:
-        price = "0" + price
-        size = len(price)
-
-    result = price[:(size - 2)] + "." + price[(size - 2):]
-    return result
 
 
 def buyerHome(request):
     return render(request, 'buyerHome.html')
 
 def newListing(request):
-    if request.method == 'POST':
-        id = request.POST.get('id') or None
-        seller_id = request.POST.get('seller_id') or None
-        category_id = request.POST.get('category_id') or None
-        title = request.POST.get('title') or None
-        description = request.POST.get('description') or None
-        price_cents = request.POST.get('price_cents') or None
-        status = request.POST.get('status') or None
-        main_image_url = request.POST.get('main_image_url') or None
-        created_at = request.POST.get('created_at') or None
-        updated_at = request.POST.get('updated_at') or None
+    if not request.user.is_authenticated:
+        return redirect("login")
 
-        if not created_at:
-            created_at = datetime.now()
-        if not updated_at:
-            updated_at = datetime.now()
+    if request.method == "POST":
+        title = request.POST.get("productName").strip()
+        desc = request.POST.get("productDes").strip()
+        
+        # Price & Stock
+        price = float(request.POST.get("productPrice"))
+        stock = int(request.POST.get("stock"))
 
-        Product.objects.create(
-            id=id,
-            seller_id=seller_id,
-            category_id=category_id,
+        price_cents = int(price * 100)
+
+        product = Product.objects.create(
             title=title,
-            description=description,
+            description=desc,
             price_cents=price_cents,
-            status=status,
-            main_image_url=main_image_url,
-            created_at=created_at,
-            updated_at=updated_at,
+            stock=stock,  # ✅ Save stock
+            seller_id=request.user.id,
+            status="pending",
         )
 
-        return redirect('/productViewer/')
-    return render(request, 'newListing.html')
+        # ✅ Handle images (future expansion)
+        images = request.FILES.getlist("images")
+        # todo: store images later
+
+        messages.success(request, "Product submitted for review ✅")
+        return redirect("/productPage/")
+
+    return render(request, "newListing.html")
 
 
 def productViewer(request):
-    products = Product.objects.all()
-    context = {'products': products}
-    return render(request, 'productViewer.html', context)
+    if not request.user.is_authenticated:
+        return redirect("/login")
+
+    # Only show products the logged-in seller owns
+    products = Product.objects.filter(seller_id=request.user.id)
+
+    return render(request, 'productViewer.html', {"products": products})
+
+  
+  
 def searchProducts(request):
     query = request.GET.get('q', '').strip()
     products = []
 
     if query:
-    
         products = Product.objects.filter(title__icontains=query)
 
         if not products.exists():
@@ -420,9 +720,103 @@ def searchProducts(request):
     else:
         products = Product.objects.all()
 
+    
+    for p in products:
+        p.display_price = f"{p.price_cents / 100:.2f}"
+
     context = {
         'products': products,
         'query': query,
         'search_performed': bool(query),
     }
     return render(request, 'searchProducts.html', context)
+
+  
+  
+def replyUser(request, ticket_id):
+    # Safe ticket lookup
+    try:
+        ticket = SupportTicket.objects.get(id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return redirect("/newTicket/")
+
+    # Only ticket owner can reply
+    if ticket.user != request.user:
+        return HttpResponse("Unauthorized", status=403)
+
+    # No replies if ticket is closed
+    if ticket.status == "Closed":
+        return redirect("/newTicket/")
+
+    # Handle reply form
+    if request.method == "POST":
+        user_message = request.POST.get("message")
+
+        # Create reply
+        TicketMessage.objects.create(
+            ticket=ticket,
+            sender=request.user,
+            message=user_message
+        )
+
+        # Update status so admin knows they need to respond
+        ticket.status = "Pending Admin"
+        ticket.save()
+
+        return redirect(f"/replyTicket/{ticket_id}/")
+
+    return redirect(f"/replyTicket/{ticket_id}/")
+
+def webUsers(request):
+    if not request.user.is_staff:
+        return redirect("/home")
+
+    users = User.objects.all()
+    user_data = []
+
+    for u in users:
+        profile = getattr(u, "sellerprofile", None)
+        role = "Seller" if profile and profile.is_seller else "Buyer"
+        is_banned = profile.is_banned if profile else False
+        
+        user_data.append({
+            "id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "role": role,
+            "is_banned": is_banned
+        })
+
+    return render(request, "webUsers.html", {"users": user_data})
+
+def banUser(request, user_id):
+    if request.method == "POST":
+        user = User.objects.get(id=user_id)
+        
+        # Prevent admin ban
+        if user.is_superuser:
+            messages.error(request, "Admins cannot be banned.")
+            return redirect("webUsers")
+
+        profile, _ = SellerProfile.objects.get_or_create(user=user)
+        profile.is_banned = True
+        profile.save()
+
+        # Refresh so UI reflects instantly
+        profile.refresh_from_db()
+
+        messages.success(request, f"{user.username} has been banned.")
+    return redirect("webUsers")
+
+
+def unbanUser(request, user_id):
+    if request.method == "POST":
+        user = User.objects.get(id=user_id)
+        profile, _ = SellerProfile.objects.get_or_create(user=user)
+        profile.is_banned = False
+        profile.save()
+        profile.refresh_from_db()
+
+        messages.success(request, f"{user.username} has been unbanned.")
+    return redirect("webUsers")
+   

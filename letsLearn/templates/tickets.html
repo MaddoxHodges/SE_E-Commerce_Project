@@ -41,48 +41,13 @@
       text-decoration: none;
       margin: 0 1rem;
       font-weight: 600;
-      position: relative;
       transition: color 0.3s;
     }
 
-    nav a::after {
-      content: "";
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: var(--burn-accent);
-      transition: width 0.3s;
-    }
-
-    nav a:hover {
-      color: #fff;
-    }
-
-    nav a:hover::after {
-      width: 100%;
-    }
+    nav a:hover { color: #fff; }
 
     main {
       padding: 40px 0;
-    }
-
-    .refresh-btn {
-      display: block;
-      margin: 0 auto 20px auto;
-      padding: 10px 20px;
-      background-color: var(--burn-accent);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s;
-    }
-
-    .refresh-btn:hover {
-      background-color: #0056b3;
     }
 
     table {
@@ -107,92 +72,69 @@
       font-weight: 600;
     }
 
-    tr:hover {
-      background-color: #eef4ff;
-      transition: background-color 0.2s ease-in-out;
-    }
+    tr:hover { background-color: #eef4ff; }
 
     .no-tickets {
       text-align: center;
       color: #777;
+      padding: 20px;
+    }
+
+    .reply-btn {
+      background: var(--burn-accent);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .reply-btn:hover {
+      background: #0056b3;
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <h1>Tickets Awaiting Action</h1>
-  </header>
 
-  <nav>
-    <a href="/home">Home</a>
-    <a href="/support">Support Page</a>
-    <a href="/logout">Logout</a>
-  </nav>
+<header>
+  <h1>Admin Ticket Inbox</h1>
+</header>
 
-  <main>
-    <button class="refresh-btn" id="refresh-btn">Refresh Tickets</button>
+<nav>
+  <a href="/support">Home</a>
+  <a href="/logout">Logout</a>
+</nav>
 
-    <table id="ticket-table">
-      <thead>
+<main>
+  <table>
+    <thead>
+      <tr>
+        <th>Ticket ID</th>
+        <th>User</th>
+        <th>Subject</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% if tickets %}
+        {% for ticket in tickets %}
         <tr>
-          <th>Ticket ID</th>
-          <th>Description</th>
-          <th>Email</th>
-          <th>User Type</th>
+          <td>{{ ticket.id }}</td>
+          <td>{{ ticket.user.username }}</td>
+          <td>{{ ticket.subject }}</td>
+          <td>{{ ticket.status }}</td>
+          <td><a class="reply-btn" href="/replyTicket/{{ ticket.id }}/">Reply</a></td>
         </tr>
-      </thead>
-      <tbody>
-        <tr class="no-tickets"><td colspan="4">No tickets awaiting action.</td></tr>
-        <!-- Example rows (for preview)
-        <tr>
-          <td>1021</td>
-          <td>Payment issue during checkout</td>
-          <td>buyer@example.com</td>
-          <td>Buyer</td>
-        </tr>
-        <tr>
-          <td>1022</td>
-          <td>Product listing not updating</td>
-          <td>seller@example.com</td>
-          <td>Seller</td>
-        </tr>
-        -->
-      </tbody>
-    </table>
-  </main>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="5" class="no-tickets">No tickets found.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</main>
 
-  <script>
-    const TicketTableBody = document.querySelector("#ticket-table tbody");
-    const refreshBtn = document.getElementById("refresh-btn");
-
-
-    function renderTickets() {
-      TicketTableBody.innerHTML = "";
-
-      if (tickets.length === 0) {
-        TicketTableBody.innerHTML = `<tr class="no-tickets"><td colspan="4">No tickets awaiting action.</td></tr>`;
-        return;
-      }
-
-      tickets.forEach(ticket => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${ticket.id}</td>
-          <td>${ticket.description}</td>
-          <td>${ticket.email}</td>
-          <td>${ticket.userType}</td>
-        `;
-        TicketTableBody.appendChild(row);
-      });
-    }
-
-    function loadTickets() {
-      renderTickets();
-    }
-
-    refreshBtn.addEventListener("click", loadTickets);
-    document.addEventListener("DOMContentLoaded", loadTickets);
-  </script>
 </body>
 </html>

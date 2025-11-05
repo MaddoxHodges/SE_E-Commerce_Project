@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ticket Conversation</title>
+    <style>
+/* Ticket Container */
+.ticket-box {
+    width: 60%;
+    margin: 40px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #d9d9d9;
+    box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* Header */
+.ticket-box h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Status text */
+.status {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.status.closed {
+    color: #c62828;
+    font-weight: bold;
+}
+
+/* Chat Area */
+.chat-box {
+    background: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    height: 350px;
+    overflow-y: auto;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+/* Message bubbles */
+.msg {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* User bubble */
+.msg-user {
+    background: #cfe9ff;
+    border-left: 4px solid #1976d2;
+}
+
+/* Admin bubble */
+.msg-admin {
+    background: #e9ffd9;
+    border-left: 4px solid #43a047;
+}
+
+/* Reply form */
+textarea {
+    width: 100%;
+    height: 90px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    resize: none;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+/* Buttons */
+button {
+    background: #1976d2;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background: #145ea8;
+}
+
+/* Close Ticket button */
+.close-btn {
+    background: #c62828 !important;
+    margin-top: 5px;
+}
+
+.close-btn:hover {
+    background: #a31f1f !important;
+}
+</style>
+
+</head>
+<body>
+
+<div class="ticket-box">
+    <h2>Ticket #{{ ticket.id }} - {{ ticket.subject }}</h2>
+
+    <p class="status">
+        Status: 
+        {% if ticket.status == "Closed" %}
+            <span class="closed">Closed</span>
+        {% else %}
+            {{ ticket.status }}
+        {% endif %}
+    </p>
+
+    <div class="chat-box">
+        {% for m in messages %}
+            <div class="msg {% if m.sender.is_staff %}admin{% else %}user{% endif %}">
+                <strong>{% if m.sender.is_staff %}Admin{% else %}You{% endif %}</strong><br>
+                {{ m.message }}<br>
+                <small>{{ m.timestamp }}</small>
+            </div>
+        {% empty %}
+            <p>No messages yet.</p>
+        {% endfor %}
+    </div>
+
+
+    {% if ticket.status != "Closed" %}
+        <div class="form-box">
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="message" placeholder="Type your reply..." required></textarea><br><br>
+            <button type="submit">Send Reply</button>
+        </form>
+        </div>
+    {% else %}
+        <p class="closed">This ticket is closed. You cannot reply.</p>
+    {% endif %}
+
+    {% if request.user.is_staff and ticket.status != "Closed" %}
+    <form method="POST" action="/closeTicket/{{ ticket.id }}/" style="margin-top:10px;">
+        {% csrf_token %}
+        <button type="submit" style="background:rgb(71, 109, 234);color:white;">Close Ticket</button>
+    </form>
+    {% endif %}
+    
+    {% if request.user.is_staff %}
+
+    <p><a href="/tickets/">Back to tickets</a></p>
+
+    {% else %}
+
+    <p><a href="/newTicket/">Back to tickets</a></p>
+
+    {% endif %}
+</div>
+
+</body>
+</html>
