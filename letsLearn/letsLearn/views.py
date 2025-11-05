@@ -71,7 +71,8 @@ def marketplace(request):
             if len(products) <= product_index :
                 break
 
-            row_list.append(products[product_index])
+            row_list.append({"product": products[product_index], "price": intToPrice(products[product_index].price)})
+            # row_list.append(products[product_index])
         grid.append(row_list)
     
     context["grid"] = grid
@@ -259,8 +260,7 @@ def vieworders(request):
             product_index = (row * 3) + index
             if len(orders) <= product_index :
                 break
-
-            row_list.append(orders[product_index])
+            row_list.append({"order": orders[product_index], "price": intToPrice(orders[product_index].total_cents)})
         grid.append(row_list)
     
     context["grid"] = grid

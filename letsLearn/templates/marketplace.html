@@ -170,13 +170,13 @@
     {% if grid %}
       {% for row in grid %}
         {% for product in row %}
-          <div class="product-card" onclick="window.location='details?product_id={{product.id}}'">
-            <h3>{{ product.title }}</h3>
+          <div class="product-card" onclick="window.location='details?product_id={{product.product.id}}'">
+            <h3>{{ product.product.title }}</h3>
             <p class="price">${{ product.price }}</p>
-            {% if product.stock_qty <= 0 %}
+            {% if product.product.stock_qty <= 0 %}
               <p class="stock out-of-stock">Out of Stock</p>
             {% else %}
-              <p class="stock">Stock: {{ product.stock_qty }}</p>
+              <p class="stock">Stock: {{ product.product.stock_qty }}</p>
             {% endif %}
           </div>
         {% endfor %}

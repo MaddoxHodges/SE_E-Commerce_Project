@@ -166,10 +166,10 @@
   <div class="product-container">
     {% if grid %}
       {% for row in grid %}
-        {% for order in row %}
-          <div class="product-card" onclick="window.location='details?order_id={{order.id}}'">
-            <h3>Ordered on: {{ order.created_at }}</h3>
-            <p class="price">${{ order.total_cents }}</p>
+        {% for pair in row %}
+          <div class="product-card" onclick="window.location='details?order_id={{pair.order.id}}'">
+            <h3>Ordered on: {{ pair.order.created_at }}</h3>
+            <p class="price">${{ pair.price }}</p>
           </div>
         {% endfor %}
       {% endfor %}
