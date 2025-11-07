@@ -139,20 +139,20 @@ button:hover { background:#005fcc; }
 
 <div class="container">
 
-<h2>Your Tickets</h2>
+<h2>Your Support Tickets</h2>
 <table>
-<tr>
-  <th>ID</th>
-  <th>Subject</th>
-  <th>Status</th>
-  <th>View</th>
-</tr>
+  <tr>
+    <th>ID</th>
+    <th>Subject</th>
+    <th>Status</th>
+    <th>View</th>
+  </tr>
 
-{% for t in tickets %}
-<tr>
-  <td>{{ t.id }}</td>
-  <td>{{ t.subject }}</td>
-  <td>
+  {% for t in tickets %}
+  <tr>
+    <td>{{ t.id }}</td>
+    <td>{{ t.subject }}</td>
+    <td>
       <span class="status-tag
         {% if t.status == 'Open' %}status-open
         {% elif t.status == 'Pending Admin' %}status-pending-admin
@@ -162,12 +162,43 @@ button:hover { background:#005fcc; }
       ">
       {{ t.status }}
       </span>
-  </td>
-  <td><a class="view-btn" href="/replyTicket/{{ t.id }}/">Open</a></td>
-</tr>
-{% empty %}
-<tr><td colspan="4"><i>No tickets yet.</i></td></tr>
-{% endfor %}
+    </td>
+    <td><a class="view-btn" href="/replyTicket/{{ t.id }}/">Open</a></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="4"><i>No support tickets found.</i></td></tr>
+  {% endfor %}
+</table>
+
+<h2>Your Refund Requests</h2>
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Order</th>
+    <th>Status</th>
+    <th>View</th>
+  </tr>
+
+  {% for r in refunds %}
+  <tr style="background:#fff7e6;">
+    <td>{{ r.id }}</td>
+    <td>{{ r.subject }}</td>
+    <td>
+      <span class="status-tag
+        {% if r.status == 'Open' %}status-open
+        {% elif r.status == 'Pending Admin' %}status-pending-admin
+        {% elif r.status == 'Pending User' %}status-pending-user
+        {% elif r.status == 'Closed' %}status-closed
+        {% endif %}
+      ">
+      {{ r.status }}
+      </span>
+    </td>
+    <td><a class="view-btn" href="/replyTicket/{{ r.id }}/">Open</a></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="4"><i>No refund requests found.</i></td></tr>
+  {% endfor %}
 </table>
 
 
