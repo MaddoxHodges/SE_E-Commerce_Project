@@ -814,30 +814,38 @@ def sellerOrders(request):
     order_ids = set(i.order_id.id for i in items)
 
     orders = Orders.objects.filter(id__in=order_ids).order_by("-created_at")
+    total = 0
 
-    return render(request, "sellerOrders.html", {"orders": orders})
+    for item in items:
+        price = item.price_cents * item.qty
+        if not item.seller_paid:
+            total += price
+        item.formatted_price = intToPrice(price)
+
+    return render(request, "sellerOrders.html", {"items": items, "sum_total": intToPrice(total)})
 
 
-def sellerOrderDetails(request):
+def sellerPayout(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
-    oid = request.GET.get("order_id")
-    if not oid:
-        return redirect("/sellerOrders/")
-
-    try:
-        order = Orders.objects.get(id=oid)
-    except Orders.DoesNotExist:
-        return redirect("/sellerOrders/")
-
-    # only items belonging to THIS seller
     items = OrderItems.objects.filter(
-        order_id=order,
-        product_id__seller_id=request.user.id
+        product_id__seller_id=request.user.id,
+        seller_paid=False
     )
 
+    total = 0
+
+    for item in items:
+        price = item.price_cents * item.qty
+
+        total += price
+        item.formatted_price = intToPrice(price)
+        item.seller_paid = True
+        item.save()
+
     return render(request, "sellerOrderDetails.html", {
-        "order": order,
-        "items": items
+        "items": items,
+        "total": intToPrice(total)
     })
+

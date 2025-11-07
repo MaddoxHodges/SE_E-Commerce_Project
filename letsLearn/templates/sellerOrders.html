@@ -114,19 +114,22 @@ nav a:hover {
 <tr>
   <th>Order ID</th>
   <th>Date</th>
+  <th>Title</th>
+  <th>Quantity</th>
   <th>Total</th>
-  <th>Action</th>
+  <th>Status</th>
+  <th>Payment Received</th>
 </tr>
 
-{% for o in orders %}
+{% for i in items %}
 <tr>
-  <td>{{ o.id }}</td>
-  <td>{{ o.created_at }}</td>
-  <td>${{ o.total_cents|floatformat:-2 }}</td>
-  <td>
-    <a href="/sellerOrders/details?order_id={{ o.id }}">
-      <button class="view-btn">View</button>
-    </a>
+  <td>{{ i.order_id.id }}</td>
+  <td>{{ i.order_id.created_at }}</td>
+  <td>{{ i.product_id.title }}</td>
+  <td>{{ i.qty }}</td>
+  <td>${{ i.formatted_price }}</td>
+  <td>{{ i.order_id.get_status_display }}</td>
+  <td> {{ i.seller_paid }}
   </td>
 </tr>
 {% empty %}
@@ -134,6 +137,13 @@ nav a:hover {
 {% endfor %}
 
 </table>
+
+<p>
+  Total Payout: ${{ sum_total }}
+  <a href="/sellerPayout/">
+    <button class="view-btn">Receive Payout</button>
+  </a>
+</p>
 
 </div>
 

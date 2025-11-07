@@ -75,10 +75,11 @@ class TicketMessage(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.subject} ({self.user.username})"
+    
 class OrderItems(models.Model):
     order_id = models.ForeignKey(Orders, on_delete=models.CASCADE)
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     qty = models.IntegerField()
     price_cents = models.IntegerField()
     return_requested = models.BooleanField()
-
+    seller_paid = models.BooleanField(default=False)
