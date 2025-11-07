@@ -157,7 +157,7 @@
 
   <nav>
     <div class="nav-left">
-      <a href="/home">Home</a>
+      <a href="/buyerHome">Home</a>
       <a href="/logout">Logout</a>
     </div>
   </nav>
@@ -167,9 +167,9 @@
     {% if grid %}
       {% for row in grid %}
         {% for order in row %}
-          <div class="product-card" onclick="window.location='details?order_id={{order.id}}'">
+          <div class="product-card" onclick="window.location='/order/{{order.id}}/'">
             <h3>Ordered on: {{ order.created_at }}</h3>
-            <p class="price">${{ order.total_cents }}</p>
+            <p class="price">${{ order.total_dollars|floatformat:2 }}</p>
           </div>
         {% endfor %}
       {% endfor %}

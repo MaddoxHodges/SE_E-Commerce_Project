@@ -44,23 +44,8 @@
       transition: color 0.3s;
     }
 
-    nav a::after {
-      content: "";
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: var(--burn-accent);
-      transition: width 0.3s;
-    }
-
     nav a:hover {
       color: #fff;
-    }
-
-    nav a:hover::after {
-      width: 100%;
     }
 
     main {
@@ -118,14 +103,17 @@
   </header>
 
   <nav>
-    <a href="/productPage">Product Page</a>
-    <a href="/logout">Logout</a>
+    <a href="/productPage/">Products</a>
+    <a href="/newListing/">New Listing</a>
+    <a href="/sellerOrders/">View Orders</a>
+    <a href="/logout/">Logout</a>
   </nav>
 
   <main>
     <table id="product-table">
       <thead>
         <tr>
+          <th>Img</th>
           <th>Product ID</th>
           <th>Product Name</th>
           <th>Stock</th>
@@ -136,6 +124,13 @@
         {% if products %}
         {% for product in products %}
           <tr>
+            <td>
+              {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" style="width:60px; height:60px; border-radius:6px; object-fit:cover;">
+              {% else %}
+                <span style="color:#888;">no img</span>
+              {% endif %}
+            </td>
             <td>{{ product.id }}</td>
             <td>{{ product.title }}</td>
             <td>{{ product.stock }}</td>
@@ -143,12 +138,12 @@
               <a href="/productEdit?product_id={{ product.id }}">Edit</a>
             </td>
           </tr>
-          {% endfor %}
+        {% endfor %}
         {% else %}
           <tr class="no-products">
-            <td colspan="4">No current listings available.</td>
+            <td colspan="5">No current listings available.</td>
           </tr>
-      {% endif %}
+        {% endif %}
       </tbody>
     </table>
   </main>

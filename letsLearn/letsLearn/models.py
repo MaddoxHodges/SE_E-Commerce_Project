@@ -24,6 +24,8 @@ class Product(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)  
     updated_at = models.DateTimeField(auto_now=True)
+    
+    main_image = models.ImageField(upload_to='product_images/', blank=True, null=True, default='default_product.jpg')
 
     class Meta:
         db_table = 'products'
@@ -32,13 +34,17 @@ class Product(models.Model):
         return self.title or "Untitled Product"
 
 class Orders(models.Model):
-    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     subtotal_cents = models.IntegerField()
     tax_cents = models.IntegerField()
     shipping_cents = models.IntegerField()
     total_cents = models.IntegerField()
     address = models.TextField()
     created_at = models.DateTimeField()
+    
+    @property
+    def total_dollars(self):
+        return self.total_cents / 100
 
     class Status(models.TextChoices):
         PLACED = 'P', _("placed")
@@ -52,7 +58,6 @@ class Orders(models.Model):
         choices=Status.choices,
         default=Status.PLACED,
     )
-
 
 
 class SupportTicket(models.Model):
