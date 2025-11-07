@@ -1,25 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {% load static %}
-    {% csrf_token %}
+{% load static %}
+<title>{{ product.title }}</title>
 
-    <script src="{% static 'cart.js' %}"></script>
-    <title>{{product.title}}</title>
+<style>
+:root {
+    --burn-dark: #1a2a46;
+    --burn-mid: #23395d;
+    --burn-accent: #007bff;
+    --burn-light: #9ec5ff;
+    --burn-bg: #f5f8fc;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--burn-bg);
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: var(--burn-mid);
+    color: white;
+    text-align: center;
+    padding: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-bottom: 10px;
+    color: var(--burn-mid);
+}
+
+.price {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--burn-accent);
+    margin: 10px 0;
+}
+
+input[type="number"] {
+    width: 70px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    font-size: 1rem;
+    margin-top: 5px;
+    text-align: center;
+}
+
+button {
+    margin-top: 12px;
+    padding: 12px 20px;
+    background: var(--burn-accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+button:hover { background: #005fcc; }
+
+a.back {
+    display: inline-block;
+    margin-top: 20px;
+    font-weight: bold;
+    color: var(--burn-mid);
+    text-decoration: none;
+}
+a.back:hover { color: var(--burn-accent); }
+</style>
 </head>
+
 <body>
-    <h1>{{product.title}}</h1>
 
-    <p>
-        {{product.description}} <br> 
-        ${{price}} <br> <br>
-        <button onclick="addToCart({{product.id}}, document.getElementById('qty').value)">Add to Cart</button>
-        <input type="number" min="1" max="{{ product.stock_qty }}" value="1" id="qty"/> <br> 
-    </p>
+<header>BurnLab Marketplace</header>
 
-    <p>Check out my <a href="/home">Home</a> page.</p>
+<div class="container">
+
+    <h2>{{ product.title }}</h2>
+    <p>{{ product.description }}</p>
+
+    
+    <p class="price">$ {{ price }}</p>
+
+    <label>Quantity:</label><br>
+    <input type="number" id="qty" min="1" value="1">
+
+    <br>
+
+    
+    <button onclick="addToCart('{{ product.id }}')">
+        Add to Cart
+    </button>
+
+    <br><br>
+
+    <a class="back" href="/marketplace/">← Back to Marketplace</a>
+
+</div>
+
+
+<script>
+function addToCart(productId) {
+    const qty = document.getElementById("qty").value;
+
+    fetch(`/addtocart?product_id=${productId}&qty=${qty}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Added to cart!");
+            } else {
+                alert("Failed to add item");
+            }
+        })
+        .catch(() => alert("⚠️ Error contacting server"));
+}
+</script>
+
 </body>
 </html>

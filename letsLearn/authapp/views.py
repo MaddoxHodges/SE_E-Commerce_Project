@@ -27,9 +27,18 @@ def register_view(request):
 
         user = User.objects.create_user(username=email, email=email, password=password)
         
-        SellerProfile.objects.create(user=user, is_seller=is_seller)
+        SellerProfile.objects.create(
+            user=user,
+            is_seller=is_seller,          
+            is_pending=is_seller,     
+            is_approved=not is_seller,
+            is_banned=False
+        )
 
-        messages.success(request, "Account created. Please sign in.")
+        if is_seller:
+            messages.success(request, "Account created. Your seller request is pending admin approval.")
+        else:
+            messages.success(request, "Account created. Please sign in.")
         return redirect("login")
 
     return render(request, "register.html")
@@ -39,18 +48,49 @@ def login_view(request):
     if request.method == "POST":
         email = (request.POST.get("email") or "").strip().lower()
         password = request.POST.get("password") or ""
-        user = authenticate(request, username=email, password=password)
+
+        # Try to find user by email
+        try:
+            user_obj = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "Invalid email or password.")
+            return redirect("login")
+
+        # Authenticate using username linked to that email
+        user = authenticate(request, username=user_obj.username, password=password)
+
         if user is None:
             messages.error(request, "Invalid email or password.")
             return redirect("login")
+
+        # Successful login
         login(request, user)
 
+        sp = getattr(user, "sellerprofile", None)
+
+        # Superuser/staff → admin support panel
         if user.is_superuser or user.is_staff:
             return redirect("/support/")
-        
-        if hasattr(user,"sellerprofile") and user.sellerprofile.is_seller:
+
+        # Banned?
+        if sp and sp.is_banned:
+            logout(request)
+            messages.error(request, "Your account is banned.")
+            return redirect("login")
+
+        # Seller pending approval
+        if sp and sp.is_seller and not sp.is_approved:
+            logout(request)
+            messages.info(request, "Your seller account request is still pending approval.")
+            return redirect("login")
+
+        # Approved seller
+        if sp and sp.is_seller and sp.is_approved:
             return redirect("/productPage/")
+
+        # Default buyer
         return redirect("/buyerHome/")
+
     return render(request, "login.html")
 
 
@@ -58,3 +98,5 @@ def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect("/")
+
+

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BurnLab – Order Details</title>
+
+<style>
+:root {
+  --burn-dark: #1a2a46;
+  --burn-mid: #23395d;
+  --burn-accent: #007bff;
+  --burn-light: #9ec5ff;
+  --burn-bg: #f5f8fc;
+}
+
+body {
+  margin: 0;
+  font-family: "Source Sans Pro", sans-serif;
+  background: var(--burn-bg);
+  color: #2b2b2b;
+}
+
+header {
+  background: var(--burn-mid);
+  color: #fff;
+  text-align: center;
+  padding: 1.4rem 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+nav {
+  background: var(--burn-dark);
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1rem;
+}
+
+nav a {
+  color: var(--burn-light);
+  text-decoration: none;
+  font-weight: 600;
+  transition: .2s;
+}
+nav a:hover { color:#fff; }
+
+.container {
+  width: 85%;
+  max-width: 920px;
+  margin: 30px auto;
+}
+
+.order-table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+  background:#fff;
+  border-radius:8px;
+  overflow:hidden;
+  border:1px solid #ddd;
+}
+.order-table th {
+  background:var(--burn-mid);
+  color:white;
+  padding:12px;
+  font-size:14px;
+}
+.order-table td {
+  padding:12px;
+  text-align:center;
+  border-bottom:1px solid #eee;
+}
+.order-table tr:hover {
+  background:#eef4ff;
+}
+</style>
+</head>
+
+<body>
+
+<header>Order #{{ order.id }}</header>
+
+<nav>
+  <a href="/sellerOrders/">Back to Orders</a>
+  <a href="/logout/">Logout</a>
+</nav>
+
+<div class="container">
+<h2>Order Items</h2>
+
+<table class="order-table">
+<tr>
+  <th>Product</th>
+  <th>Quantity</th>
+  <th>Line Total</th>
+</tr>
+
+{% for item in items %}
+<tr>
+  <td>{{ item.product_id.title }}</td>
+  <td>{{ item.qty }}</td>
+  <td>${{ item.qty|add:"0"|floatformat:0 }}</td>
+</tr>
+{% empty %}
+<tr><td colspan="3"><i>No items found</i></td></tr>
+{% endfor %}
+
+</table>
+</div>
+
+</body>
+</html>

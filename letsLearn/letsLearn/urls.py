@@ -18,6 +18,9 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 from authapp import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     #path ('', include('members.urls')),
@@ -59,7 +62,7 @@ urlpatterns = [
 
     path('productViewer/', views.productViewer),
 
-    path('productEdit/', views.productEdit),
+    path('productEdit/', views.productEdit, name='productEdit'),
 
     path('tickets/', views.tickets),
 
@@ -72,11 +75,32 @@ urlpatterns = [
     path('buyerHome/', views.buyerHome),
 
     path('newAdmin/', views.newAdmin),
+    
+    path("replyTicket/<int:ticket_id>/", views.replyTicket, name="replyTicket"),
+    
+    path("closeTicket/<int:ticket_id>/", views.closeTicket, name="closeTicket"),
+
+    path("sellerOrders/", views.sellerOrders, name="sellerOrders"),
+    
+    path("sellerOrders/details", views.sellerOrderDetails, name="sellerOrderDetails"),
+    
+    path("order/<int:order_id>/", views.orderdetails, name="orderDetails"),
+
+    ##banning actions##
+    path('webUsers/', views.webUsers, name='webUsers'),
+    path('banUser/<int:user_id>/', views.banUser, name='banUser'),
+    path('unbanUser/<int:user_id>/', views.unbanUser, name='unbanUser'),
+
+    ###Admin Reviews###
+   
+    path("productReview/", views.productReview, name="productReview"),
+    path("productReview/process/", views.processModeration, name="processModeration"),
 
     path("searchProducts/", views.searchProducts),
 
+    path("details/", views.details, name="details"),
+
 ]
 
-
-
-
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

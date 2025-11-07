@@ -1,13 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About</title>
+<meta charset="UTF-8">
+<title>BurnLab – About</title>
+
+<style>
+:root {
+  --burn-dark: #1a2a46;
+  --burn-mid: #23395d;
+  --burn-accent: #007bff;
+  --burn-light: #9ec5ff;
+  --burn-bg: #f5f8fc;
+}
+
+body {
+  margin: 0;
+  font-family: "Source Sans Pro", sans-serif;
+  background: var(--burn-bg);
+  color: #2b2b2b;
+}
+
+header {
+  background: var(--burn-mid);
+  color: #fff;
+  text-align: center;
+  padding: 1.4rem 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+nav {
+  background: var(--burn-dark);
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1rem;
+}
+
+nav a {
+  color: var(--burn-light);
+  text-decoration: none;
+  font-weight: 600;
+  transition: .2s;
+}
+
+nav a:hover {
+  color: #fff;
+}
+
+.container {
+  width: 85%;
+  max-width: 900px;
+  margin: 30px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+</style>
 </head>
+
 <body>
-    <h1>About</h1>
-    <p>Check out my <a href="/home">Home</a> page.</p>
-    </h2>
-</body>
-</html>
+
+<header>BurnLab About</header>
+
+<nav>
+  <a href="/buyerHome">Home</a>
+  <a href="/marketplace">Marketplace</a>
+  <a href="/support">Support</a>
+  <a href="/logout">Logout</a>
+</nav>
+
+<div class="container">
+
+  <h2>About BurnLab</h2>
+  <p style="font-size:1.05rem;line-height:1.6rem;">
+    BurnLab is designed to create a marketplace where fitness creators, trainers, and nutrition experts
+    can sell products directly to users — while providing a clean user-friendly interface for buying,
+    tracking orders, and managing personal support tickets.
+  </p>
+
+  <p style="font-size:1.05rem;line-height:1.6rem;">
+    This platform was built as part of a software engineering project. It includes account management,
+    seller pages, order handling, and support tools for communication between users and administrators.
+  </p>
+
+  <p style="margin-top:25px;font-weight:600;color:var(--burn-accent);">
+    Thank you for using BurnLab!
+  </p>
+
+</div>
+
