@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BurnLab – Seller Orders</title>
+
+<style>
+:root {
+  --burn-dark: #1a2a46;
+  --burn-mid: #23395d;
+  --burn-accent: #007bff;
+  --burn-light: #9ec5ff;
+  --burn-bg: #f5f8fc;
+}
+
+body {
+  margin: 0;
+  font-family: "Source Sans Pro", sans-serif;
+  background: var(--burn-bg);
+  color: #2b2b2b;
+}
+
+header {
+  background: var(--burn-mid);
+  color: #fff;
+  text-align: center;
+  padding: 1.4rem 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+nav {
+  background: var(--burn-dark);
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1rem;
+}
+
+nav a {
+  color: var(--burn-light);
+  text-decoration: none;
+  font-weight: 600;
+  transition: .2s;
+}
+
+nav a:hover {
+  color: #fff;
+}
+
+.container {
+  width: 85%;
+  max-width: 920px;
+  margin: 30px auto;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.orders-table th {
+  background: var(--burn-mid);
+  color: white;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.orders-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.orders-table tr:hover {
+  background: #eef4ff;
+}
+
+.view-btn {
+  background: var(--burn-accent);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.view-btn:hover {
+  opacity: .8;
+}
+</style>
+</head>
+
+<body>
+
+<header>BurnLab Seller Orders</header>
+
+<nav>
+  <a href="/productPage/">Products</a>
+  <a href="/newListing/">New Listing</a>
+  <a href="/logout/">Logout</a>
+</nav>
+
+<div class="container">
+
+<h2>Orders Containing Your Products</h2>
+
+<table class="orders-table">
+<tr>
+  <th>Order ID</th>
+  <th>Date</th>
+  <th>Total</th>
+  <th>Action</th>
+</tr>
+
+{% for o in orders %}
+<tr>
+  <td>{{ o.id }}</td>
+  <td>{{ o.created_at }}</td>
+  <td>${{ o.total_cents|floatformat:-2 }}</td>
+  <td>
+    <a href="/sellerOrders/details?order_id={{ o.id }}">
+      <button class="view-btn">View</button>
+    </a>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="4"><i>No orders found.</i></td></tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>

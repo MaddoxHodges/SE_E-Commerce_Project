@@ -21,7 +21,6 @@
       margin: 0;
     }
 
-    /* --- Header --- */
     header {
       background: var(--burn-mid);
       color: #fff;
@@ -31,7 +30,6 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    /* --- Navigation Bar --- */
     nav {
       background: var(--burn-dark);
       display: flex;
@@ -55,12 +53,8 @@
       font-size: 1rem;
       transition: color 0.25s ease;
     }
+    nav a:hover { color: #fff; }
 
-    nav a:hover {
-      color: #fff;
-    }
-
-    /* --- Product Cards --- */
     .product-container {
       text-align: center;
       margin: 50px auto;
@@ -71,7 +65,7 @@
       display: inline-block;
       background: #fff;
       border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       width: 260px;
       margin: 15px;
       padding: 20px;
@@ -83,6 +77,15 @@
     .product-card:hover {
       transform: translateY(-6px);
       box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+
+    .product-img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
     }
 
     .product-card h3 {
@@ -115,13 +118,12 @@
       width: 60%;
       padding: 40px;
       border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       font-size: 1.2rem;
       color: #555;
       font-weight: 500;
     }
 
-    /* --- Pagination --- */
     .pagination {
       text-align: center;
       margin: 50px 0;
@@ -133,12 +135,7 @@
       text-decoration: none;
       margin: 0 8px;
       font-weight: 600;
-      transition: color 0.3s;
-    }
-
-    .pagination a:hover {
-      color: #0056b3;
-      text-decoration: underline;
+      transition: color .3s;
     }
 
     footer {
@@ -157,34 +154,42 @@
 
   <nav>
     <div class="nav-left">
-      <a href="/home">Home</a>
+      <a href="/buyerHome">Home</a>
       <a href="/logout">Logout</a>
     </div>
     <div class="nav-right">
-      <a href="http://127.0.0.1:8000/cart/">Cart</a>
+      <a href="/cart/">Cart</a>
     </div>
   </nav>
 
-  <!-- Dynamic Product Grid -->
   <div class="product-container">
     {% if grid %}
       {% for row in grid %}
         {% for product in row %}
-          <div class="product-card" onclick="window.location='details?product_id={{product.id}}'">
+
+          <div class="product-card" onclick="window.location='/details/?product_id={{ product.id }}'">
+            
+            {% if product.main_image %}
+              <img class="product-img" src="{{ product.main_image.url }}">
+            {% else %}
+              <img class="product-img" src="/static/noimage.png">
+            {% endif %}
+
             <h3>{{ product.title }}</h3>
-            <p class="price">${{ product.price }}</p>
-            {% if product.stock_qty <= 0 %}
+
+            <p class="price">${{ product.display_price }}</p>
+
+            {% if product.stock <= 0 %}
               <p class="stock out-of-stock">Out of Stock</p>
             {% else %}
-              <p class="stock">Stock: {{ product.stock_qty }}</p>
+              <p class="stock">Stock: {{ product.stock }}</p>
             {% endif %}
           </div>
+
         {% endfor %}
       {% endfor %}
     {% else %}
-      <div class="no-products">
-        <p>No items available currently.</p>
-      </div>
+      <div class="no-products">No items available currently.</div>
     {% endif %}
   </div>
 
@@ -196,8 +201,5 @@
     <a href="?page={{ next_page }}">Next →</a>
   </div>
 
-  <footer>
-    <p>Check out our <a href="/home">Home</a> page.</p>
-  </footer>
 </body>
 </html>
