@@ -82,7 +82,7 @@ urlpatterns = [
 
     path("sellerOrders/", views.sellerOrders, name="sellerOrders"),
     
-    path("sellerOrders/details", views.sellerOrderDetails, name="sellerOrderDetails"),
+    path("sellerPayout/", views.sellerPayout, name="sellerPayout"),
     
     path("order/<int:order_id>/", views.orderdetails, name="orderDetails"),
 

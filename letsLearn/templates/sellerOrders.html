@@ -123,32 +123,31 @@ h2 {
 
   <h2>Orders Containing Your Products</h2>
 
-  <table class="orders-table">
-    <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>Date</th>
-        <th>Total</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for o in orders %}
-        <tr>
-          <td>{{ o.id }}</td>
-          <td>{{ o.created_at }}</td>
-          <td>${{ o.total_cents|floatformat:-2 }}</td>
-          <td>
-            <a href="/sellerOrders/details?order_id={{ o.id }}" class="view-btn">View</a>
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="4" class="no-data"><i>No orders found.</i></td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<table class="orders-table">
+<tr>
+  <th>Order ID</th>
+  <th>Date</th>
+  <th>Title</th>
+  <th>Quantity</th>
+  <th>Total</th>
+  <th>Status</th>
+  <th>Payment Received</th>
+</tr>
 
-  <h2>Refund Requests</h2>
+{% for i in items %}
+<tr>
+  <td>{{ i.order_id.id }}</td>
+  <td>{{ i.order_id.created_at }}</td>
+  <td>{{ i.product_id.title }}</td>
+  <td>{{ i.qty }}</td>
+  <td>${{ i.formatted_price }}</td>
+  <td>{{ i.order_id.get_status_display }}</td>
+  <td> {{ i.seller_paid }}
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="4"><i>No orders found.</i></td></tr>
+{% endfor %}
 
   <table class="orders-table">
     <thead>
@@ -192,6 +191,13 @@ h2 {
       {% endif %}
     </tbody>
   </table>
+
+<p>
+  Total Payout: ${{ sum_total }}
+  <a href="/sellerPayout/">
+    <button class="view-btn">Receive Payout</button>
+  </a>
+</p>
 
 </div>
 
