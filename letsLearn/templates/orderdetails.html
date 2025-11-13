@@ -29,13 +29,19 @@
                     <th>{{item.item.qty}}</th>
                     <th>${{item.total}}</th> 
                     {% if item.item.return_requested %}
-                        <th>return requested</th>
-                    {% else %}
-                        <th><a href="?order_id={{order.id}}&order_item_id={{item.item.id}}">request return</a></th>
-                    {% endif %}
-                </tr>
-            {% empty %}
-                <tr>
+                        <td><strong style="color:#007bff;">Refund Requested</strong></td>
+                        {% else %}
+                        <td>
+                            <form method="POST" action="/requestRefund/{{ order.id }}/" class="refund-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="reason" value="Request refund for {{ item.product.title }}">
+                            <button type="submit" class="refund-btn">Request Refund</button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
                     <td colspan="4">This order has no items.</td>
                 </tr>
             {% endfor %}

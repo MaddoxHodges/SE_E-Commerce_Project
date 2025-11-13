@@ -92,14 +92,36 @@ button:hover {
     background: #145ea8;
 }
 
-/* Close Ticket button */
-.close-btn {
-    background: #c62828 !important;
-    margin-top: 5px;
+/* Special buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
 }
 
-.close-btn:hover {
-    background: #a31f1f !important;
+button.approve {
+    background: #2e7d32;
+}
+
+button.approve:hover {
+    background: #1b5e20;
+}
+
+button.deny {
+    background: #c62828;
+}
+
+button.deny:hover {
+    background: #a31f1f;
+}
+
+button.close-btn {
+    background: #c62828;
+}
+
+button.close-btn:hover {
+    background: #a31f1f;
 }
 </style>
 
@@ -120,8 +142,16 @@ button:hover {
 
     <div class="chat-box">
         {% for m in messages %}
-            <div class="msg {% if m.sender.is_staff %}admin{% else %}user{% endif %}">
-                <strong>{% if m.sender.is_staff %}Admin{% else %}You{% endif %}</strong><br>
+            <div class="msg {% if m.sender.is_staff %}msg-admin{% else %}msg-user{% endif %}">
+                <strong>
+                    {% if m.sender.is_staff %}
+                        Admin
+                    {% elif m.sender == ticket.user %}
+                        Buyer
+                    {% else %}
+                        Seller
+                    {% endif %}
+                </strong><br>
                 {{ m.message }}<br>
                 <small>{{ m.timestamp }}</small>
             </div>
@@ -130,35 +160,48 @@ button:hover {
         {% endfor %}
     </div>
 
-
     {% if ticket.status != "Closed" %}
         <div class="form-box">
-        <form method="POST">
-            {% csrf_token %}
-            <textarea name="message" placeholder="Type your reply..." required></textarea><br><br>
-            <button type="submit">Send Reply</button>
-        </form>
+            <form method="POST">
+                {% csrf_token %}
+                <textarea name="message" placeholder="Type your reply..." required></textarea><br>
+                <button type="submit">Send Reply</button>
+            </form>
         </div>
     {% else %}
         <p class="closed">This ticket is closed. You cannot reply.</p>
     {% endif %}
 
+    <!-- ✅ Refund logic -->
+    {% if "refund" in ticket.subject|lower %}
+        {% if not request.user.is_staff and request.user != ticket.user %}
+        <div class="action-buttons">
+            <form method="POST" action="/acceptRefund/{{ ticket.id }}/">
+                {% csrf_token %}
+                <button type="submit" class="approve">Approve Refund</button>
+            </form>
+            <form method="POST" action="/denyRefund/{{ ticket.id }}/">
+                {% csrf_token %}
+                <button type="submit" class="deny">Deny Refund</button>
+            </form>
+        </div>
+        {% endif %}
+    {% endif %}
+
     {% if request.user.is_staff and ticket.status != "Closed" %}
-    <form method="POST" action="/closeTicket/{{ ticket.id }}/" style="margin-top:10px;">
+    <form method="POST" action="/closeTicket/{{ ticket.id }}/" style="text-align:center;margin-top:15px;">
         {% csrf_token %}
-        <button type="submit" style="background:rgb(71, 109, 234);color:white;">Close Ticket</button>
+        <button type="submit" class="close-btn">Close Ticket</button>
     </form>
     {% endif %}
-    
-    {% if request.user.is_staff %}
 
-    <p><a href="/tickets/">Back to tickets</a></p>
-
-    {% else %}
-
-    <p><a href="/newTicket/">Back to tickets</a></p>
-
-    {% endif %}
+    <p style="text-align:center;margin-top:15px;">
+        {% if request.user.is_staff %}
+            <a href="/tickets/">Back to tickets</a>
+        {% else %}
+            <a href="/newTicket/">Back to tickets</a>
+        {% endif %}
+    </p>
 </div>
 
 </body>

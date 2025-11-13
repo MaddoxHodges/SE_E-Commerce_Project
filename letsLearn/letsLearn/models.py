@@ -41,6 +41,10 @@ class Orders(models.Model):
     total_cents = models.IntegerField()
     address = models.TextField()
     created_at = models.DateTimeField()
+ ##new
+    refund_reason = models.TextField(blank=True, null=True)
+    refund_requested_at = models.DateTimeField(blank=True, null=True)
+    refund_acknowledged = models.BooleanField(default=False)
     
     @property
     def total_dollars(self):

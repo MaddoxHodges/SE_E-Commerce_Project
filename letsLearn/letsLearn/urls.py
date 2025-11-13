@@ -100,6 +100,12 @@ urlpatterns = [
 
     path("details/", views.details, name="details"),
 
+    path("requestRefund/<int:order_id>/", views.requestRefund, name="requestRefund"),
+    path("acceptRefund/<int:order_id>/", views.acceptRefund, name="acceptRefund"),
+
+    path("acceptRefund/<int:ticket_id>/", views.acceptRefund, name="acceptRefund"),
+    path("denyRefund/<int:ticket_id>/", views.denyRefund, name="denyRefund"),
+
 ]
 
 if settings.DEBUG:

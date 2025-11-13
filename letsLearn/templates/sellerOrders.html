@@ -81,7 +81,12 @@ nav a:hover {
   background: #eef4ff;
 }
 
-.view-btn {
+h2 {
+  text-align:center;
+  margin-top: 50px;
+}
+
+.view-btn, .reply-btn {
   background: var(--burn-accent);
   border: none;
   padding: 6px 12px;
@@ -89,9 +94,17 @@ nav a:hover {
   color: #fff;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
 }
-.view-btn:hover {
+
+.view-btn:hover, .reply-btn:hover {
   opacity: .8;
+}
+
+.no-data {
+  text-align: center;
+  color: #777;
+  padding: 15px;
 }
 </style>
 </head>
@@ -108,7 +121,7 @@ nav a:hover {
 
 <div class="container">
 
-<h2>Orders Containing Your Products</h2>
+  <h2>Orders Containing Your Products</h2>
 
 <table class="orders-table">
 <tr>
@@ -136,7 +149,48 @@ nav a:hover {
 <tr><td colspan="4"><i>No orders found.</i></td></tr>
 {% endfor %}
 
-</table>
+  <table class="orders-table">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Buyer</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if refunds %}
+        {% for r in refunds %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.user.username }}</td>
+            <td>{{ r.refund_reason|default:"No reason provided" }}</td>
+            <td>
+              {% if r.status == 'R' %}
+                Pending Seller
+              {% elif r.status == 'C' %}
+                Closed
+              {% elif r.status == 'F' %}
+                Denied
+              {% else %}
+                {{ r.get_status_display }}
+              {% endif %}
+            </td>
+            <td>
+              {% if r.refund_ticket %}
+                <a href="/replyTicket/{{ r.refund_ticket.id }}/" class="reply-btn">Reply</a>
+              {% else %}
+                <span style="color:gray;">No ticket linked</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="5" class="no-data">No refund requests found.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
 
 <p>
   Total Payout: ${{ sum_total }}

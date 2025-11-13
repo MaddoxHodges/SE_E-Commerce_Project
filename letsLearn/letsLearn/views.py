@@ -1,7 +1,6 @@
 import datetime
 import json
 from decimal import Decimal
-
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -10,7 +9,7 @@ from django.contrib.auth import authenticate, login as auth_login
 from .models import SupportTicket, TicketMessage
 from authapp.models import SellerProfile
 from django.contrib import messages
-
+from django.utils import timezone
 from datetime import datetime
 from django.db.models import Q
 import math
@@ -38,6 +37,124 @@ def about(request):
 def buyerHome(request):
     return render(request, 'BuyerHome.html')
 
+def requestRefund(request, order_id):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    order = Orders.objects.filter(id=order_id, user=request.user).first()
+    if not order:
+        messages.error(request, "Order not found.")
+        return redirect("/buyerHome/")
+
+    if order.status == 'R':
+        messages.info(request, "Refund already requested or processed.")
+        return redirect("/buyerHome/")
+
+    if request.method == "POST":
+        reason = request.POST.get("reason", "").strip() or "No reason provided."
+        order.status = 'R'  # mark order as refund requested
+        order.refund_reason = reason
+        order.refund_requested_at = timezone.now()
+        order.save()
+
+        messages.success(request, f"Refund request submitted for Order #{order.id}.")
+        return redirect("/buyerHome/")
+
+    return render(request, "requestRefund.html", {"order": order})
+
+from django.contrib import messages
+
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+
+def acceptRefund(request, ticket_id):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    # find the related ticket
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
+    # extract order ID from subject (like "Refund Request for Order #12")
+    import re
+    match = re.search(r"Order\s*#(\d+)", ticket.subject)
+    if not match:
+        messages.error(request, "Could not identify the order for this refund.")
+        return redirect(f"/replyTicket/{ticket.id}/")
+
+    order_id = int(match.group(1))
+    order = get_object_or_404(Orders, id=order_id)
+
+    # ensure this user is the seller
+    owns_product = OrderItems.objects.filter(
+        order_id=order,
+        product_id__seller_id=request.user.id
+    ).exists()
+
+    if not owns_product:
+        messages.error(request, "You cannot approve refunds for this order.")
+        return redirect(f"/replyTicket/{ticket.id}/")
+
+    # mark as refunded
+    order.status = 'C'  # closed/refunded
+    order.refund_acknowledged = True
+    order.save()
+
+    # log the action in the chat
+    TicketMessage.objects.create(
+        ticket=ticket,
+        sender=request.user,
+        message="Seller has approved the refund."
+    )
+
+    # close the ticket automatically
+    ticket.status = "Closed"
+    ticket.save()
+
+    messages.success(request, f"Refund for Order #{order.id} approved.")
+    return redirect(f"/replyTicket/{ticket.id}/")
+
+
+def denyRefund(request, ticket_id):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
+    import re
+    match = re.search(r"Order\s*#(\d+)", ticket.subject)
+    if not match:
+        messages.error(request, "Could not identify the order for this refund.")
+        return redirect(f"/replyTicket/{ticket.id}/")
+
+    order_id = int(match.group(1))
+    order = get_object_or_404(Orders, id=order_id)
+
+    owns_product = OrderItems.objects.filter(
+        order_id=order,
+        product_id__seller_id=request.user.id
+    ).exists()
+
+    if not owns_product:
+        messages.error(request, "You cannot deny refunds for this order.")
+        return redirect(f"/replyTicket/{ticket.id}/")
+
+    # mark as denied
+    order.status = 'F'
+    order.refund_acknowledged = True
+    order.save()
+
+    TicketMessage.objects.create(
+        ticket=ticket,
+        sender=request.user,
+        message="Seller has denied the refund request."
+    )
+
+    ticket.status = "Closed"
+    ticket.save()
+
+    messages.success(request, f"Refund for Order #{order.id} denied.")
+    return redirect(f"/replyTicket/{ticket.id}/")
+
+
+
 
 def marketplace(request):
     template = loader.get_template("marketplace.html")
@@ -59,7 +176,7 @@ def marketplace(request):
                 break
             
             p = products[product_index]
-            p.display_price = intToPrice(p.price_cents)  # ✅ add this
+            p.display_price = intToPrice(p.price_cents)  
             row_list.append(p)
 
         grid.append(row_list)
@@ -78,7 +195,7 @@ def details(request):
     template = loader.get_template("details.html")
     product = Product.objects.get(id=request.GET.get("product_id"))
     
-    price = f"{product.price_cents / 100:.2f}"  # ✅ proper formatting
+    price = f"{product.price_cents / 100:.2f}"  
     
     context = {
         "inStock": 1,
@@ -620,7 +737,6 @@ def newTicket(request):
             messages.error(request, "Message cannot be empty.")
             return redirect("/newTicket/")
 
-        
         ticket = SupportTicket.objects.create(
             user=user,
             subject=subject,
@@ -628,7 +744,6 @@ def newTicket(request):
             status="Open"
         )
 
-        
         TicketMessage.objects.create(
             ticket=ticket,
             sender=user,
@@ -637,10 +752,13 @@ def newTicket(request):
 
         return redirect(f"/replyTicket/{ticket.id}/")
 
-    # Load user's tickets
-    tickets = SupportTicket.objects.filter(user=user).order_by("-id")
+    
+    all_tickets = SupportTicket.objects.filter(user=user).order_by("-id")
+    support_tickets = all_tickets.exclude(subject__icontains="refund")
+    refund_tickets = all_tickets.filter(subject__icontains="refund")
 
-    return render(request, "newTicket.html", {"tickets": tickets, "role": role})
+    return render(request,"newTicket.html",{"tickets": support_tickets,"refunds": refund_tickets,"role": role,})
+
 
 
 
@@ -813,6 +931,17 @@ def sellerOrders(request):
     # get distinct order ids
     order_ids = set(i.order_id.id for i in items)
 
+    refunds = Orders.objects.filter(orderitems__product_id__seller_id=request.user.id,status='R',refund_acknowledged=False).distinct()
+
+    for r in refunds:
+        ticket = SupportTicket.objects.filter(subject__icontains=f"Refund Request for Order #{r.id}").first()
+
+        if not ticket:
+            # auto-create ticket so seller & buyer can chat
+            ticket = SupportTicket.objects.create(user=r.user,subject=f"Refund Request for Order #{r.id}",description=r.refund_reason or "Refund discussion",status="Open",created_at=timezone.now())
+
+        r.refund_ticket = ticket  
+
     orders = Orders.objects.filter(id__in=order_ids).order_by("-created_at")
     total = 0
 
@@ -822,7 +951,9 @@ def sellerOrders(request):
             total += price
         item.formatted_price = intToPrice(price)
 
-    return render(request, "sellerOrders.html", {"items": items, "sum_total": intToPrice(total)})
+    return render(request, "sellerOrders.html", {"items": items, "sum_total": intToPrice(total), "refunds": refunds})
+
+
 
 
 def sellerPayout(request):
