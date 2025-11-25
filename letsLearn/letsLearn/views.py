@@ -14,7 +14,7 @@ from datetime import datetime
 from django.db.models import Q
 import math
 
-from letsLearn.models import Product
+from .models import Product, Tag
 from letsLearn.models import Orders
 from letsLearn.models import OrderItems
 from django.contrib.auth.models import User
@@ -778,6 +778,7 @@ def newListing(request):
         productDes = request.POST.get("productDes")
         productPrice = request.POST.get("productPrice")
         stock = request.POST.get("stock")
+        selected_tags = request.POST.getlist("tags")
 
         product = Product.objects.create(
             seller_id=request.user.id,
@@ -786,6 +787,9 @@ def newListing(request):
             price_cents=int(float(productPrice) * 100),
             stock=int(stock)
         )
+        if selected_tags:
+            product.tags.set(selected_tags)
+
 
         image_file = request.FILES.get("images")
 
@@ -794,10 +798,12 @@ def newListing(request):
             product.save()
 
         return redirect("/productPage/")
+     
+     
+    tags = Tag.objects.all()
 
     template = loader.get_template("newListing.html")
-    return HttpResponse(template.render({}, request))
-
+    return HttpResponse(template.render({"tags": tags}, request))
 def productViewer(request):
     if not request.user.is_authenticated:
         return redirect("/login")
@@ -811,27 +817,34 @@ def productViewer(request):
   
 def searchProducts(request):
     query = request.GET.get('q', '').strip()
-    products = []
-
-    if query:
-        products = Product.objects.filter(title__icontains=query)
-
-        if not products.exists():
-            products = Product.objects.filter(description__icontains=query)
-    else:
-        products = Product.objects.all()
-
+    selected_tags = request.GET.getlist("tags")  # get selected tags
     
+    products = Product.objects.filter(status="active")
+
+    # text search
+    if query:
+        products = products.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query)
+        )
+
+    # tag search
+    if selected_tags:
+        products = products.filter(tags__id__in=selected_tags).distinct()
+
+    # add price formatting for UI
     for p in products:
         p.display_price = f"{p.price_cents / 100:.2f}"
 
     context = {
         'products': products,
         'query': query,
-        'search_performed': bool(query),
+        'tags': Tag.objects.all(),           # send all tag options
+        'selected_tags': selected_tags,      # send selected tag IDs
+        'search_performed': bool(query or selected_tags),
     }
-    return render(request, 'searchProducts.html', context)
 
+    return render(request, 'searchProducts.html', context)
   
   
 def replyUser(request, ticket_id):
@@ -969,3 +982,26 @@ def sellerOrderDetails(request):
     )
 
     return render(request, "sellerOrderDetails.html", {"order": order,"items": items})
+
+def Tags(request):
+    # Only staff/admin should add tags
+    if not request.user.is_staff:
+        return redirect("/home")
+
+    from letsLearn.models import Tag  # import inside the function to avoid conflicts
+
+    # Handle POST → create a new tag
+    if request.method == "POST":
+        tagname = request.POST.get("tagname", "").strip()
+        if tagname != "":
+            Tag.objects.get_or_create(name=tagname)
+            messages.success(request, f"Tag '{tagname}' added.")
+
+        return redirect("/tags/")
+
+    # Display all tags
+    tags = Tag.objects.all().order_by("name")
+
+    return render(request, "tags.html", {"tags": tags})
+
+    
