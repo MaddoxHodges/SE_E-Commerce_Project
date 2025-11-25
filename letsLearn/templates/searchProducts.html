@@ -42,8 +42,14 @@ main {
 /* Search Bar */
 form {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 14px;
   margin-bottom: 25px;
+}
+
+form .row-flex {
+  display: flex;
+  gap: 10px;
 }
 
 input[type="text"] {
@@ -63,6 +69,25 @@ button {
   font-weight: bold;
 }
 button:hover { background-color: #0056b3; }
+
+/* Tag checkboxes */
+.tag-box {
+  background: #f9f9fb;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.tag-box strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--burn-mid);
+}
+
+.tag-box label {
+  margin-right: 10px;
+  font-size: 14px;
+}
 
 /* Product card */
 .product {
@@ -86,6 +111,18 @@ button:hover { background-color: #0056b3; }
   margin: 5px 0;
 }
 
+/* Tag badge */
+.tag-badge {
+  display: inline-block;
+  background: var(--burn-accent);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-right: 5px;
+  margin-top: 3px;
+}
+
 a.details-btn {
   text-decoration: none;
   font-weight: bold;
@@ -102,8 +139,28 @@ a.details-btn:hover { color: #0056b3; }
 <main>
 
   <form method="get" action="/searchProducts/">
-    <input type="text" name="q" placeholder="Search for a product..." value="{{ query }}">
-    <button type="submit">Search</button>
+
+    <div class="row-flex">
+      <input type="text" name="q" placeholder="Search for a product..." value="{{ query }}">
+      <button type="submit">Search</button>
+    </div>
+
+    <!-- ⭐ Tag Filtering Section ⭐ -->
+    <div class="tag-box">
+      <strong>Filter by Tags:</strong>
+
+      {% for tag in tags %}
+        <label>
+          <input type="checkbox" name="tags"
+                 value="{{ tag.id }}"
+                 {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
+          {{ tag.name }}
+        </label>
+      {% empty %}
+        <p style="color:#888;">No tags available.</p>
+      {% endfor %}
+    </div>
+
   </form>
 
   {% if search_performed %}
@@ -117,12 +174,19 @@ a.details-btn:hover { color: #0056b3; }
           <h3>{{ product.title }}</h3>
           <p>{{ product.description }}</p>
 
-          <!-- ✅ Correct price format -->
+          <!-- Price -->
           <p class="price">$ {{ product.display_price }}</p>
 
-          <!-- ✅ Correct link -->
-          <a class="details-btn" href="/details/?product_id={{ product.id }}">View Details →</a>
+          <!-- ⭐ Display tags for each product ⭐ -->
+          <p>
+            {% for t in product.tags.all %}
+              <span class="tag-badge">{{ t.name }}</span>
+            {% empty %}
+              <span style="color:#aaa; font-size: 13px;">No tags</span>
+            {% endfor %}
+          </p>
 
+          <a class="details-btn" href="/details/?product_id={{ product.id }}">View Details →</a>
         </div>
       </div>
 

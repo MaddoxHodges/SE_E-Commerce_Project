@@ -106,6 +106,9 @@ urlpatterns = [
     path("acceptRefund/<int:ticket_id>/", views.acceptRefund, name="acceptRefund"),
     path("denyRefund/<int:ticket_id>/", views.denyRefund, name="denyRefund"),
 
+    path("tags/", views.Tags, name="tags"),
+
+
 ]
 
 if settings.DEBUG:

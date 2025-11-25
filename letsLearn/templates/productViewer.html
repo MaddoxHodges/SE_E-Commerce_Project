@@ -94,6 +94,18 @@
       color: #0056b3;
       text-decoration: underline;
     }
+
+    /* NEW — small blue tag badges */
+    .tag-badge {
+      display: inline-block;
+      background: var(--burn-accent);
+      color: white;
+      padding: 3px 8px;
+      margin: 2px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
   </style>
 </head>
 {% if user.is_authenticated and user.is_seller %}
@@ -117,9 +129,14 @@
           <th>Product ID</th>
           <th>Product Name</th>
           <th>Stock</th>
+
+          <!-- NEW COLUMN -->
+          <th>Tags</th>
+
           <th>Edit Listing</th>
         </tr>
       </thead>
+
       <tbody>
         {% if products %}
         {% for product in products %}
@@ -131,9 +148,20 @@
                 <span style="color:#888;">no img</span>
               {% endif %}
             </td>
+
             <td>{{ product.id }}</td>
             <td>{{ product.title }}</td>
             <td>{{ product.stock }}</td>
+
+            <!-- NEW TAGS COLUMN -->
+            <td>
+              {% for t in product.tags.all %}
+                <span class="tag-badge">{{ t.name }}</span>
+              {% empty %}
+                <span style="color:#aaa;">None</span>
+              {% endfor %}
+            </td>
+
             <td class="product-link">
               <a href="/productEdit?product_id={{ product.id }}">Edit</a>
             </td>
@@ -141,7 +169,7 @@
         {% endfor %}
         {% else %}
           <tr class="no-products">
-            <td colspan="5">No current listings available.</td>
+            <td colspan="6">No current listings available.</td>
           </tr>
         {% endif %}
       </tbody>
