@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>BurnLab – Order Details</title>
+<title>BurnLab – Seller Orders</title>
 
 <style>
 :root {
@@ -43,7 +43,10 @@ nav a {
   font-weight: 600;
   transition: .2s;
 }
-nav a:hover { color:#fff; }
+
+nav a:hover {
+  color: #fff;
+}
 
 .container {
   width: 85%;
@@ -51,62 +54,90 @@ nav a:hover { color:#fff; }
   margin: 30px auto;
 }
 
-.order-table {
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-  background:#fff;
-  border-radius:8px;
-  overflow:hidden;
-  border:1px solid #ddd;
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
 }
-.order-table th {
-  background:var(--burn-mid);
-  color:white;
-  padding:12px;
-  font-size:14px;
+
+.orders-table th {
+  background: var(--burn-mid);
+  color: white;
+  padding: 12px;
+  font-size: 14px;
 }
-.order-table td {
-  padding:12px;
-  text-align:center;
-  border-bottom:1px solid #eee;
+
+.orders-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
 }
-.order-table tr:hover {
-  background:#eef4ff;
+
+.orders-table tr:hover {
+  background: #eef4ff;
+}
+
+.view-btn {
+  background: var(--burn-accent);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.view-btn:hover {
+  opacity: .8;
 }
 </style>
 </head>
 
 <body>
 
-<header>Order #{{ order.id }}</header>
+<header>BurnLab Seller Orders</header>
 
 <nav>
-  <a href="/sellerOrders/">Back to Orders</a>
+  <a href="/productPage/">Products</a>
+  <a href="/newListing/">New Listing</a>
   <a href="/logout/">Logout</a>
 </nav>
 
 <div class="container">
-<h2>Order Items</h2>
 
-<table class="order-table">
+<h2>Orders Containing Your Products</h2>
+
+<table class="orders-table">
 <tr>
-  <th>Product</th>
+  <th>Order ID</th>
+  <th>Date</th>
+  <th>Title</th>
   <th>Quantity</th>
-  <th>Line Total</th>
+  <th>Total</th>
 </tr>
 
-{% for item in items %}
+{% for i in items %}
 <tr>
-  <td>{{ item.product_id.title }}</td>
-  <td>{{ item.qty }}</td>
-  <td>${{ item.qty|add:"0"|floatformat:0 }}</td>
+  <td>{{ i.order_id.id }}</td>
+  <td>{{ i.order_id.created_at }}</td>
+  <td>{{ i.product_id.title }}</td>
+  <td>{{ i.qty }}</td>
+  <td>${{ i.formatted_price }}</td>
+  </td>
 </tr>
 {% empty %}
-<tr><td colspan="3"><i>No items found</i></td></tr>
+<tr><td colspan="4"><i>No orders detected.</i></td></tr>
 {% endfor %}
 
 </table>
+
+<p>
+  You have received: ${{ total }}
+</p>
+
 </div>
 
 </body>
