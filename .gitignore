@@ -2,3 +2,4 @@ __pycache__/
 myfirstproject/
 migrations/
 db.sqlite3
+venv/

@@ -122,14 +122,31 @@ button:hover { background: #0056b3; }
 
   <label>Price ($)</label>
   <input type="number" step="0.01" name="productPrice" required>
+
   <label>Stock</label>
   <input type="number" name="stock" min="0" value="0" required>
 
-<label>Product Image</label>
-<div id="drop-area" class="upload-box">
-  Drag & Drop image or click to upload
-</div>
-<input type="file" id="fileElem" name="main_image" accept="image/*">
+
+  <!-- ⭐ TAG SELECTION (CORRECTED VERSION) ⭐ -->
+  <label>Select Tags</label>
+  <div style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; background: #f9f9fb;">
+    {% for tag in tags %}
+      <label style="display: inline-block; margin-right: 10px; margin-bottom: 5px;">
+        <input type="checkbox" name="tags" value="{{ tag.id }}">
+        {{ tag.name }}
+      </label>
+    {% empty %}
+      <p style="color: #999;">No tags available. Admin must add tags first.</p>
+    {% endfor %}
+  </div>
+  <!-- ⭐ END TAGS ⭐ -->
+
+
+  <label>Product Image</label>
+  <div id="drop-area" class="upload-box">
+    Drag & Drop image or click to upload
+  </div>
+  <input type="file" id="fileElem" name="images" accept="image/*">
 
   <button type="submit">Submit for Review</button>
 </form>
