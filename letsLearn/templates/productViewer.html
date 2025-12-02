@@ -108,7 +108,7 @@
     }
   </style>
 </head>
-
+{% if user.is_authenticated and user.is_seller %}
 <body>
   <header>
     <h1>BurnLab Product Listings</h1>
@@ -163,7 +163,8 @@
             </td>
 
             <td class="product-link">
-              <a href="/productEdit?product_id={{ product.id }}/">Edit</a>
+              <a href="{% url 'productEdit' %}?product_id={{ product.id }}">Edit</a>
+
             </td>
           </tr>
         {% endfor %}
@@ -175,5 +176,10 @@
       </tbody>
     </table>
   </main>
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>

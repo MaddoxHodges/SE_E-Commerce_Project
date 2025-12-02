@@ -89,7 +89,7 @@ a.back {
 a.back:hover { color: var(--burn-accent); }
 </style>
 </head>
-
+{% if user.is_authenticated and not user.is_seller and not user.is_staff %}
 <body>
 
 <header>BurnLab Marketplace</header>
@@ -135,6 +135,10 @@ function addToCart(productId) {
         .catch(() => alert("⚠️ Error contacting server"));
 }
 </script>
-
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>

@@ -123,7 +123,7 @@ button:hover { background:#005fcc; }
 </style>
 
 </head>
-
+{% if user.is_authenticated and not user.is_staff %}
 <body>
 
 <header>BurnLab Support</header>
@@ -216,5 +216,10 @@ button:hover { background:#005fcc; }
 </form>
 
 </div>
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>

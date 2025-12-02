@@ -131,7 +131,7 @@ a.details-btn {
 a.details-btn:hover { color: #0056b3; }
 </style>
 </head>
-
+{% if user.is_authenticated and not user.is_seller and not user.is_staff %}
 <body>
 
 <header>BurnLab Product Search</header>
@@ -197,6 +197,10 @@ a.details-btn:hover { color: #0056b3; }
   {% endif %}
 
 </main>
-
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>

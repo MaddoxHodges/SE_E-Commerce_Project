@@ -84,7 +84,7 @@
 
   </style>
 </head>
-
+{% if user.is_authenticated and not user.is_seller and not user.is_staff %}
 <body>
   <header>
     <h1>Welcome to BurnLab</h1>
@@ -92,18 +92,11 @@
 
   <nav>
     <a href="/cart">Shopping Cart</a>
-    
-    {% if user.is_authenticated and not user.is_staff %}
-        <a href="/vieworders/">My Orders</a>
-    {% endif %}
-
+    <a href="/vieworders/">My Orders</a>
     <a href="/marketplace">Marketplace</a>
     <a href="/logout">Logout</a>
     <a href="/newTicket">Support Tickets</a>
-  
     <a href="/searchProducts/">Search Products</a>
-
-
   </nav>
 
   <main>
@@ -111,6 +104,10 @@
     <p>Welcome to BurnLab — your place to buy, sell, and manage your digital products.</p>
     <p>Check out our <a href="/about">About</a> page to learn more about us.</p>
   </main>
-
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>
