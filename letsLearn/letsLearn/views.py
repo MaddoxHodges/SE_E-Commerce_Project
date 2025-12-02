@@ -377,107 +377,96 @@ def intToPrice(price_cents):
     return "{:.2f}".format(Decimal(price_cents) / 100)
 
 def placeorder(request):
-    template = loader.get_template("placeorder.html")
+    if request.method != "POST":
+        return redirect("/cart/")
 
-    if request.method == "POST":
-        form = CheckoutForm(request.POST)
-        if form.is_valid():
-            address = form.cleaned_data["address"]
-            cart = request.session.get("cart", {})
+    user = request.user
+    cart = request.session.get("cart", {})
 
-            total_price = 0
+    if not cart:
+        messages.error(request, "Your cart is empty.")
+        return redirect("/cart/")
 
+    subtotal = sum(item["price"] * item["quantity"] for item in cart.values())
+    tax = round(subtotal * 0.07)
+    shipping = 1700  # $17.00
+    total = subtotal + tax + shipping
 
-            order = Orders(
-                user=request.user,           # <--- ADD THIS FIELD
-                created_at=datetime.now(),
-                address=address,
-                subtotal_cents=0,
-                total_cents=0,
-                tax_cents=0,
-                shipping_cents=0
-            )
-            order.save()
+    # Create the order
+    order = Orders.objects.create(
+        user=user,
+        subtotal_cents=subtotal,
+        tax_cents=tax,
+        shipping_cents=shipping,
+        total_cents=total,
+        address="Default Address",
+        created_at=timezone.now()
+    )
 
+    # Create OrderItems for each cart entry
+    for pid, item in cart.items():
+        OrderItems.objects.create(
+            order_id=order,
+            product_id=Product.objects.get(id=pid),
+            qty=item["quantity"],
+            price_cents=item["price"],
+            return_requested=False,
+            seller_paid=False,
+        )
 
-            for product_id, qty in cart.items():
-                try:
-                    p = Product.objects.get(id=product_id, status="active")
-                except Product.DoesNotExist:
-                    continue
+    # Clear cart after order
+    request.session["cart"] = {}
 
-                qty = max(1, int(qty))
-
-
-                if qty > p.stock:
-                    qty = p.stock
-
-
-                if p.stock <= 0:
-                    continue
-
-                line_cents = qty * p.price_cents
-                total_price += line_cents
-
-                OrderItems.objects.create(
-                    order_id=order,
-                    product_id=p,
-                    price_cents=p.price_cents,
-                    qty=qty,
-                    return_requested=False
-                )
+    return redirect("/vieworders/")
 
 
-                p.stock -= qty
-                p.save()
+from django.utils import timezone
 
+def placeorder(request):
+    if request.method != "POST":
+        return redirect("/cart/")
 
-            tax_cents = total_price * 7 // 100  # 7%
-            shipping_cents = 1300  # $13.00
-
-            order.subtotal_cents = total_price
-            order.tax_cents = tax_cents
-            order.shipping_cents = shipping_cents
-            order.total_cents = total_price + tax_cents + shipping_cents
-            order.save()
-
-            # ✅ clear cart after save
-            request.session["cart"] = {}
-
-    return HttpResponse(template.render({}, request))
-
-
-
-
-
-def vieworders(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
-    page = int(request.GET.get("page", 1))
-    page = max(page, 1)
+    cart = request.session.get("cart", {})
 
-    # only fetch user's orders
-    orders = Orders.objects.filter(user=request.user).order_by("-created_at")[(page - 1) * 12:(page * 12)]
+    if not cart:
+        messages.error(request, "Your cart is empty.")
+        return redirect("/cart/")
 
-    # build into 3 column grid (like your old version)
-    grid = []
-    for row in range(math.ceil(len(orders) / 3)):
-        row_list = []
-        for index in range(3):
-            i = (row * 3) + index
-            if i >= len(orders):
-                break
-            row_list.append(orders[i])
-        grid.append(row_list)
+    # Calculate totals
+    subtotal = sum(item["price"] * item["quantity"] for item in cart.values())
+    tax = round(subtotal * 0.07)
+    shipping = 1700  # $17.00
+    total = subtotal + tax + shipping
 
-    return render(request, "vieworders.html", {
-        "grid": grid,
-        "page": page,
-        "next_page": page + 1,
-        "prev_page": page - 1,
-    })
+    # Create order
+    order = Orders.objects.create(
+        user=request.user,
+        subtotal_cents=subtotal,
+        tax_cents=tax,
+        shipping_cents=shipping,
+        total_cents=total,
+        address="Default Address",  # Replace later with real checkout form
+        created_at=timezone.now(),
+    )
 
+    # Add order items
+    for pid, item in cart.items():
+        OrderItems.objects.create(
+            order_id=order,
+            product_id=Product.objects.get(id=pid),
+            qty=item["quantity"],
+            price_cents=item["price"],
+            return_requested=False,
+            seller_paid=False
+        )
+
+    # Clear cart
+    request.session["cart"] = {}
+
+    return redirect("/vieworders/")
 
 def orderdetails(request, order_id):
     order = Orders.objects.get(id=order_id)
@@ -1064,4 +1053,6 @@ def process_payment(request):
 
 def payment_success(request):
     return render(request, "payment_success.html")
+
+
 
