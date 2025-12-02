@@ -110,6 +110,10 @@ urlpatterns = [
     path("tags/", views.Tags, name="tags"),
     
     path("subscribe-rss/", subscribe_rss, name="subscribe_rss"),
+    
+    path("payment/", views.payment_page),
+    
+    path("process_payment/", views.process_payment),
 
 
 ]

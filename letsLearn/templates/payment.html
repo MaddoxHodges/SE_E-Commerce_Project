@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment | BurnLab</title>
+
+<style>
+:root {
+  --burn-dark: #1a2a46;
+  --burn-mid: #23395d;
+  --burn-accent: #007bff;
+  --burn-light: #9ec5ff;
+  --burn-bg: #f5f8fc;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: var(--burn-bg);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: var(--burn-mid);
+  color: #fff;
+  text-align: center;
+  padding: 1.4rem;
+  font-size: 1.6rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.container {
+  max-width: 500px;
+  margin: 35px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+}
+
+h2 {
+  text-align: center;
+  color: var(--burn-mid);
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: bold;
+  color: var(--burn-mid);
+}
+
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f8faff;
+  font-size: 1rem;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: var(--burn-accent);
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+/* Error messages */
+.error {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Loading Overlay */
+#processing {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  padding-top: 25vh;
+  z-index: 9999;
+}
+</style>
+
+<script>
+// Simple fake “Processing Payment” animation
+function showProcessing() {
+    document.getElementById("processing").style.display = "block";
+    setTimeout(() => {
+        document.getElementById("paymentForm").submit();
+    }, 1500); // simulate 1.5s payment delay
+}
+</script>
+
+</head>
+
+<body>
+
+<header>Payment Details</header>
+
+<div id="processing">Processing Payment…</div>
+
+<div class="container">
+
+<h2>Enter Your Card Information</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <p class="error">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+<form id="paymentForm" method="POST" action="/process_payment/">
+    {% csrf_token %}
+
+    <label>Card Number</label>
+    <input type="text" name="card_number" maxlength="16" placeholder="4242 4242 4242 4242" required>
+
+    <label>Expiration Date (MM/YY)</label>
+    <input type="text" name="expiry" maxlength="5" placeholder="12/28" required>
+
+    <label>CVC</label>
+    <input type="text" name="cvc" maxlength="3" placeholder="123" required>
+
+    <button type="button" onclick="showProcessing()">Pay Now</button>
+</form>
+
+<a href="/checkout/" style="display:block; text-align:center; margin-top:15px; color:var(--burn-mid); font-weight:bold;">
+    ← Back to Checkout
+</a>
+
+</div>
+
+</body>
+</html>
