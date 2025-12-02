@@ -1001,7 +1001,15 @@ def sellerPayout(request):
         seller_paid=False
     )
 
-    return render(request, "sellerOrderDetails.html", {"order": order,"items": items})
+    total = 0
+    for item in items:
+        price = item.price_cents * item.qty
+        total += price
+        item.formatted_price = intToPrice(price)
+        item.seller_paid = True
+        item.save()
+
+    return render(request, "sellerOrderDetails.html", {"items": items})
 
 def Tags(request):
     # Only staff/admin should add tags
@@ -1024,9 +1032,6 @@ def Tags(request):
 
     return render(request, "tags.html", {"tags": tags})
 
-<<<<<<< HEAD
-
-=======
 def payment_page(request):
     return render(request, "payment.html")
 
@@ -1053,7 +1058,6 @@ def process_payment(request):
 
     # Payment passed → auto-create order via POST
     return redirect("/payment_success/")
-    
+
 def payment_success(request):
     return render(request, "payment_success.html")
->>>>>>> origin/main
