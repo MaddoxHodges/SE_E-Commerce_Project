@@ -1018,6 +1018,36 @@ def Tags(request):
 
         return redirect("/tags/")
 
+    return render(request, "sellerOrderDetails.html", {"order": order,"items": items})
+    for item in items:
+        price = item.price_cents * item.qty
+
+        if not item.seller_paid:
+            total += price
+            item.seller_paid == True
+            item.save()
+
+        item.formatted_price = intToPrice(price)
+        total = intToPrice(total)
+
+    return render(request, "sellerOrderDetails.html", {"total": total, "items": items})
+
+def Tags(request):
+    # Only staff/admin should add tags
+    if not request.user.is_staff:
+        return redirect("/home")
+
+    from letsLearn.models import Tag  # import inside the function to avoid conflicts
+
+    # Handle POST → create a new tag
+    if request.method == "POST":
+        tagname = request.POST.get("tagname", "").strip()
+        if tagname != "":
+            Tag.objects.get_or_create(name=tagname)
+            messages.success(request, f"Tag '{tagname}' added.")
+
+        return redirect("/tags/")
+
     # Display all tags
     tags = Tag.objects.all().order_by("name")
 

@@ -98,7 +98,7 @@ button:hover { background: #0056b3; }
 
 </style>
 </head>
-
+{% if user.is_authenticated and user.is_seller %}
 <body>
 
 <header>BurnLab Product Management</header>
@@ -174,6 +174,10 @@ dropArea.addEventListener("drop", (e) => {
   fileInput.files = e.dataTransfer.files;
 });
 </script>
-
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>

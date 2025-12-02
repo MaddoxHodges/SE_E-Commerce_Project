@@ -126,6 +126,7 @@ button.close-btn:hover {
 </style>
 
 </head>
+{% if user.is_authenticated %}
 <body>
 
 <div class="ticket-box">
@@ -203,6 +204,10 @@ button.close-btn:hover {
         {% endif %}
     </p>
 </div>
-
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>
