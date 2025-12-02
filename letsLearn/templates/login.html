@@ -8,9 +8,4 @@
   </form>
   <p><a href="/register/">Create account</a></p>
   {% for message in messages %}<p style="color:#b00020">{{ message }}</p>{% endfor %}
-{% else %}
-  <script>
-    window.location.href = "/home";
-  </script>
-{% endif %}
 </body></html>
