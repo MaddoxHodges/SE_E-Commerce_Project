@@ -1009,7 +1009,7 @@ def sellerPayout(request):
         item.seller_paid = True
         item.save()
 
-    return render(request, "sellerOrderDetails.html", {"items": items})
+    return render(request, "sellerOrderDetails.html", {"items": items, "total": intToPrice(total)})
 
 def Tags(request):
     # Only staff/admin should add tags
