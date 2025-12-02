@@ -376,7 +376,7 @@ def checkout(request):
 def intToPrice(price_cents):
     return "{:.2f}".format(Decimal(price_cents) / 100)
 
-def placeorder(request):
+ddef placeorder(request):
     if request.method != "POST":
         return redirect("/cart/")
 
@@ -389,35 +389,38 @@ def placeorder(request):
         messages.error(request, "Your cart is empty.")
         return redirect("/cart/")
 
-    # Calculate totals
-    subtotal = sum(item["price"] * item["quantity"] for item in cart.values())
+    subtotal = 0
+
+    # ✅ cart is {"7": 2, "12": 1}
+    for pid, qty in cart.items():
+        product = Product.objects.get(id=pid)
+        subtotal += product.price_cents * qty  # use real DB price
+
     tax = round(subtotal * 0.07)
-    shipping = 1700  # $17.00
+    shipping = 1700
     total = subtotal + tax + shipping
 
-    # Create order
     order = Orders.objects.create(
         user=request.user,
         subtotal_cents=subtotal,
         tax_cents=tax,
         shipping_cents=shipping,
         total_cents=total,
-        address="Default Address",  # Replace later with real checkout form
+        address="Default Address",
         created_at=timezone.now(),
     )
 
-    # Add order items
-    for pid, item in cart.items():
+    for pid, qty in cart.items():
+        product = Product.objects.get(id=pid)
         OrderItems.objects.create(
             order_id=order,
-            product_id=Product.objects.get(id=pid),
-            qty=item["quantity"],
-            price_cents=item["price"],
+            product_id=product,
+            qty=qty,
+            price_cents=product.price_cents,
             return_requested=False,
             seller_paid=False
         )
 
-    # Clear cart
     request.session["cart"] = {}
 
     return redirect("/vieworders/")
@@ -1035,6 +1038,7 @@ def vieworders(request):
         "next_page": page + 1,
         "prev_page": page - 1,
     })
+
 
 
 
