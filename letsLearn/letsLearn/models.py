@@ -14,20 +14,20 @@ class Tag(models.Model): #added tags
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
 
-    seller_id = models.IntegerField(default=1)
+    seller_id = models.IntegerField(default=1)  
     category_id = models.IntegerField(default=1)
 
     title = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
-    price_cents = models.IntegerField(default=0)
+    price_cents = models.IntegerField(default=0)  
 
-    stock = models.IntegerField(default=0)
+    stock = models.IntegerField(default=0) 
 
-    status = models.CharField(max_length=10, default='pending')
+    status = models.CharField(max_length=10, default='active')
     main_image_url = models.TextField(blank=True, null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)  
     updated_at = models.DateTimeField(auto_now=True)
 
     tags = models.ManyToManyField(Tag) #added tags which will create linking table DJANGO magic!
@@ -52,7 +52,7 @@ class Orders(models.Model):
     refund_reason = models.TextField(blank=True, null=True)
     refund_requested_at = models.DateTimeField(blank=True, null=True)
     refund_acknowledged = models.BooleanField(default=False)
-
+    
     @property
     def total_dollars(self):
         return self.total_cents / 100
@@ -75,7 +75,7 @@ class SupportTicket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.CharField(max_length=255)
     description = models.TextField()
-    response = models.TextField(blank=True, null=True)
+    response = models.TextField(blank=True, null=True)   
     status = models.CharField(max_length=20, default="Open")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -86,7 +86,7 @@ class TicketMessage(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.subject} ({self.user.username})"
-
+    
 class OrderItems(models.Model):
     order_id = models.ForeignKey(Orders, on_delete=models.CASCADE)
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -94,9 +94,9 @@ class OrderItems(models.Model):
     price_cents = models.IntegerField()
     return_requested = models.BooleanField()
     seller_paid = models.BooleanField(default=False)
+    
 class RSSSubscriber(models.Model):
     email = models.EmailField(unique=True)
     last_sent = models.DateTimeField(null=True, blank=True)
-
     def __str__(self):
         return self.email
