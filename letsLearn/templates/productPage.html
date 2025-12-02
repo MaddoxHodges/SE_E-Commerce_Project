@@ -56,7 +56,7 @@ section a:hover{
 </style>
 
 </head>
-
+{if user.is_authenticated and user.is_seller}
 <body>
   <header>
     <h1>BurnLab – Product Management</h1>
@@ -80,6 +80,12 @@ section a:hover{
       <a href="/productViewer">View Listings</a>
     </section>
   </main>
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
+
 </html>
 

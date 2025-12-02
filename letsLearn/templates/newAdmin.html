@@ -1,5 +1,7 @@
 <!doctype html>
-<html><body>
+<html>
+{% if user.is_authenticated and user.is_staff %}
+<body>
   <h2>Register New Admin</h2>
   <nav><a href='/support'>Home</a></nav>
   <form method="post">{% csrf_token %}
@@ -8,5 +10,17 @@
     <div><input name="confirm" type="password" placeholder="Confirm password" required></div>
     <button type="submit">Register Admin</button>
   </form>
-  
-</body></html>
+
+  {% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+  {% endif %}
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
+</body>
+
+</html>

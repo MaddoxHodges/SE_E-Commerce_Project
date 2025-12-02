@@ -106,7 +106,7 @@ a:hover {
 }
 </style>
 </head>
-
+{% if user.is_authenticated and not user.is_seller and not user.is_staff %}
 <body>
 
 <header>Checkout</header>
@@ -148,6 +148,10 @@ a:hover {
   <a style="float:right;" href="/logout">Logout</a>
 
 </div>
-
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>

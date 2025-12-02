@@ -149,7 +149,7 @@
     }
   </style>
 </head>
-
+{if user.is_authenticated and not user.is_seller and not user.is_staff}
 <body>
   <header>
     <h1>Your Orders</h1>
@@ -191,5 +191,11 @@
   <footer>
     <p>Check out our <a href="/home">Home</a> page.</p>
   </footer>
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
+
 </html>

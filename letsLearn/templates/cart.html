@@ -87,7 +87,7 @@ tr:hover td { background:#eef4ff; }
 }
 </style>
 </head>
-
+{% if user.is_authenticated and not user.is_seller and not user.is_staff %}
 <body>
 
 <header>Shopping Cart</header>
@@ -121,6 +121,10 @@ tr:hover td { background:#eef4ff; }
   <strong>Total: </strong>${{ total_price }}
   <a class="checkout-btn" href="/checkout/">Checkout</a>
 </div>
-
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>

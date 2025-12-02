@@ -108,7 +108,7 @@ h2 {
 }
 </style>
 </head>
-
+{if user.is_authenticated and user.is_seller %}
 <body>
 
 <header>BurnLab Seller Orders</header>
@@ -200,6 +200,10 @@ h2 {
 </p>
 
 </div>
-
+{% else %}
+  <script>
+    window.location.href = "/home";
+  </script>
+{% endif %}
 </body>
 </html>
