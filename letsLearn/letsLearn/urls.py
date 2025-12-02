@@ -17,11 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
+from .views import subscribe_rss
 from authapp import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import include
-from .views import subscribe
+
 
 urlpatterns = [
     #path ('', include('members.urls')),
@@ -83,7 +83,7 @@ urlpatterns = [
 
     path("sellerOrders/", views.sellerOrders, name="sellerOrders"),
     
-    path("sellerOrders/details", views.sellerOrderDetails, name="sellerOrderDetails"),
+    path("sellerPayout/", views.sellerPayout, name="sellerPayout"),
     
     path("order/<int:order_id>/", views.orderdetails, name="orderDetails"),
 
@@ -108,13 +108,12 @@ urlpatterns = [
     path("denyRefund/<int:ticket_id>/", views.denyRefund, name="denyRefund"),
 
     path("tags/", views.Tags, name="tags"),
-
-
-    path("subscribe/", subscribe, name="subscribe"),
     
+    path("subscribe-rss/", subscribe_rss, name="subscribe_rss"),
 
 
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
