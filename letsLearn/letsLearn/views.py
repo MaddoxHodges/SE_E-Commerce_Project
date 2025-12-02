@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
+from django.contrib import messages
 from django.template import loader
 from django.contrib.auth import authenticate, login as auth_login
 from .models import SupportTicket, TicketMessage
@@ -89,40 +90,23 @@ from django.contrib import messages
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
-def acceptRefund(request, ticket_id=None, order_id=None):
+def acceptRefund(request, ticket_id):
     if not request.user.is_authenticated:
         return redirect("login")
 
-    # If called with ticket_id → normal flow
-    if ticket_id is not None:
-        ticket = get_object_or_404(SupportTicket, id=ticket_id)
+    # find the related ticket
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
+    # extract order ID from subject (like "Refund Request for Order #12")
+    import re
+    match = re.search(r"Order\s*#(\d+)", ticket.subject)
+    if not match:
+        messages.error(request, "Could not identify the order for this refund.")
+        return redirect(f"/replyTicket/{ticket.id}/")
 
-        # extract order ID from ticket subject
-        import re
-        match = re.search(r"Order\s*#(\d+)", ticket.subject)
-        if not match:
-            messages.error(request, "Could not identify the order for this refund.")
-            return redirect(f"/replyTicket/{ticket_id}/")
-
-        order_id = int(match.group(1))
-
-    # If called with order_id → skip ticket step
-    elif order_id is not None:
-        order = get_object_or_404(Orders, id=order_id)
-        # find matching ticket automatically
-        ticket = SupportTicket.objects.filter(subject__icontains=f"Order #{order_id}").first()
-        if not ticket:
-            messages.error(request, "No ticket found for this order.")
-            return redirect("/sellerOrders/")
-
-    else:
-        messages.error(request, "No refund target specified.")
-        return redirect("/sellerOrders/")
-
-    # Fetch the order if not already
+    order_id = int(match.group(1))
     order = get_object_or_404(Orders, id=order_id)
 
-    # Validate ownership
+    # ensure this user is the seller
     owns_product = OrderItems.objects.filter(
         order_id=order,
         product_id__seller_id=request.user.id
@@ -132,22 +116,25 @@ def acceptRefund(request, ticket_id=None, order_id=None):
         messages.error(request, "You cannot approve refunds for this order.")
         return redirect(f"/replyTicket/{ticket.id}/")
 
-    # Process refund
-    order.status = 'C'
+    # mark as refunded
+    order.status = 'C'  # closed/refunded
     order.refund_acknowledged = True
     order.save()
 
+    # log the action in the chat
     TicketMessage.objects.create(
         ticket=ticket,
         sender=request.user,
         message="Seller has approved the refund."
     )
 
+    # close the ticket automatically
     ticket.status = "Closed"
     ticket.save()
 
     messages.success(request, f"Refund for Order #{order.id} approved.")
     return redirect(f"/replyTicket/{ticket.id}/")
+
 
 def denyRefund(request, ticket_id):
     if not request.user.is_authenticated:
@@ -714,21 +701,14 @@ def newAdmin(request):
 def productEdit(request):
     if request.method == "POST":
         product_id = request.POST.get("product_id")
-
-        # make sure product_id is numeric
-        try:
-            product_id_int = int(product_id)
-        except (TypeError, ValueError):
-            return redirect("/productViewer/")
-
-        p = get_object_or_404(Product, id=product_id_int)
+        p = Product.objects.get(id=product_id)
 
         # verify seller owns product
         if request.user.id != p.seller_id:
             return redirect("/home")
 
-        p.title = request.POST.get("title", p.title)
-        p.description = request.POST.get("description", p.description)
+        p.title = request.POST.get("title")
+        p.description = request.POST.get("description")
 
         # handle price
         price_dollars = request.POST.get("price")
@@ -736,33 +716,24 @@ def productEdit(request):
             try:
                 p.price_cents = int(round(float(price_dollars) * 100))
             except ValueError:
-                pass  # keep old price if bad input
+                pass
 
-        # update stock
+        # ✅ NEW: Update stock
         stock = request.POST.get("stock")
         if stock is not None:
             try:
                 p.stock = int(stock)
             except ValueError:
-                pass  # keep old stock if bad input
+                pass
 
         p.save()
-        return redirect("/productViewer/")
+        return redirect("/productViewer")
 
-    # ------- GET: load edit form -------
+    # GET
     product_id = request.GET.get("product_id")
-
-    try:
-        product_id_int = int(product_id)
-    except (TypeError, ValueError):
-        return redirect("/productViewer/")
-
-    p = get_object_or_404(Product, id=product_id_int)
-
-    # verify seller owns product
+    p = Product.objects.get(id=product_id)
     if request.user.id != p.seller_id:
         return redirect("/home")
-
     return render(request, "productedit.html", {"product": p})
 
 
@@ -1048,39 +1019,36 @@ def Tags(request):
 
         return redirect("/tags/")
 
-    return render(request, "sellerOrderDetails.html", {"order": order,"items": items})
-    for item in items:
-        price = item.price_cents * item.qty
-
-        if not item.seller_paid:
-            total += price
-            item.seller_paid == True
-            item.save()
-
-        item.formatted_price = intToPrice(price)
-        total = intToPrice(total)
-
-    return render(request, "sellerOrderDetails.html", {"total": total, "items": items})
-
-def Tags(request):
-    # Only staff/admin should add tags
-    if not request.user.is_staff:
-        return redirect("/home")
-
-    from letsLearn.models import Tag  # import inside the function to avoid conflicts
-
-    # Handle POST → create a new tag
-    if request.method == "POST":
-        tagname = request.POST.get("tagname", "").strip()
-        if tagname != "":
-            Tag.objects.get_or_create(name=tagname)
-            messages.success(request, f"Tag '{tagname}' added.")
-
-        return redirect("/tags/")
-
     # Display all tags
     tags = Tag.objects.all().order_by("name")
 
     return render(request, "tags.html", {"tags": tags})
 
-    
+def payment_page(request):
+    return render(request, "payment.html")
+
+def process_payment(request):
+    if request.method != "POST":
+        return redirect("/cart/")
+
+    card = request.POST.get("card_number")
+    expiry = request.POST.get("expiry")
+    cvc = request.POST.get("cvc")
+
+    # --- Fake validation logic ---
+    if len(card) != 16 or not card.isdigit():
+        messages.error(request, "Invalid card number.")
+        return redirect("/payment/")
+
+    if len(cvc) != 3 or not cvc.isdigit():
+        messages.error(request, "Invalid CVC.")
+        return redirect("/payment/")
+
+    # EXAMPLE: Accept ONLY this fake Visa test number
+    if card != "4242424242424242":
+        messages.error(request, "Card declined. Use the test number 4242 4242 4242 4242.")
+        return redirect("/payment/")
+
+    # --- If valid, mark the order as paid ---
+    messages.success(request, "Payment successful!")
+    return redirect("/placeorder/")
