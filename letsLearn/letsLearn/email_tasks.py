@@ -1,32 +1,36 @@
 from django.utils import timezone
 from django.core.mail import send_mail
-from .models import RSSSubscriber
-from products.models import Product  # adjust if your Product app is named differently
+from .models import RSSSubscriber, Product
 
 def send_rss_updates():
-    subscribers = RSSSubscriber.objects.all()
     now = timezone.now()
+    subscribers = RSSSubscriber.objects.all()
 
     for s in subscribers:
         last = s.last_sent or (now - timezone.timedelta(days=365))
 
-        # Find new products since last email
-        new_products = Product.objects.filter(created_at__gt=last)
+        new_products = Product.objects.filter(
+            created_at__gt=last,
+            status="active",
+        ).order_by("created_at")
 
-        if new_products.exists():
-            body = "New Products on BurnLab:\n\n"
-            for p in new_products:
-                body += f"- {p.title}\n"
+        if not new_products.exists():
+            continue
 
-            # Send email to subscriber
-            send_mail(
-                subject="BurnLab Product Updates",
-                message=body,
-                from_email="burnlabNotifications@gmail.com",  # your Gmail
-                recipient_list=[s.email],
-                fail_silently=True,
-            )
+        body_lines = ["Here are new products since your last update:", ""]
+        for p in new_products:
+            price = f"${p.price_cents / 100:.2f}"
+            body_lines.append(f"{p.title} — {price}")
 
-            # Update last sent time
-            s.last_sent = now
-            s.save()
+        body = "\n".join(body_lines)
+
+        send_mail(
+            subject="New products in the marketplace",
+            message=body,
+            from_email="yourgmail@gmail.com",   # same as EMAIL_HOST_USER
+            recipient_list=[s.email],
+            fail_silently=False,
+        )
+
+        s.last_sent = now
+        s.save()
