@@ -1054,5 +1054,32 @@ def process_payment(request):
 def payment_success(request):
     return render(request, "payment_success.html")
 
+def vieworders(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    page = int(request.GET.get("page", 1))
+    page = max(page, 1)
+
+    # Only fetch the logged-in user's orders
+    orders = Orders.objects.filter(user=request.user).order_by("-created_at")[(page - 1) * 12:(page * 12)]
+
+    # Build 3-column grid
+    grid = []
+    for row in range(math.ceil(len(orders) / 3)):
+        row_list = []
+        for index in range(3):
+            i = (row * 3) + index
+            if i >= len(orders):
+                break
+            row_list.append(orders[i])
+        grid.append(row_list)
+
+    return render(request, "vieworders.html", {
+        "grid": grid,
+        "page": page,
+        "next_page": page + 1,
+        "prev_page": page - 1,
+    })
 
 
