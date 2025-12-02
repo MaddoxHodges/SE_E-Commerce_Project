@@ -17,6 +17,8 @@ from letsLearn.models import Orders
 from letsLearn.models import OrderItems
 from django.contrib.auth.models import User
 from .forms import CheckoutForm
+from .models import RSSSubscriber
+
 
 
 ######Homepage Links########
@@ -1002,3 +1004,9 @@ def Tags(request):
     tags = Tag.objects.all().order_by("name")
 
     return render(request, "tags.html", {"tags": tags})
+def subscribe(request):
+    if request.method == "POST":
+        RSSSubscriber.objects.get_or_create(email=request.POST.get("email"))
+        return redirect("/")
+def sellerOrderDetails(request):
+    return HttpResponse("Seller order details page coming soon")

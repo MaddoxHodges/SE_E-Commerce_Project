@@ -94,3 +94,9 @@ class OrderItems(models.Model):
     price_cents = models.IntegerField()
     return_requested = models.BooleanField()
     seller_paid = models.BooleanField(default=False)
+class RSSSubscriber(models.Model):
+    email = models.EmailField(unique=True)
+    last_sent = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.email
