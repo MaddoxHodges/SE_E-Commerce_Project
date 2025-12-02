@@ -420,34 +420,53 @@ def placeorder(request):
     return redirect("/vieworders/")
 
 
-def vieworders(request):
+from django.utils import timezone
+
+def placeorder(request):
+    if request.method != "POST":
+        return redirect("/cart/")
+
     if not request.user.is_authenticated:
         return redirect("login")
 
-    page = int(request.GET.get("page", 1))
-    page = max(page, 1)
+    cart = request.session.get("cart", {})
 
-    # only fetch user's orders
-    orders = Orders.objects.filter(user=request.user).order_by("-created_at")[(page - 1) * 12:(page * 12)]
+    if not cart:
+        messages.error(request, "Your cart is empty.")
+        return redirect("/cart/")
 
-    # build into 3 column grid (like your old version)
-    grid = []
-    for row in range(math.ceil(len(orders) / 3)):
-        row_list = []
-        for index in range(3):
-            i = (row * 3) + index
-            if i >= len(orders):
-                break
-            row_list.append(orders[i])
-        grid.append(row_list)
+    # Calculate totals
+    subtotal = sum(item["price"] * item["quantity"] for item in cart.values())
+    tax = round(subtotal * 0.07)
+    shipping = 1700  # $17.00
+    total = subtotal + tax + shipping
 
-    return render(request, "vieworders.html", {
-        "grid": grid,
-        "page": page,
-        "next_page": page + 1,
-        "prev_page": page - 1,
-    })
+    # Create order
+    order = Orders.objects.create(
+        user=request.user,
+        subtotal_cents=subtotal,
+        tax_cents=tax,
+        shipping_cents=shipping,
+        total_cents=total,
+        address="Default Address",  # Replace later with real checkout form
+        created_at=timezone.now(),
+    )
 
+    # Add order items
+    for pid, item in cart.items():
+        OrderItems.objects.create(
+            order_id=order,
+            product_id=Product.objects.get(id=pid),
+            qty=item["quantity"],
+            price_cents=item["price"],
+            return_requested=False,
+            seller_paid=False
+        )
+
+    # Clear cart
+    request.session["cart"] = {}
+
+    return redirect("/vieworders/")
 
 def orderdetails(request, order_id):
     order = Orders.objects.get(id=order_id)
@@ -1034,5 +1053,6 @@ def process_payment(request):
 
 def payment_success(request):
     return render(request, "payment_success.html")
+
 
 
