@@ -1000,20 +1000,23 @@ def sellerPayout(request):
         seller_paid=False
     )
 
-    total = 0
+    return render(request, "sellerOrderDetails.html", {"order": order,"items": items})
 
-    for item in items:
-        price = item.price_cents * item.qty
+def Tags(request):
+    # Only staff/admin should add tags
+    if not request.user.is_staff:
+        return redirect("/home")
 
-        total += price
-        item.formatted_price = intToPrice(price)
-        item.seller_paid = True
-        item.save()
+    from letsLearn.models import Tag  # import inside the function to avoid conflicts
 
-    return render(request, "sellerOrderDetails.html", {
-        "items": items,
-        "total": intToPrice(total)
-    })
+    # Handle POST → create a new tag
+    if request.method == "POST":
+        tagname = request.POST.get("tagname", "").strip()
+        if tagname != "":
+            Tag.objects.get_or_create(name=tagname)
+            messages.success(request, f"Tag '{tagname}' added.")
+
+        return redirect("/tags/")
 
     return render(request, "sellerOrderDetails.html", {"order": order,"items": items})
     for item in items:
