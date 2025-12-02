@@ -482,6 +482,7 @@ def vieworders(request):
 def orderdetails(request, order_id):
     order = Orders.objects.get(id=order_id)
 
+    # Return request logic
     return_id = request.GET.get("order_item_id")
     if return_id is not None:
         try:
@@ -491,8 +492,10 @@ def orderdetails(request, order_id):
         except OrderItems.DoesNotExist:
             pass
 
+    # Build item list
+    items = OrderItems.objects.filter(order_id=order)
     orderitems = []
-    for item in OrderItems.objects.filter(order_id=order.id):
+    for item in items:
         product = item.product_id
         orderitems.append({
             "item": item,
@@ -1061,3 +1064,4 @@ def process_payment(request):
 
 def payment_success(request):
     return render(request, "payment_success.html")
+
