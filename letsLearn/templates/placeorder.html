@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% csrf_token %}
+
     <title>Place Order</title>
 </head>
 <body>
     <h1>Thank you for placing your order!</h1>
-
     <p>Return to marketplace <a href="/marketplace">Marketplace</a> page.</p>
     <p>Check out my <a href="/buyerHome">Home</a> page.</p>
-
-    <!-- Subscription Form -->
+    </h2>
+    
     <form action="/subscribe/" method="POST">
-        {% csrf_token %}
-        <input type="email" name="email" required placeholder="Enter your email">
-        <button type="submit">Subscribe for product updates</button>
+    {% csrf_token %}
+    <input type="email" name="email" required placeholder="Enter your
+    email">
+    <button type="submit">Subscribe</button>
     </form>
-
+    
 </body>
 </html>

@@ -1,9 +1,13 @@
 import datetime
+import json
 from decimal import Decimal
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from django.template import loader
+from django.contrib.auth import authenticate, login as auth_login
 from .models import SupportTicket, TicketMessage
 from authapp.models import SellerProfile
 from django.contrib import messages
@@ -19,13 +23,31 @@ from django.contrib.auth.models import User
 from .forms import CheckoutForm
 from .models import RSSSubscriber
 
-
-
 ######Homepage Links########
 def homepage(request):
     #return HttpResponse("Hello World! I'm Home.")
     return render(request, 'home.html')
 
+def subscribe_rss(request):
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
+
+        if not email:
+            messages.error(request, "Please enter an email address.")
+            return redirect(request.META.get("HTTP_REFERER", "/"))
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, "Please enter a valid email address.")
+            return redirect(request.META.get("HTTP_REFERER", "/"))
+
+        RSSSubscriber.objects.get_or_create(email=email)
+        messages.success(request, "You are subscribed for email updates.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+    # if someone hits it with GET, just bounce them back
+    return redirect(request.META.get("HTTP_REFERER", "/"))
 
 def productViewer(request):
     return render(request, 'productViewer.html')
@@ -174,9 +196,9 @@ def marketplace(request):
             product_index = (row * 3) + index
             if product_index >= len(products):
                 break
-
+            
             p = products[product_index]
-            p.display_price = intToPrice(p.price_cents)
+            p.display_price = intToPrice(p.price_cents)  
             row_list.append(p)
 
         grid.append(row_list)
@@ -194,9 +216,9 @@ def marketplace(request):
 def details(request):
     template = loader.get_template("details.html")
     product = Product.objects.get(id=request.GET.get("product_id"))
-
-    price = f"{product.price_cents / 100:.2f}"
-
+    
+    price = f"{product.price_cents / 100:.2f}"  
+    
     context = {
         "inStock": 1,
         "product": product,
@@ -277,7 +299,7 @@ def shoppingcart(request):
             "product_id": product_id
         })
 
-    request.session["cart"] = cart
+    request.session["cart"] = cart  
 
     context = {
         "product_data": product_data,
@@ -362,9 +384,9 @@ def placeorder(request):
             address = form.cleaned_data["address"]
             cart = request.session.get("cart", {})
 
-            total_price = 0
+            total_price = 0 
 
-
+            
             order = Orders(
                 user=request.user,           # <--- ADD THIS FIELD
                 created_at=datetime.now(),
@@ -376,7 +398,7 @@ def placeorder(request):
             )
             order.save()
 
-
+            
             for product_id, qty in cart.items():
                 try:
                     p = Product.objects.get(id=product_id, status="active")
@@ -385,11 +407,11 @@ def placeorder(request):
 
                 qty = max(1, int(qty))
 
-
+                
                 if qty > p.stock:
-                    qty = p.stock
+                    qty = p.stock  
 
-
+                
                 if p.stock <= 0:
                     continue
 
@@ -404,11 +426,11 @@ def placeorder(request):
                     return_requested=False
                 )
 
-
+                
                 p.stock -= qty
                 p.save()
 
-
+            
             tax_cents = total_price * 7 // 100  # 7%
             shipping_cents = 1300  # $13.00
 
@@ -568,7 +590,7 @@ def processModeration(request):
 
 
 def tickets(request):
-
+    
     if not request.user.is_staff:
         return redirect("/home")
 
@@ -581,7 +603,7 @@ def tickets(request):
 
 def closeTicket(request, ticket_id):
     if not request.user.is_staff:
-        return redirect("/newTicket/")
+        return redirect("/newTicket/")  
 
     try:
         ticket = SupportTicket.objects.get(id=ticket_id)
@@ -600,13 +622,13 @@ def replyTicket(request, ticket_id):
     except SupportTicket.DoesNotExist:
         return redirect("/newTicket/")
 
-
+    
     if request.method == "POST" and ticket.status != "Closed":
-
+    
         msg = request.POST.get("message") or request.POST.get("response") or ""
         msg = msg.strip()
 
-
+        
         if msg == "":
             from django.contrib import messages
             messages.error(request, "Message cannot be empty.")
@@ -618,7 +640,7 @@ def replyTicket(request, ticket_id):
             message=msg
         )
 
-
+        
         if request.user.is_staff:
             ticket.status = "Pending User"
         else:
@@ -627,7 +649,7 @@ def replyTicket(request, ticket_id):
         ticket.save()
         return redirect(f"/replyTicket/{ticket_id}/")
 
-
+    
     ticket_messages = ticket.messages.order_by("timestamp")
 
     return render(request, "replyTicket.html", {
@@ -639,7 +661,7 @@ def replyTicket(request, ticket_id):
 
 
 def support(request):
-
+    
     return render(request, 'support.html')
 
 def newAdmin(request):
@@ -653,7 +675,7 @@ def newAdmin(request):
 
         if User.objects.filter(username=email).exists():
             error = "Admin with this email already exists"
-
+        
         elif password != confirm:
             error = "Passwords do not match"
 
@@ -704,7 +726,7 @@ def productEdit(request):
                 pass
 
         p.save()
-        return redirect("/productViewer/")
+        return redirect("/productViewer")
 
     # GET
     product_id = request.GET.get("product_id")
@@ -752,17 +774,25 @@ def newTicket(request):
 
         return redirect(f"/replyTicket/{ticket.id}/")
 
-
+    
     all_tickets = SupportTicket.objects.filter(user=user).order_by("-id")
     support_tickets = all_tickets.exclude(subject__icontains="refund")
     refund_tickets = all_tickets.filter(subject__icontains="refund")
 
     return render(request,"newTicket.html",{"tickets": support_tickets,"refunds": refund_tickets,"role": role,})
 
+
+
+
+
+
+def buyerHome(request):
+    return render(request, 'buyerHome.html')
+
 def newListing(request):
     if not request.user.is_authenticated:
         return redirect("login")
-
+    
 def newListing(request):
 
     if request.method == "POST":
@@ -790,8 +820,8 @@ def newListing(request):
             product.save()
 
         return redirect("/productPage/")
-
-
+     
+     
     tags = Tag.objects.all()
 
     template = loader.get_template("newListing.html")
@@ -805,12 +835,12 @@ def productViewer(request):
 
     return render(request, 'productViewer.html', {"products": products})
 
-
-
+  
+  
 def searchProducts(request):
     query = request.GET.get('q', '').strip()
     selected_tags = request.GET.getlist("tags")  # get selected tags
-
+    
     products = Product.objects.filter(status="active")
 
     # text search
@@ -837,8 +867,8 @@ def searchProducts(request):
     }
 
     return render(request, 'searchProducts.html', context)
-
-
+  
+  
 def replyUser(request, ticket_id):
     # Safe ticket lookup
     try:
@@ -884,7 +914,7 @@ def webUsers(request):
         profile = getattr(u, "sellerprofile", None)
         role = "Seller" if profile and profile.is_seller else "Buyer"
         is_banned = profile.is_banned if profile else False
-
+        
         user_data.append({
             "id": u.id,
             "username": u.username,
@@ -898,7 +928,7 @@ def webUsers(request):
 def banUser(request, user_id):
     if request.method == "POST":
         user = User.objects.get(id=user_id)
-
+        
         # Prevent admin ban
         if user.is_superuser:
             messages.error(request, "Admins cannot be banned.")
@@ -925,7 +955,7 @@ def unbanUser(request, user_id):
 
         messages.success(request, f"{user.username} has been unbanned.")
     return redirect("webUsers")
-
+   
 def sellerOrders(request):
     if not request.user.is_authenticated:
         return redirect("login")
@@ -945,7 +975,7 @@ def sellerOrders(request):
             # auto-create ticket so seller & buyer can chat
             ticket = SupportTicket.objects.create(user=r.user,subject=f"Refund Request for Order #{r.id}",description=r.refund_reason or "Refund discussion",status="Open",created_at=timezone.now())
 
-        r.refund_ticket = ticket
+        r.refund_ticket = ticket  
 
     orders = Orders.objects.filter(id__in=order_ids).order_by("-created_at")
     total = 0
@@ -970,19 +1000,7 @@ def sellerPayout(request):
         seller_paid=False
     )
 
-    total = 0
-    for item in items:
-        price = item.price_cents * item.qty
-
-        if not item.seller_paid:
-            total += price
-            item.seller_paid == True
-            item.save()
-
-        item.formatted_price = intToPrice(price)
-        total = intToPrice(total)
-
-    return render(request, "sellerOrderDetails.html", {"total": total, "items": items})
+    return render(request, "sellerOrderDetails.html", {"order": order,"items": items})
 
 def Tags(request):
     # Only staff/admin should add tags
@@ -1004,9 +1022,5 @@ def Tags(request):
     tags = Tag.objects.all().order_by("name")
 
     return render(request, "tags.html", {"tags": tags})
-def subscribe(request):
-    if request.method == "POST":
-        RSSSubscriber.objects.get_or_create(email=request.POST.get("email"))
-        return redirect("/")
-def sellerOrderDetails(request):
-    return HttpResponse("Seller order details page coming soon")
+
+    

@@ -201,5 +201,12 @@
     <a href="?page={{ next_page }}">Next →</a>
   </div>
 
+ <form method="POST" action="/subscribe-rss/">
+    {% csrf_token %}
+    <input type="email" name="email" placeholder="Enter your email" required>
+    <button type="submit">Get email updates</button>
+  </form>
+  
+  
 </body>
 </html>
