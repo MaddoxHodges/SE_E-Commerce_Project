@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Processing Order | BurnLab</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+            background: #f5f8fc;
+            color: #23395d;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Finalizing Your Order…</h2>
+<p>Please wait a moment.</p>
+
+<form id="orderForm" action="/placeorder/" method="POST">
+    {% csrf_token %}
+</form>
+
+<script>
+    // Auto-submit POST request
+    document.getElementById("orderForm").submit();
+</script>
+
+</body>
+</html>

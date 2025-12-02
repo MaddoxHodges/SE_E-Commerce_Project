@@ -40,6 +40,11 @@ header {
   box-shadow: 0 2px 12px rgba(0,0,0,0.12);
 }
 
+h2 {
+  color: var(--burn-dark);
+  margin-bottom: 15px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -85,7 +90,7 @@ button {
   font-size: 1rem;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 15px;
+  margin-top: 20px;
   font-weight: bold;
 }
 
@@ -93,12 +98,16 @@ button:hover {
   background: #0056b3;
 }
 
+.nav-links {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
 a {
   color: var(--burn-mid);
   font-weight: bold;
   text-decoration: none;
-  margin-top: 15px;
-  display: inline-block;
 }
 
 a:hover {
@@ -112,6 +121,8 @@ a:hover {
 <header>Checkout</header>
 
 <div class="container">
+
+  <h2>Review Your Order</h2>
 
   <table>
     <tr>
@@ -137,13 +148,15 @@ a:hover {
 
   <p class="total-final">Total: ${{ total }}</p>
 
-  <!-- Proceed to Fake Payment Page -->
+  <!-- Proceed to Payment Button -->
   <a href="/payment/">
       <button>Proceed to Payment</button>
   </a>
 
-  <a href="/cart/">← Back to Cart</a>
-  <a style="float:right;" href="/logout">Logout</a>
+  <div class="nav-links">
+    <a href="/cart/">← Back to Cart</a>
+    <a href="/logout">Logout</a>
+  </div>
 
 </div>
 

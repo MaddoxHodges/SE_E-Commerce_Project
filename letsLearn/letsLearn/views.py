@@ -1035,8 +1035,8 @@ def process_payment(request):
     expiry = request.POST.get("expiry")
     cvc = request.POST.get("cvc")
 
-    # --- Fake validation logic ---
-    if len(card) != 16 or not card.isdigit():
+    # Basic validation
+    if len(card) not in [15, 16] or not card.isdigit():
         messages.error(request, "Invalid card number.")
         return redirect("/payment/")
 
@@ -1044,11 +1044,12 @@ def process_payment(request):
         messages.error(request, "Invalid CVC.")
         return redirect("/payment/")
 
-    # EXAMPLE: Accept ONLY this fake Visa test number
     if card != "4242424242424242":
-        messages.error(request, "Card declined. Use the test number 4242 4242 4242 4242.")
+        messages.error(request, "Card declined. Use 4242 4242 4242 4242.")
         return redirect("/payment/")
 
-    # --- If valid, mark the order as paid ---
-    messages.success(request, "Payment successful!")
-    return redirect("/placeorder/")
+    # Payment passed → auto-create order via POST
+    return redirect("/payment_success/")
+    
+def payment_success(request):
+    return render(request, "payment_success.html")
