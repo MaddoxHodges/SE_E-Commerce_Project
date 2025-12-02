@@ -89,23 +89,40 @@ from django.contrib import messages
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
-def acceptRefund(request, ticket_id):
+def acceptRefund(request, ticket_id=None, order_id=None):
     if not request.user.is_authenticated:
         return redirect("login")
 
-    # find the related ticket
-    ticket = get_object_or_404(SupportTicket, id=ticket_id)
-    # extract order ID from subject (like "Refund Request for Order #12")
-    import re
-    match = re.search(r"Order\s*#(\d+)", ticket.subject)
-    if not match:
-        messages.error(request, "Could not identify the order for this refund.")
-        return redirect(f"/replyTicket/{ticket.id}/")
+    # If called with ticket_id → normal flow
+    if ticket_id is not None:
+        ticket = get_object_or_404(SupportTicket, id=ticket_id)
 
-    order_id = int(match.group(1))
+        # extract order ID from ticket subject
+        import re
+        match = re.search(r"Order\s*#(\d+)", ticket.subject)
+        if not match:
+            messages.error(request, "Could not identify the order for this refund.")
+            return redirect(f"/replyTicket/{ticket_id}/")
+
+        order_id = int(match.group(1))
+
+    # If called with order_id → skip ticket step
+    elif order_id is not None:
+        order = get_object_or_404(Orders, id=order_id)
+        # find matching ticket automatically
+        ticket = SupportTicket.objects.filter(subject__icontains=f"Order #{order_id}").first()
+        if not ticket:
+            messages.error(request, "No ticket found for this order.")
+            return redirect("/sellerOrders/")
+
+    else:
+        messages.error(request, "No refund target specified.")
+        return redirect("/sellerOrders/")
+
+    # Fetch the order if not already
     order = get_object_or_404(Orders, id=order_id)
 
-    # ensure this user is the seller
+    # Validate ownership
     owns_product = OrderItems.objects.filter(
         order_id=order,
         product_id__seller_id=request.user.id
@@ -115,25 +132,22 @@ def acceptRefund(request, ticket_id):
         messages.error(request, "You cannot approve refunds for this order.")
         return redirect(f"/replyTicket/{ticket.id}/")
 
-    # mark as refunded
-    order.status = 'C'  # closed/refunded
+    # Process refund
+    order.status = 'C'
     order.refund_acknowledged = True
     order.save()
 
-    # log the action in the chat
     TicketMessage.objects.create(
         ticket=ticket,
         sender=request.user,
         message="Seller has approved the refund."
     )
 
-    # close the ticket automatically
     ticket.status = "Closed"
     ticket.save()
 
     messages.success(request, f"Refund for Order #{order.id} approved.")
     return redirect(f"/replyTicket/{ticket.id}/")
-
 
 def denyRefund(request, ticket_id):
     if not request.user.is_authenticated:
@@ -700,14 +714,21 @@ def newAdmin(request):
 def productEdit(request):
     if request.method == "POST":
         product_id = request.POST.get("product_id")
-        p = Product.objects.get(id=product_id)
+
+        # make sure product_id is numeric
+        try:
+            product_id_int = int(product_id)
+        except (TypeError, ValueError):
+            return redirect("/productViewer/")
+
+        p = get_object_or_404(Product, id=product_id_int)
 
         # verify seller owns product
         if request.user.id != p.seller_id:
             return redirect("/home")
 
-        p.title = request.POST.get("title")
-        p.description = request.POST.get("description")
+        p.title = request.POST.get("title", p.title)
+        p.description = request.POST.get("description", p.description)
 
         # handle price
         price_dollars = request.POST.get("price")
@@ -715,24 +736,33 @@ def productEdit(request):
             try:
                 p.price_cents = int(round(float(price_dollars) * 100))
             except ValueError:
-                pass
+                pass  # keep old price if bad input
 
-        # ✅ NEW: Update stock
+        # update stock
         stock = request.POST.get("stock")
         if stock is not None:
             try:
                 p.stock = int(stock)
             except ValueError:
-                pass
+                pass  # keep old stock if bad input
 
         p.save()
-        return redirect("/productViewer")
+        return redirect("/productViewer/")
 
-    # GET
+    # ------- GET: load edit form -------
     product_id = request.GET.get("product_id")
-    p = Product.objects.get(id=product_id)
+
+    try:
+        product_id_int = int(product_id)
+    except (TypeError, ValueError):
+        return redirect("/productViewer/")
+
+    p = get_object_or_404(Product, id=product_id_int)
+
+    # verify seller owns product
     if request.user.id != p.seller_id:
         return redirect("/home")
+
     return render(request, "productedit.html", {"product": p})
 
 
