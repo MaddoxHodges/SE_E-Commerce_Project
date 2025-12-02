@@ -60,22 +60,22 @@ def about(request):
 def buyerHome(request):
     return render(request, 'BuyerHome.html')
 
-def requestRefund(request, order_id):
+def requestRefund(request, _id):
     if not request.user.is_authenticated:
         return redirect("login")
 
-    order = Orders.objects.filter(id=order_id, user=request.user).first()
-    if not order:
-        messages.error(request, "Order not found.")
+     = s.objects.filter(id=_id, user=request.user).first()
+    if not :
+        messages.error(request, " not found.")
         return redirect("/buyerHome/")
 
-    if order.status == 'R':
+    if .status == 'R':
         messages.info(request, "Refund already requested or processed.")
         return redirect("/buyerHome/")
 
     if request.method == "POST":
         reason = request.POST.get("reason", "").strip() or "No reason provided."
-        order.status = 'R'  # mark order as refund requested
+        .status = 'R'  # mark  as refund requested
         order.refund_reason = reason
         order.refund_requested_at = timezone.now()
         order.save()
@@ -482,7 +482,6 @@ def vieworders(request):
 def orderdetails(request, order_id):
     order = Orders.objects.get(id=order_id)
 
-    # Return request logic
     return_id = request.GET.get("order_item_id")
     if return_id is not None:
         try:
@@ -492,10 +491,8 @@ def orderdetails(request, order_id):
         except OrderItems.DoesNotExist:
             pass
 
-    # Build item list
-    items = OrderItems.objects.filter(order_id=order)
     orderitems = []
-    for item in items:
+    for item in OrderItems.objects.filter(order_id=order):  # <-- FIXED LINE
         product = item.product_id
         orderitems.append({
             "item": item,
@@ -515,8 +512,6 @@ def orderdetails(request, order_id):
         "items": orderitems,
         "formated_prices": prices
     })
-
-
 
 ######Login Page#########
 def login(request):
@@ -1064,4 +1059,5 @@ def process_payment(request):
 
 def payment_success(request):
     return render(request, "payment_success.html")
+
 
