@@ -20,7 +20,8 @@ from . import views
 from authapp import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.urls import include
+from .views import subscribe
 
 urlpatterns = [
     #path ('', include('members.urls')),
@@ -82,7 +83,7 @@ urlpatterns = [
 
     path("sellerOrders/", views.sellerOrders, name="sellerOrders"),
     
-    path("sellerPayout/", views.sellerPayout, name="sellerPayout"),
+    path("sellerOrders/details", views.sellerOrderDetails, name="sellerOrderDetails"),
     
     path("order/<int:order_id>/", views.orderdetails, name="orderDetails"),
 
@@ -107,6 +108,10 @@ urlpatterns = [
     path("denyRefund/<int:ticket_id>/", views.denyRefund, name="denyRefund"),
 
     path("tags/", views.Tags, name="tags"),
+
+
+    path("subscribe/", subscribe, name="subscribe"),
+    
 
 
 ]
