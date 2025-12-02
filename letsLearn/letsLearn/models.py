@@ -85,7 +85,8 @@ class TicketMessage(models.Model):
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return f"{self.subject} ({self.user.username})"
+        return f"Msg by {self.sender.username} on Ticket {self.ticket.id}"
+
     
 class OrderItems(models.Model):
     order_id = models.ForeignKey(Orders, on_delete=models.CASCADE)

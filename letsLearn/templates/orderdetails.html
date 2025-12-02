@@ -10,7 +10,7 @@
     <script src="{% static 'cart.js' %}"></script>
     <title>Your Order</title>
 </head>
-{% if user.is_authenticated and not user.is_staff and not user.is_seller}
+{% if user.is_authenticated and not user.is_staff and not user.is_seller %}
 
 <body>
     <h1>Your Order</h1>
@@ -59,10 +59,10 @@
         <strong>Shipping Address:</strong> {{order.address}}<br>
     </div>
     <p>Check out my <a href="/buyerHome">Home</a> page.</p>
-{% else %}
-  <script>
-    window.location.href = "/home";
-  </script>
-{% endif %}
+    {% else %}
+    <script>
+        window.location.href = "/home";
+    </script>
+    {% endif %}
 </body>
 </html>

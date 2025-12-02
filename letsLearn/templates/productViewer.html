@@ -163,7 +163,8 @@
             </td>
 
             <td class="product-link">
-              <a href="/productEdit?product_id={{ product.id }}/">Edit</a>
+              <a href="{% url 'productEdit' %}?product_id={{ product.id }}">Edit</a>
+
             </td>
           </tr>
         {% endfor %}
