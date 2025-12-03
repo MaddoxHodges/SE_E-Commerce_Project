@@ -704,7 +704,7 @@ def productEdit(request):
     p = Product.objects.get(id=product_id)
     if request.user.id != p.seller_id:
         return redirect("/home")
-    return render(request, "productedit.html", {"product": p})
+    return render(request, "productEdit.html", {"product": p})
 
 
 def productPage(request):
