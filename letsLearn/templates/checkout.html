@@ -149,9 +149,15 @@ a:hover {
   <p class="total-final">Total: ${{ total }}</p>
 
   <!-- Proceed to Payment Button -->
-  <a href="/payment/">
+  <!-- <a href="/placeorder/">
       <button>Proceed to Payment</button>
-  </a>
+  </a> -->
+  <form action="/placeorder/" method="post">
+        {% csrf_token %}
+        {{ form }}
+
+        <input type="submit" value="Place Order"/>
+  </form>
 
   <div class="nav-links">
     <a href="/cart/">← Back to Cart</a>
